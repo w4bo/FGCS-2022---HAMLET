@@ -3,8 +3,11 @@
 \usepackage{booktabs}
 \usepackage{comment}
 \usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{xcolor}
 \usepackage{cleveref}
 \usepackage[normalem]{ulem}
 \newtheorem{example}{Example}
@@ -16,10 +19,24 @@
 \Crefname{example}{Example}{Example}
 \newtheorem{req}{Requisite}
 
+\lstset{
+tabsize = 4, %% set tab space width
+showstringspaces = false, %% prevent space marking in strings, string is defined as the text that is generally printed directly to the console
+numbers = left, %% display line numbers on the left
+commentstyle = \color{green}, %% set comment color
+keywordstyle = \color{blue}, %% set keyword color
+stringstyle = \color{red}, %% set string color
+rulecolor = \color{black}, %% set frame color to avoid being affected by text color
+basicstyle = \small \ttfamily , %% set listing font and size
+breaklines = true, %% enable line breaking
+numberstyle = \tiny,
+}
+
 % \newcounter{example}[section]
 % \newenvironment{example}[1][]{ \refstepcounter{example}\par\medskip
 %   \noindent \fontfamily{lmss}\selectfont \textbf{EXAMPLE~\theexample. #1}} 
-   
+ 
+\newcommand{\cupdot}{\mathbin{\mathaccent\cdot\cup}}
 \newcommand{\gp}[1]{{\color{red}{\textbf{#1}}}}
 \newcommand{\gpc}[2]{{\color{red}{\textbf{#1}}} {\color{blue}\sout{#2}}}
 \newcommand{\jg}[1]{{\color{orange}{\textbf{#1}}}}
@@ -35,7 +52,8 @@
 \begin{frontmatter}
 %%
 %% The "title" command
-\title{HAMLET: Human-centric AutoMl via Logic and argumEnTation}
+% \title{HAMLET: Human-centric AutoMl via Logic and argumEnTation}
+\title{\mf{??? HAMLET: A Framework for Human-centric Optimization of Machine Learning Pipelines}}
 %%
 %% The "author" command and its associated commands are used to define
 %% the authors and their affiliations.
@@ -73,23 +91,28 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-In the last decade, we have witnessed an exponential growth in both the complexity and the number of Machine Learning (ML) techniques.
-As a consequence, leveraging such methods to solve real-case problems has become difficult for a Data Scientist (DS).
-Automated Machine Learning (AutoML) tools were devised to alleviate that task, but easily became as complex as the ML techniques themselves.
-The DS has started to rely on this kind of tools without understanding their functioning, thus loosing the control over the process.
+Machine learning (ML) plays a crucial role in data analysis and data platforms, integrated sets of technologies that collectively meets end-to-end data needs.
+In the last decade, we have witnessed an exponential growth in both the complexity and the number of ML techniques; leveraging such methods to solve real-case problems has become difficult for data scientists.
+Automated Machine Learning (AutoML) tools were devised to alleviate this task, but easily became as complex as the ML techniques themselves, with data scientist loosing again the control over the process.
+%.
+%The data scientist has started to rely on this kind of tools without understanding their functioning, thus loosing the control over the process.
+In this paper, we extend and design HAMLET (Human-centric AutoMl via Logic and Argumentation), a framework that helps data scientists to redeem their centrality.
+% \mf{HAMLET is inspired to the well-known standard process model CRISP-DM: iteration after iteration, the knowledge is augmented by acquiring more constraints about the problem until a suitable solution is found.}
+HAMLET enables data scientists to express machine-learning and data constraints in a uniformed human- and machine-understandable medium.
+User-defined constraints are interpreted to devise the search space of a ML pipeline (including both pre-processing and modeling steps), then the pipeline is optimized through AutoML, and finally new constraints are learned and integrated into the previous ones through logic and argumentation.
+By doing so, not only it allows an easy exploration of the new knowledge at each iteration, but it also enforces a continuous revision via the AutoML tool and the confrontation between the data scientists and domain experts.
 
-In this vision paper, we propose HAMLET (Human-centric AutoMl via Logic and Argumentation), a framework that would help the DS to redeem her centrality.
-HAMLET is inspired to the well-known standard process model CRISP-DM.
-Iteration after iteration, the knowledge is augmented by acquiring more constraints about the problem until a suitable solution is found.
-HAMLET leverages Logic and Argumentation to merge both constraints and solutions in an uniformed human- and machine-readable medium.
-Not only it allows an easy exploration of the new knowledge at each iteration, but it also enforces a continuous revision via the AutoML tool and the confrontation between the DS and Domain Experts.
+% HAMLET is inspired to the well-known standard process model CRISP-DM.
+% Iteration after iteration, the knowledge is augmented by acquiring more constraints about the problem until a suitable solution is found.
+% HAMLET leverages Logic and Argumentation to merge both constraints and solutions in an uniformed human- and machine-readable medium.
+% Not only it allows an easy exploration of the new knowledge at each iteration, but it also enforces a continuous revision via the AutoML tool and the confrontation between the DS and Domain Experts.
 \end{abstract}
 
 %%
 %% Keywords. The author(s) should pick words that accurately describe
 %% the work being presented. Separate the keywords with commas.
 \begin{keyword}
-  AutoML, Logic, Argumentation, CRISP-DM, Data Scientist
+  AutoML, Logic, Argumentation, CRISP-DM, Data Scientist, Machine learning
 \end{keyword}
 
 \end{frontmatter}
@@ -98,81 +121,97 @@ Not only it allows an easy exploration of the new knowledge at each iteration, b
 %% information and builds the first part of the formatted document.
 % \maketitle
 
+\begin{figure*}[t]
+    \centering
+    \includegraphics[scale=.3]{img/dymmymodel.png}
+    \caption{Integration of the HAMLET framework with the CRISP-DM standard process model and AutoML.}
+    \label{fig:approach}
+\end{figure*}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}\label{intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Data platforms, integrated sets of technologies that collectively meets end-to-end data needs, works towards the automation of data management and analysis \cite{DBLP:journals/fgcs/FranciaGGLRS21}.
+Machine Learning (ML) plays a key role in such processes; for instance it has been leveraged to devise cost models for querying data over heterogeneous data sources \cite{multi-store}, data management through data lineage and data exploration \cite{dataplat2}, and many big data analytics applications (that are well surveyed in \cite{zhou2017ml}).
 
-In relation to data platforms, it is well-known that Machine Learning (ML) plays a key role in the process of data analysis.
-As a matter of fact, it has been pervasively employed to cope with each and every type of real-case problems \cite{zhou2017ml, dataplat2, francia2021moses, multi-store}.
-The Data Scientist (DS) (i.e., a specialist of data analysis) starts by collecting raw data in an arbitrary format. 
-Then she typically leverages a process model that will help her to translate the \textit{knowledge} about the problem into \textit{ML constraints}, and deploy the \textit{solution}.
-CRISP-DM \cite{wirth2000crisp} is the most acknowledged standard process model and we will take it as a reference in the whole paper.
-A solution consists of a \textit{ML pipeline}: a series of \textit{Data Pre-processing transformations} and a \textit{ML algorithm}.
-The DS can instantiate both with a large set of \textit{techniques}, which have their own tunable hyper-parameters.
-These choices highly affect the performance of a solution.
+Data platforms aims at supporting end-to-end data analysis; in this scope, Cross-Industry Standard Process for Data Mining (CRISP-DM) \cite{wirth2000crisp} is the most acknowledged standard process model and we will take it as a reference model henceforth: given a data mining/machine learning task to solve, the data scientist (DS) collects raw data in arbitrary formats from the data lake, builds up knowledge on both the problem and the data, translates such knowledge into \textit{constraints}, designs and trains a model, and finally deploys the solution into the data platform itself.
+Such solution usually consists of a \textit{pipeline}: a sequence of \textit{data pre-processing transformations} ending with an \textit{ML algorithm}.
+The DS instantiates the pipeline among a large set of \textit{algorithms}, which, in turns, can potentially have many hyper-parameters.
+The accuracy of the deployed solution highly depends on finding both the best algorithms along with their hyper-parameters among an exponential search space.
 
 Automated Machine Learning (AutoML) tools have been devised with the aim of assisting the DS during the ML pipeline instantiation.
-They leverage state-of-the-art optimisation approaches to smartly explore huge search spaces of solutions. %(i.e., ML pipelines with different techniques and hyper-parameters). 
-AutoML has been demonstrated to provide accurate \textit{performance}, even in a limited time budget.
+They leverage state-of-the-art optimization approaches to smartly explore huge search spaces of solutions. %(i.e., ML pipelines with different techniques and hyper-parameters). 
+AutoML has been demonstrated to provide accurate performance, even in a limited time budget.
 During the setting up of the search space, it is highly important to the DS to leverage the knowledge about the problem, considering all the ML constraints. %(i.e., \textit{domain-related}, \textit{data-related}, \textit{transformation-related}, and \textit{algorithm related}). 
 %\jg{I am not sure if I would mention the kind of constraints without explaining what they are}
 Otherwise, it might lead the AutoML tool to retrieve \textit{invalid solutions} (i.e., the \textit{result} of those cannot be deemed \textit{correct}).
 Besides, AutoML tools became that complex to make it difficult for the DS to understand their functioning, hence losing the control over the process.
 Researchers are aware of these problems \cite{XinWLSP21automationml}.
-There are some works that have prescribed to use a human-centric framework for AutoML \cite{gil2019towards, lee2020human, wang2019human}, yet suggesting only design requirements. 
-Alternatively, the authors in \cite{ono2020pipelineprofiler} have proposed a tool that visualises the best and the worst solutions retrieved by an AutoML tool.
+
+The need of a human-centric and explainable framework for AutoML is real \cite{gil2019towards, lee2020human, wang2019human} (or even mandatory in recent nalytic scenarios where the user is interacting with mixed-reality and smart assistants \cite{DBLP:conf/dolap/FranciaGR19,DBLP:journals/is/FranciaGG22}), and it is crucial for the DS to augment her knowledge by learning new insights (e.g., new constraints) from the retrieved solutions.
+Indeed, the DS requires to understand the AutoML process in order to trust the proposed solutions \cite{drozdal2020trust}.
+While some works \cite{gil2019towards, lee2020human, wang2019human} have prescribed to use a human-centric framework for AutoML, yet they only suggest design requirements. Alternatively, the authors in \cite{ono2020pipelineprofiler} have proposed a tool that visualizes the best and the worst solutions retrieved by an AutoML tool.
+We claim that a human-centric framework should provide the mechanisms to: \textit{(i)} help the DS to structure her knowledge about the problem in an effective search space; and \textit{(ii)} augment the knowledge initially possessed by the DS with the one produced by the AutoML optimization process. 
+%The use of such a framework would allow to restore the correct CRISP-DM information flow (i.e., the DS would be central in every part of the process and every stage would concur to the augmentation of her global knowledge).
+
 %However, they do not put any effort in providing a framework that merges AutoML inputs -- i.e., constraints -- with outputs---i.e., solutions.
 
-We claim that the need of a human-centric framework for AutoML is real, and it is crucial for the DS to \textit{augment} her knowledge via the retrieved solutions.
 %overcome these problems and give to the DS full control on the data.
-At this purpose we propose HAMLET (Human-centric AutoMl via Logic and Argumentation), which leverages Logic and Argumentation to:
-\begin{itemize}
-    \item structure the ML constraints and the AutoML solutions in a Logical Knowledge Base (LogicalKB);
-    \item parse the structured LogicalKB into a human- and machine-readable medium called Problem Graph;
-    \item leverage the Problem Graph to set up an AutoML search space;
-    \item leverage the Problem Graph to allow both the DS and an AutoML tool to revise the current knowledge.
-\end{itemize}
-\Cref{fig:approach} illustrates how CRISP-DM, AutoML, and HAMLET interact with each other.
-We remark that our framework allows the DS to never loose the control over the process, and hence her centrality. 
-Besides, HAMLET allows to visualise the knowledge in an human- and machine-readable format.
-%Here it was DSs
-As advocated in \cite{drozdal2020trust}, the DS requires to understand the AutoML process in order to trust the proposed solutions.
+At this purpose, HAMLET (Human-centric AutoMl via Logic and Argumentation; \Cref{fig:approach}), a framework that leverages AutomML, Logic, and Argumentation to:
+% \begin{itemize}
+    % \item
+structure the ML constraints and the AutoML solutions in a Logical Knowledge Base (LogicalKB);
+    % \item 
+parse the LogicalKB into a human- and machine-readable medium called Problem Graph;
+    % \item 
+devise the AutoML search space from the Problem Graph;
+    % \item 
+leverage the Problem Graph to allow both the DS and an AutoML tool to revise the current knowledge.
+% \end{itemize}
+This paper extends and engineer the vision proposed in \cite{DBLP:conf/edbt/GiovanelliP22} as follows.
+\begin{enumerate}[(i)]
+    \item We design the formal foundation of our approach. 
+    \item We extend the supported constraints.
+    \item We implement a functioning prototype of HAMLET.
+    \item We provide a preliminary empirical evaluation of the approach. 
+\end{enumerate}
 
-The remain of the paper is structured as follows.
-\Cref{automl} and \Cref{logic} introduce the main notions of respectively AutoML and Argumentation.
-\Cref{towards} illustrates our framework.
-Finally, \Cref{concl} draws the conclusions and potential leveraging.
+The remainder of the paper is structured as follows. \mf{?? TODO}
+% \Cref{automl} and \Cref{logic} introduce the main notions of respectively AutoML and Argumentation.
+% \Cref{towards} illustrates our framework.
+% Finally, \Cref{concl} draws the conclusions and potential leveraging.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{AutoML}\label{automl}
+\section{Related Work}
+HAMLET intersects two research areas, \textit{automated machine learning} and \textit{logic \& argumentation}. 
+To the best of our knowledge, no contribution merges AutoML, logic, and argumentation to provide a human-centric approach for the optimization of ML pipelines.
+
+\subsection{Automated Machine Learning}\label{automl}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-AutoML tools have been conceived with the aim of lightening the DS in the overwhelming practise of finding the suitable solution for the case at hand.
-We recall that in the context of data platforms, a solution is a ML pipeline, defined as a series of Data Pre-processing transformations followed by a ML algorithm.
-In its early days, only the instantiation of the latter -- the ML algorithm -- was addressed.
-Auto-Weka \cite{kotthoff2019auto} formalised the problem as Combined Algorithm Selection and Hyper-parameter Optimisation (CASH).
-In a nutshell, in order to find the most performing configuration, various ML algorithms -- and related hyper-parameters -- have to be tested over a dataset.
-Such a problem was successfully coped by leveraging Bayesian Optimisation (BO) \cite{frazier2018tutorial}, a sequential design strategy for global optimisation.
-The process involves several iterations, through which different configurations are explored. %during which configurations are explored.
-As the iterations advance, an increasingly accurate model is built on top of the previous explored configurations, with the aim of suggesting the most promising ones.
-The configurations keep being explored, and updating the model, until a budget in terms of either iterations or time is reached.
+AutoML tools have been conceived with the aim of lightening the DS in the overwhelming practice of finding the best ML pipeline (including data-preprocessing and ML algorithm).
+In early days, only the optimization of the ML algorithm was addressed.
+Auto-Weka \cite{kotthoff2019auto} formalized the problem as Combined Algorithm Selection and Hyper-parameter optimization: in order to find the most performing configuration, various ML algorithms and hyper-parameters have to be tested over a dataset.
+Such a problem was successfully coped by leveraging Bayesian optimization \cite{frazier2018tutorial}, a sequential design strategy for global optimization.
+% The process involves several iterations, through which different configurations are explored. %during which configurations are explored.
+Until a budget in terms of either iterations or time is reached, an increasingly accurate model is built on top of the previous explored configurations.
+% , with the aim of suggesting the most promising one.
+% The configurations keep being explored, and updating the model, until a budget in terms of either iterations or time is reached.
 %The configurations keep being explored, and thus to update the model, until a budget in terms of either iterations or time is reached.
-
-Recently, AutoML is no longer limited to optimise just the ML algorithm phase, but it includes Data Pre-processing as well.
-Indeed, with the aid of a series of transformations, it is possible to achieve better performance, unattainable with the most performing ML algorithm configuration \cite{giovanelli2021effective}. %dolap mio
-In \cite{quemy2019data}, the author formalised the problem as Data Pipeline Selection and Optimisation (DPSO). %dolap quemy
-Each of the transformations can be instantiated with different techniques, which -- analogously to the ML algorithms -- have their own hyper-parameters.
-Auto-sklearn \cite{feurer2019auto} includes Data Pre-processing already in its first versions. %auto-sklearn
+Recently, AutoML is no longer limited to optimize just the ML algorithm phase, but it includes data pre-processing \cite{giovanelli2021effective,quemy2019data}.
+% Indeed, with the aid of a series of transformations, it is possible to achieve better performance, unattainable with the most performing ML algorithm configuration \cite{giovanelli2021effective}. %dolap mio
+% In \cite{quemy2019data}, the author formalized the problem as data pipeline selection and optimization. %dolap quemy
+% Each of the transformations can be instantiated with different techniques, which -- analogously to the ML algorithms -- have their own hyper-parameters.
+Auto-sklearn \cite{feurer2019auto} includes data pre-processing already in its first versions. %auto-sklearn
 Yet, they fix the arrangement of the transformations a priori, without considering that the most performing arrangement changes according to the case and data at hand.
 Considering several arrangements translates into larger search spaces, not easy to explore.
 %Fortunately, there are some other tools that take into accounts also such arrangements \cite{olson2016tpot}. %tpot
-
-In order to cope with ever larger research spaces, various expedients have been employed.
-Meta-learning (i.e., learning on top of learning) has been used to warm-start the Bayesian Optimisation (i.e., to boost the convergence process) by suggesting promising configurations (i.e., that worked well in previous similar real-case problems) \cite{giovanelli2021data}. %auto-sklearn, MLSMART, is mio
-Ensembling (i.e., construction of a high-performing solution combining several low-performing solutions; e.g., bagging, boosting, stacking) have been leveraged to enable AutoML tools to retrieve a solution that combines the best performing configurations, instead of retrieving just the best performing one \cite{feurer2019auto}. %auto-sklearn h2o
+% In order to cope with ever larger research spaces, various expedients have been employed.
+Meta-learning (i.e., learning on top of learning) has been used to warm-start the Bayesian optimization (i.e., to boost the convergence process) by suggesting promising configurations (i.e., that worked well in previous similar real-case problems) \cite{giovanelli2021data}. %auto-sklearn, MLSMART, is mio
+% Ensembling (i.e., construction of a high-performing solution combining several low-performing solutions; e.g., bagging, boosting, stacking) have been leveraged to enable AutoML tools to retrieve a solution that combines the best performing configurations, instead of retrieving just the best performing one \cite{feurer2019auto}. %auto-sklearn h2o
 Moreover, multi-fidelity methods (i.e., the use of several partial estimations to boost the time-consuming evaluation process) have been exploited to let AutoML tools explore as many configurations as possible.
 
-All in all, the improvements made over the last years have yielded to be so substantial that AutoML is nowadays able to handle the entire ML pipeline instantiation.
+% All in all, the improvements made over the last years have yielded to be so substantial that AutoML is nowadays able to handle the entire ML pipeline instantiation.
 Yet, the stacking of complex mechanisms on top of each other unavoidably led to a less understanding of the process by the DS.
 %We claim that she has a key role in it, because of her awareness about all the constraints of the problem.
 %Some constraints are derived by the domain (e.g., a solution may be based on some correlations considered spurious), others are intrinsic in the data (e.g., some features can be semantically misinterpreted).
@@ -180,26 +219,18 @@ Yet, the stacking of complex mechanisms on top of each other unavoidably led to 
 We believe that the DS has the duty to revise and supervise the suggested solutions.
 Unfortunately, state-of-art AutoML tools overlook her role, and do not let that possible.
 
-\begin{figure*}
-    \centering
-    \includegraphics[width=0.85\textwidth]{img/dymmymodel.png}
-    \caption{Integration of the HAMLET framework with the CRISP-DM standard process model and AutoML.}
-    \label{fig:approach}
-\end{figure*}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Logic \& Argumentation}\label{logic}
+\subsection{Logic \& Argumentation}\label{logic}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Formal logic in its actual form emerged from philosophy in the nineteenth century as the abstract study of statements, sentences and deductive arguments \cite{Paulson2018logichistory}. The final goal was to determine the validity of these elements just by examining the structures or logical forms that they embody, without considering their actual meaning or content. We can summarise logic as the definition and study of structured languages, which enables an unambiguous manipulation and a clear test of the validity of the statements expressed in those languages.
 
-% For example, we can define a logical formalism as a precisely defined symbolic language that includes logical primitives such as ``and'', ``or'', ``not'', \ldots, and a series of rules for making logical deductions (e.g., \textit{modus ponens} \cite{susanne02mp}). Given a formalism of this type, it will be then possible to define a proof theory to determine the validity of statements expressed in it. Computational logic is the use of computers to automatise this procedure \cite{Paulson2018logichistory}.
-
-Logic can be defined as the abstract study of statements, sentences and deductive arguments \cite{Paulson2018logichistory}.
-From its birth, it has been developed and improved widely and now includes a variety of formalisms and technologies. Between all, Argumentation has proved itself an important tool for handling conflicting information (e.g., opinions, empirical data).
-This has led to a great number of researches trying to establish a computational model of logical arguments.
+% For example, we can define a logical formalism as a precisely defined symbolic language that includes logical primitives such as ``and'', ``or'', ``not'', \ldots, and a series of rules for making logical deductions (e.g., \textit{modus ponens} \cite{susanne02mp}). Given a formalism of this type, it will be then possible to define a proof theory to determine the validity of statements expressed in it. Computational logic is the use of computers to automatize this procedure \cite{Paulson2018logichistory}.
+Logic is the abstract study of statements, sentences and deductive arguments \cite{Paulson2018logichistory}.
+% From its birth, it has been developed and improved widely and now includes a variety of formalisms and technologies. Between all, 
+In this context, argumentation is an important tool for handling conflicting information (e.g., opinions, empirical data).
+% This has led to a great number of researches trying to establish a computational model of logical arguments.
 %One of the most influential systems, proposed by Dung in his seminal work \cite{Dung1995abstractArg}, provides many insights into the nature of Argumentation, and it has led to a large number of works that have explored properties and developments of it \cite{besnardCL20argsurvey}.
-
 In Abstract Argumentation \cite{Dung1995abstractArg}, a scenario can be represented by a directed graph. Each node represents an argument, and each edge denotes an attack by one argument to another. Each argument is regarded as atomic. There is no internal structure to an argument. Also, there is no specification of what is an argument or an attack. A graph can then be analysed to determine which arguments are acceptable according to some general criteria (i.e., semantics) \cite{baroniCG11semantics}.
 
 A way to link Abstract Argumentation and logical formalisms has been advanced in the field of Structured Argumentation \cite{BesnardGHMPST14structured}, where we assume a formal logical language for representing knowledge (i.e., a Logical Knowledge Base), and specifying how arguments and conflicts (i.e., attacks) can be derived from that knowledge. 
@@ -211,13 +242,20 @@ Then conflicts between arguments can arise from both \textit{inconsistencies} in
 %Here it was DSs
 In our view, once defined the right logical language for encoding the DS and AutoML knowledge, a Structured Argumentation model (e.g., an ASPIC\textsuperscript{+} instance \cite{arg2p-jlc}) would provide us with the formal machinery to build an Argumentation framework upon the data, while Abstract Argumentation would dispense the evaluation tools.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Towards a human-centric approach}\label{towards}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Towards human-centric approaches}
 
+
+\section{Motivation}
+% HAMLET brings together AutoML, logic, and argumentation.
+\Cref{fig:approach} illustrates how AutoML, logic, and logic (through the logical knowledge base) interact.
+% We remark that our framework allows the DS to never loose the control over the process, and hence her centrality. 
+% Besides, HAMLET allows to visualize the knowledge in an human- and machine-readable format.
+
+\subsection{AutoML}
 %Highly simplifying, the task of the DS is to find a performing solution, considering all the constraints that may apply to a ML problem.
-Addressing ML problems encompasses the DS seeking for a solution, considering all the constraints of the case.
-She usually leverages a process model as CRISP-DM.
+Addressing ML problems encompasses the DS seeking for a solution while
+% , considering all the constraints of the case.
+she usually follows a process model such as CRISP-DM.
 %There are no universal well-defined practices to address such a task, which translates to the DS manually evaluating different ML pipelines, until a \textit{performing} and \textit{correct} one is found.
 %However, DS have devised common practices to help in the process. 
 % In \Cref{intro} we mentioned CRISP-DM, a standard process model that helps to structure the knowledge about the problem and not to be overwhelmed by its overall complexity. %find the correct solution.
@@ -226,154 +264,286 @@ She usually leverages a process model as CRISP-DM.
 % Second of all, the analysis will provide the reader with instruments to better understand the issues that the resolution of a ML problem involves. %in AutoML techniques and define which issues our framework should tackle.
 %\jg{Is it fine to talk about AutoML here?}
 %It consists of different stages.
-The DS starts by collecting raw data in an arbitrary format.
-Then, in the first stage, Domain Understanding is conducted.
-The DS works in a close cooperation with Domain Experts, and enlists \textit{domain-related constraints} (i.e., intrinsic of the problem).
+After collecting data, 
+% The DS starts by collecting raw data in an arbitrary format.
+% Then, in the first stage, Domain Understanding is conducted.
+The DS works in a close cooperation with domain experts, and enlists \textit{domain-related constraints} (i.e., intrinsic of the problem).
 Follows Data Understanding, devoted to data analysis, and with the aim of extracting \textit{data-related constraints} (i.e., defined by the data format).
-Domain and Data Understanding might be repeated many times, until the DS is satisfied by the acquired knowledge.
-Once she feels confident, she begins to investigate different solutions throughout the next stages: Data Pre-processing, Modelling, and Evaluation.
-Data Pre-processing and Modelling are conducted to effectively build the solution, while Evaluation offers a way to measure the performance of it.
-Finally, the process concludes with the Deployment stage (i.e., the actual implementation of the solution).
-
-We recall that building a solution consists of instantiating a ML pipeline: a series of transformations -- defined in the Data Pre-processing stage -- and a ML algorithm---defined in the Modelling stage.
-Seeking the most correct and performing solution, the DS should consider the already known constraints -- domain- and data-related -- and some new she discovers in the Data Pre-processing and Modelling, respectively: \textit{transformation- and algorithm-related constraints} (i.e., due to the intrinsic semantic of transformations and algorithms at hand).
+Domain and Data Understanding might be repeated until the DS is satisfied by the acquired knowledge.
+Then, she integrates Data Pre-processing and Modeling techniques to build the solution that is finally evaluated and deployed;
+% Finally, the process concludes with the Deployment stage (i.e., the actual implementation of the solution).
+such solution consists of a ML pipeline: a series of data pre-processing transformations and a ML algorithm.
+% Seeking the most correct and performing solution, the DS should consider the already known constraints -- domain- and data-related -- and some new she discovers in the Data Pre-processing and Modeling, respectively: \textit{transformation- and algorithm-related constraints} (i.e., due to the intrinsic semantic of transformations and algorithms at hand).
 %\jg{Maybe this paragraph should be in the AutoML section}
 
-Throughout the different stages, the DS acquires knowledge from different points of view (i.e., domain-, data-, transformation-, and algorithm-related).
-Besides, as illustrated in \Cref{fig:approach}, CRISP-DM might be iterated many times.
-The several \textit{iterations} of the process aim at augmenting such a knowledge about the problem.
-Finally, the process is ruled by interactions between the DS and Domain Experts, discussing and arguing on both constraints and solutions.%---usually Domain Experts are also Stakeholders.
+% Throughout the different stages, the DS acquires knowledge from different points of view (i.e., domain-, data-, transformation-, and algorithm-related).
+% Besides, as illustrated in \Cref{fig:approach}, CRISP-DM might be iterated many times.
+% The several \textit{iterations} of the process aim at augmenting such a knowledge about the problem.
+% Finally, the process is ruled by interactions between the DS and Domain Experts, discussing and arguing on both constraints and solutions.%---usually Domain Experts are also Stakeholders.
 
-\subsection{AutoML and CRISP-DM}
+% \subsection{AutoML and CRISP-DM}
 
 %Let us now consider AutoML tools and their role in the CRISP-DM process model. 
-As described in \Cref{automl}, AutoML helps in finding a suitable ML pipeline instantiation (i.e., automatisation of Data Pre-processing, Modelling, and Evaluation stages).
-However, such an automatisation unavoidably leads to a less overall understanding (i.e., the knowledge about the problem cannot be properly augmented throughout the process).
+% As described in \Cref{automl}, AutoML helps in finding a suitable ML pipeline instantiation (i.e., automatization of Data Pre-processing, Modeling, and Evaluation stages).
+% However, such an automatization unavoidably leads to a less overall understanding (i.e., the knowledge about the problem cannot be properly augmented throughout the process).
 
-The definition of the search space has a huge impact on the correctness and performance of the solutions.
-%The DS can cope with it in two different ways: \textit{i)} create a weak-constrained search space to leave to the optimisation more freedom in finding the final solution; \textit{ii)} collect enough constraints to guarantee the correctness of the solution.
+Depending on involved algorithms and their order and hyper-parameters, the search space out of which the best pipeline is burdensome.
+% retrieved has a huge impact on the correctness and performance of the solutions.
+AutoML comes to help by enhancing the exploration of such space.
+However, such optimization is not only about algorithms and hyper-parameters, but should also consider and fulfill all the given constraints.
+%The DS can cope with it in two different ways: \textit{i)} create a weak-constrained search space to leave to the optimization more freedom in finding the final solution; \textit{ii)} collect enough constraints to guarantee the correctness of the solution.
 %However, both of these approaches present evident problems.
-%The former would lead to a search space too large, and the optimisation cannot guarantee sub-optimal solutions. 
-The DS collects constraints to guarantee the correctness of the solution, anticipating the effect of each of them, and finally defining the search space.
+%The former would lead to a search space too large, and the optimization cannot guarantee sub-optimal solutions. 
+% The DS collects constraints to guarantee the correctness of the solution, anticipating the effect of each of them, and finally defining the search space.
 %The former would lead to a ill-defined search space, and hence to find invalid solutions (i.e., the result cannot be deemed correct).
 %The latter involves the DS gathering all the constraints, anticipating the effect of each -- and the combination -- of them, and finally defining the search space.
-\begin{example}
-Let us consider two transformations, namely Discretisation ($\mathcal{D}$) and Normalisation ($\mathcal{N}$), and a ML algorithm as Decision Tree ($\mathcal{DT}$).
+\begin{example}[Machine learning pipeline and constraint]
+Let us consider two transformations, namely Discretization ($\mathcal{D}$) and Normalization ($\mathcal{N}$), and a ML algorithm as Decision Tree ($\mathcal{DT}$).
 Based on the implementation, a possible algorithm-related constraint may be ``require $\mathcal{D}$ when applying $\mathcal{DT}$''.
 Accordingly, we consider a transformation-related constraint ``no $\mathcal{N}$ in pipelines with $\mathcal{D}$''.
-This leads to discard ML pipelines that contain $\mathcal{D}, \mathcal{N},$ and $\mathcal{DT}$:
-\begin{align*}
-\dots \rightarrow \mathcal{N} \rightarrow \dots \rightarrow \mathcal{D} \rightarrow \dots \rightarrow \mathcal{DT}\\
-\dots \rightarrow \mathcal{D} \rightarrow \dots \rightarrow \mathcal{N} \rightarrow \dots \rightarrow \mathcal{DT}
-\end{align*}
+This leads to discard ML pipelines that contain $\mathcal{D}, \mathcal{N},$ and $\mathcal{DT}$.
+% \begin{align*}
+% \dots \rightarrow \mathcal{N} \rightarrow \dots \rightarrow \mathcal{D} \rightarrow \dots \rightarrow \mathcal{DT}\\
+% \dots \rightarrow \mathcal{D} \rightarrow \dots \rightarrow \mathcal{N} \rightarrow \dots \rightarrow \mathcal{DT}
+% \end{align*}
 \label{ex:constraints}
 \end{example}
-
-In real-case problems, consider all the possible effects is overwhelming, and \textit{inconsistencies} might occur. %(i.e., constraints might diverge from each other).
-The problem exacerbates when it comes to cross-cutting issues, such as those related to \textit{ethical} and \textit{legal} fields.
-For instance, topics like racism and gender equality have to be treated separately, otherwise they could lead to social repercussions.
-As it is well-know, the authors of the boston-house dataset \cite{boston-house} engineered a feature assuming that racial self-segregation had a positive impact on house prices.
-A way of addressing such an issue is to encode some kind of ethical constraint (e.g., dropping that particular feature from the data).
-Furthermore, the ML result is expected to be compliant to the laws of the involved countries.
-To the best of our knowledge there is no attempt to properly treat such ML constraints, and hence ease the search space definition.
-Most of the tools are not customisable (i.e., weak-constrained search spaces, e.g., Auto-Weka, \cite{kotthoff2019auto} Auto-Sklearn \cite{feurer2019auto}), and others are far too permissive (i.e., no assistance at all; e.g., HyperOpt \cite{bergstra2015hyperopt}).
+Considering all the possible combinations is overwhelming and \textit{inconsistencies} might occur. %(i.e., constraints might diverge from each other).
+The problem exacerbates when it comes to cross-cutting issues, such as those related to \textit{ethical} \cite{boston-house} and \textit{legal} fields that easily inject conflicting constraints into the search space.
+% for instance, topics like racism and gender equality have to be treated separately, otherwise they could lead to social repercussions.
+% As it is well-know, the authors of the boston-house dataset \cite{boston-house} engineered a feature assuming that racial self-segregation had a positive impact on house prices.
+% A way of addressing such an issue is to encode some kind of 
+%(e.g., dropping that particular feature from the data).
+% Furthermore, the ML result is expected to be compliant to the laws of the involved countries.
+% To the best of our knowledge there is no attempt to properly treat such constraints in AutoML approach.
+% , and hence ease the search space definition.
+% However, most of the AutoML tools are not customizable (i.e., weak-constrained search spaces, e.g., Auto-Weka, \cite{kotthoff2019auto} Auto-Sklearn \cite{feurer2019auto}), and others are far too permissive (i.e., no assistance at all; e.g., HyperOpt \cite{bergstra2015hyperopt}).
 %We highlighted how considering all the correct constraints to set up a search space is extremely difficult for the DS. 
 %AutoML turns out to be in contrast with the CRISP-DM philosophy: the process of a slow augmentation in the DS knowledge is replaced by a procedure from which is hard to extract new information. %about the problem.
-AutoML is not clear enough to provide the DS with a feedback that would help to augment her knowledge about the problem.
-We claim that a human-centric framework should provide the mechanisms to: \textit{i)} help the DS to structure her knowledge about the problem in an effective search space; \textit{ii)} augment the knowledge initially possessed by the DS with the one produced by the AutoML optimisation process. 
-%The use of such a framework would allow to restore the correct CRISP-DM information flow (i.e., the DS would be central in every part of the process and every stage would concur to the augmentation of her global knowledge).
 
-\subsection{The role of logic}\label{crisp}
+\subsection{Logic and argumentation}
+AutoML is not explainable, hence it does not provide the DS with a feedback that would help to augment her knowledge about the problem:
+% \subsection{The role of logic}\label{crisp}
+% The two identified requisites share a common need: 
+it is necessary represent both the DS knowledge about the problem and the outcome of the AutoML tool in a uniform human-readable medium so that the former can help the optimization
+% DS's knowledge can be an input for the optimization process
+% ---search space definition. Then, this initial knowledge can be augmented with the possible solutions provided by an AutoML tool.
+and then augmented by learning from the explored configurations (e.g., to derive new constraints to increase the DS awareness).
+% (i.e., the awareness about the problem increases).
+% We see the augmented knowledge as an awareness determined by an increased expertise on the correct constraints.
+% The finding of such correct constraints leads to the finding of the correct solution---if exists.
+% In other words, at each CRISP-DM iteration, the knowledge is encoded into the AutoML tool, which provides a feedback (i.e., augmented knowledge) in the same format.
 
-The two identified requisites share a common need: encoding both the DS knowledge about the problem and the outcome of the AutoML tool in a uniform format.
-As a result, it would be possible to use the DS knowledge as an input for the optimisation process---search space definition. Then, this initial knowledge can be augmented with the possible solutions provided by an AutoML tool. 
-These possible solutions can be exploited to derive new constraints (i.e., the awareness about the problem increases).
-We see the augmented knowledge as an awareness determined by an increased expertise on the correct constraints.
-The finding of such correct constraints leads to the finding of the correct solution---if exists.
-In other words, at each CRISP-DM iteration, the knowledge is encoded into the AutoML tool, which provides a feedback (i.e., augmented knowledge) in the same format.
-
-Logic could be the key element in defining a common structure (i.e., a uniformed human- and machine-readable medium) on which the knowledge of both the DS and the AutoML tool can be combined fruitfully.
+We leverage logic as the key element in defining a common structure (i.e., a uniformed human- and machine-readable medium) on which the knowledge of both the DS and the AutoML tool can be combined fruitfully.
 In a way, our approach follows the steps of the well known logical based expert systems, of which it is possible to find a great number of successful examples \cite{tan17es}.
-In literature, it is also possible to find two well-known issues \cite{coats88esfail}: lack of scalability and difficulties in the definition of a sound knowledge base that encodes all the required pieces of information.
-Yet, we believe they do not affect our model.
-As to the former, the amount of the acquired knowledge (i.e. the problem constraints) through CRISP-DM iterations is not enough to label such a problem as a \textit{big data problem}, and hence scalability should not be an issue.
-As to the latter, we believe that the analysis process would only benefit from the clearness given by such a structured investigation.
-
-Logic would also provide the tools to cope with one of the distinctive features of the knowledge we want to deal with: the possible inconsistency. Indeed, the ML process is the product of possible attempts, validated or refuted by a consequent evaluation. Hence, the mechanism used to encode the knowledge is required to manage this constant revision process.
+% In literature, it is also possible to find two well-known issues \cite{coats88esfail}: lack of scalability and difficulties in the definition of a sound knowledge base that encodes all the required pieces of information.
+% Yet, we believe they do not affect our model.
+% As to the former, the amount of the acquired knowledge (i.e. the problem constraints) through CRISP-DM iterations is not enough to label such a problem as a \textit{big data problem}, and hence scalability should not be an issue.
+% As to the latter, we believe that the analysis process would only benefit from the clearness given by such a structured investigation.
+Logic provides the tools to cope with one of the distinctive features of the knowledge we want to deal with: the possible inconsistency. Indeed, the ML process is the product of possible attempts, validated or refuted by a consequent evaluation. Hence, the mechanism used to encode the knowledge is required to manage this constant revision process.
 This is the role of Argumentation---one of the main approaches for dealing with inconsistent knowledge and defeasible reasoning. 
 % It would allow our framework to deal with possible conflicts deriving from inconsistent constraints, while also providing an human- and machine-readable interpretation over the knowledge.
 
-\subsection{HAMLET}\label{hamlet}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem formulation}
+% \jg{Cambieremmo il nome di questa sezione in problem formulation (nella intro potremmo mettere tra i contributi che abbiamo fatto una formalizzazione di ML innovativa? L'abbiamo fatta con i constraint (che possono andare in conflitto). In più, tale formulazazione serve per implementare hamlet! 
+% Problema: della parte di argumentation non possiamo prenderci i meriti, ma risoveremmo dicendo che, quando serve, richiamiamo cose di argumentation note (se sono troppe o rompono lo storytelling, si potrebbe lasciare una formulazione un po' più scarna/leggera, e aggiunge un appendix con roba più spinta, che dici?).
+% }\\
+% \jg{Come avevamo detto, la formalizzazione che c'è è del clustering, a noi serve quella per la classificazione. Seguremmo CRISP-DM, che è il core.
+% \begin{itemize}
+%     \item ML pipeline: pre-processing (steps) + modelling (task).
+%     \begin{itemize}
+%         \item Gli step di pre-processing hanno degli operatori ($X \rightarrow X'$). In modelling trattiamo task = classificazione, la classificazione ha algoritmi ($X \rightarrow y$, dove y è la predizione).
+%         \item Gli operatori e l'algoritmo espongono gli iper-parametri;
+%         \item Una conf di iper-parametri si valuta sulla predizione fatta dall'algoritmo di classificazione.
+%         \item La metrica serve per capire la bontà della predizione.
+%         \item Vogliamo l'argmax della metrica pr capire la miglior configurazione composta (combined algorithm selection and hyper-parameter tuning).
+%     \end{itemize}
+%     \item Constraint
+%         \begin{itemize}
+%             \item In problemi di ML abbiamo i concetti di variance, bias e noise (variabili che non sono mappate nel dataset del caso).
+%             \item La metrica (e.g., accuracy) tiene conto solo delle avriabili mappate dal dataset, ma la bontà potrebbe essere più bassa (non si può mai prendere tutta la popolazione, ma solo un campione).
+%             \item Il data scientist conosce il dominio, i dati, la semantica delle trasformazioni, i problemi etici, e quindi encoda queste variabili in constraint.
+%             \item Un constraint è appunto una funzione che modifica la metrica, esempi:
+%             \begin{itemize}
+%                 \item constraint etici applicano una penalità a seconda di quanto gli elementi di una certa categoria "svanataggiata" vengono rappresentati;
+%                 \item constraint sui dati azzerano la bonta se non vengono rispettati (devo fare la normalizzazione se c'è tanta varianza altrimenti do più peso ad alcuni attributi che ad altri, quindi è una funzione a tratti);
+%                 \item uguale per i constraint sugli algoritmi, se il task di classificazione $T$ è stato instanziato con l'algoritmo $A_1$ (e.g., knn), allora voglio un certo step (e.g., la normalizzazione $\exists s \in S, s.t. s = \mathcal{N}$), altrimenti l'accuratezza va a 0 (di nuovo funzione a tratti.
+%             \end{itemize}
+%         \end{itemize}
+%     \item robe di bocc
+% \end{itemize}}
+We start by formalizing the concepts necessary to move from single algorithms to constrained pipeline optimization. Then, we introduce of pipeline constrains can be expressed in the logical formalism.
 
-\begin{figure*}
-    \centering
-\begin{lstlisting}[label={ls:theory},caption={Example of a LogicalKB using a logical formalism.}]
-t1 :=> transformation(discretisation).
-t2 :=> transformation(normalisation).
+\subsection{Constrained pipeline optimization}
+\begin{definition}[Dataset]
+A \textit{dataset} $D$ is a collection of data items that is characterized by a set of features.
+\end{definition}
+
+\begin{definition}[Algorithm]
+An \textit{algorithm} $A$ is a function that transforms an input dataset $D'$ into a new dataset $D''$.
+Excluded the dataset, the set of $A$'s (possibly empty) inputs are called \textit{hyperparameters}.
+Each hyperparameter has a domain, and the Cartesian product of all the hyperparameter domains is denoted with $\Lambda_A$.
+We call \textit{algorithm instance} $\lambda_A \in \Lambda_A$ an algorithm whose hyperparameters haven been assigned with values from their respective domains.
+\end{definition}
+
+\begin{definition}[Step]
+A \textit{step} $S$ is a set of algorithms that can be selected as alternatives, including the possibility to return the dataset as-is through the ``identity'' algorithm $I$.
+The step domain is defined as disjoint union $\Lambda_S = \Lambda_{A_1} \cupdot \ldots \cupdot \Lambda_{A_{|S|}}$.
+\end{definition}
+
+Where $\cupdot$ combines all the domains of the given algorithms, while retaining the original domain membership (i.e., it is possible to refer to the single algorithm domain included in the step domain).
+
+\begin{example}[Step and algorithms]
+Examples of steps are Normalization, Outlier detection, Feature engineering, and Classification. 
+An algorithm for Classification is decision tree \cite{DBLP:books/wa/BreimanFOS84}, and its implementation \footnote{\url{https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html\#sklearn.tree.DecisionTreeClassifier} (last accessed on 2022-02-27).} can have several hyperparameters, such as the maximum $depth \in  \mathbb{N}^+$ and the minimum $samples\_split \in \mathbb{N}^+$ required to split an internal node. Hence, $\Lambda_\textup{DecisionTree} = \mathbb{N}^+ \times \mathbb{N}^+$, and an example of algorithm instance is $\lambda_\textup{DecisionTree} = \langle depth=3,samples\_split=10$.
+\end{example}
+
+\begin{definition}[Pipeline]
+A \textit{pipeline} $P$ is a sequence of steps.
+The domain of a pipeline is $\Lambda_P = \Lambda_{S_1} \times \ldots \times \Lambda_{S_{|P|}}$. The last step $\Lambda_{S_{|P|}}$ is the classification task, which contains classification algorithms that return a vector (i.e., a dataset with a single column) of labels $Y$ out of the input dataset $D'$.
+\end{definition}
+
+ 
+Intuitively, $I$ represents the possibility of skipping the step $S_i$.
+The only mandatory algorithm is from the last step since is the one fulfilling the ML task.
+
+\begin{definition}[Pipeline instance]
+Given the domain of a pipeline $\Lambda_P$, a \textit{pipeline instance} $\lambda_P$ is a sequence of algorithm instances $\langle \lambda_{A_1}, \ldots, \lambda_{A_{|P|}} \rangle$ such that $\lambda_P = (\lambda_{A_1} \times \ldots \times \lambda_{A_{|P|}}) \in \Lambda_P$.
+\end{definition}
+
+\begin{definition}[Pipeline optimization]
+Given a template $\Lambda_P$ of a machine learning pipeline, finding the best pipeline instance $\lambda_P^*$ is defined as $\lambda_P^* = argmax_{\lambda_P \in \Lambda_P} rel(\lambda_P)$, where $rel(\lambda_P)$ is the function evaluating the goodness of $\lambda_P$ and $\Lambda_P$ is the search space of the optimization problem.
+\end{definition}
+
+The optimization must fulfill the provided constraints.
+\begin{definition}[Constraint]
+A constraint $C\subseteq\Lambda_P$ is a subset of pipeline domain that is either mandatory or forbidden.
+\end{definition}
+
+Mandatory constraints are sub-domains that must include (a portion of) the pipeline, while forbidden constraints are sub-domains that are dropped from the pipeline domain.
+Given a pipeline instance $\lambda_P$ in the pipeline domain $\Lambda_P$
+\begin{itemize}
+    \item a mandatory constraint $C$ ensures that  $\lambda_P \cap C \ne \varnothing$;
+    \item a forbidden constraint $C$ reduces the search space such that $\Lambda'_P = \Lambda_P \setminus C$.
+\end{itemize}
+
+\subsection{Logical knowledge base}
+
+\mf{Tentative... mi riesce un po' difficile non avendo tutti i pezzi sotto mano}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{HAMLET}
+\jg{
+Qua spieghiamo ``come girano i fumi''.
+\begin{itemize}
+    \item Prendiamo le pipeline che non rispettano i constraint, ne facciamo un sampling, le mettiamo a -inf, e le passiamo ad SMBO (knowledge injection).
+    \item Modelliamo un constraint come un template, quindi li riconosciamo anche a run-time (knowledge injection pt.2).
+    \item Prendiamo i risultati e facciamo mining delle regole:
+    \begin{itemize}
+        \item order constraint con frequent sequence mining;
+        \item mandatory constraint con frequent itemset mining.
+    \end{itemize}
+    \item toy example qui??
+\end{itemize}
+}
+As depicted in \Cref{fig:approach}, HAMLET iterates over three phases: (i) generating the problem graph out of the knowledge base, (ii) extracting the search space, and (iii) augmenting the knowledge base.
+Our framework is compliant with and augment CRISP-DM.
+% This aspect is crucial when trying to solve real-case problems through the use of modern data platforms.
+% Indeed, not only the different CRISP-DM stages can be executed several times, but the whole process can be iterated, bringing new information about the problem.
+% We claim that our framework support and ease the adoption of the described resolution process model, by providing a tool that is both human- and machine-readable.
+The inferred/learned knowledge can be automatically handled throughout iterations, supporting the DS in the whole analysis in a continuous revision of the problem constraints.
+% At each iteration, a portion of the knowledge is known and other is discovered.
+% Its integration into a unified augmented knowledge graph allows to: \textit{i)} derive new constraints from the discovered knowledge, \textit{ii)} jgc{}{seamlessly} visualize possible inconsistencies and conflicts.
+% This naturally leads to a new iteration based on the new augmented knowledge.
+% Besides, the entire process might be boosted with the aid of an external knowledge.
+In doing this, the knowledge base plays a key role since while analyzing and understanding data (during  
+% \Cref{fig:approach} illustrates a scheme of HAMLET.
+%Let us delve into details by following the CRISP-DM process flow.
+domain and data understanding, data pre-processing and Modeling), the datascientis gathers all the constraints that represent the knowledge discovered so far.
+The Logical Knowledge Base (LogicalKB) is medium to encode such constraints.
+
+\begin{definition}[Logical knowledge base]
+???
+\end{definition}
+
+A logical knowledge base can be represented as a list of Prolog statements.
+In other words, the DS leverages an intuitive logical language, and enlists the constraints one-by-one.
+In our vision, the DS community could create a shared LogicalKB derived from the available literature and similar real-case problems.
+
+\mf{
+In questa sezione ci vorebbe un running example comprensivo delle varie casistiche che andremo a trattare.
+Attenzione, le lettere non sono allineate tra LogicalKB esempi.
+}
+\begin{example}\label{ex:kb} % ,caption={Example of a LogicalKB using a logical formalism.}
+Here follows an example of Logical knowledge base.
+For the sake of brevity, we focus only pipelines containing Discretization ($\mathcal{D}$) and Normalization ($\mathcal{N}$) as transformations steps, and Classification as a modeling step. Decision Tree is a ML algorithm belonging to Normalization ($\mathcal{DT}$) as the ML algorithm.
+\begin{lstlisting}[label={ls:theory}]
+t1 :=> transformation(Discretization).
+t2 :=> transformation(Normalization).
 a1 :=> algorithm(decision_tree).
-
-c1 :=> mandatory_transformation_for_algorithm([discretisation], decision_tree).
-c2 :=> invalid_transformation_set([normalisation, discretisation]).
+c1 :=> mandatory_transformation_for_algorithm([Discretization], decision_tree).
+c2 :=> invalid_transformation_set([Normalization, Discretization]).
 \end{lstlisting}
-\end{figure*}
+The LogicalKB is expressed in a logic language: \texttt{t1} and \texttt{t2} represent $\mathcal{D}$ and $\mathcal{N}$ respectively, \texttt{a1} represents $\mathcal{DT}$.
+We consider the algorithms-related constraint \texttt{c1}, namely ``require $\mathcal{D}$ when applying $\mathcal{DT}$'', and the trnasformation-related constraint \texttt{c2}, that is ``no $\mathcal{N}$ in pipelines with $\mathcal{D}$''.
+\end{example}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.45\textwidth]{img/problem_graph.png}
+    \includegraphics[width=0.4\textwidth]{img/problem_graph.png}
     \caption{Example of a Problem Graph. Green nodes are valid arguments, red ones are refuted.}
     \label{fig:pb_graph}
 \end{figure}
 
-In the last paragraphs we identified two main requirements for a human-centric framework (i.e., structure the DS knowledge in a well-defined AutoML search space, and provide the solutions in accordance with the input knowledge).
-We also introduced Computational Logic -- Argumentation in particular -- as the main tool in our investigation.
-Let us now delve into details of how these pieces converge in our framework.
+% In the last paragraphs we identified two main requirements for a human-centric framework (i.e., structure the DS knowledge in a well-defined AutoML search space, and provide the solutions in accordance with the input knowledge).
+% We also introduced Computational Logic -- Argumentation in particular -- as the main tool in our investigation.
+% Let us now delve into details of how these pieces converge in our framework.
 %It is now time to show how these ideas converge in our framework.
 
-\Cref{fig:approach} illustrates a scheme of HAMLET.
-%Let us delve into details by following the CRISP-DM process flow.
-The DS conducts the stages from Domain \& Data Understanding to Data Pre-processing \& Modelling, and thus gathers all the constraints that represent the knowledge discovered so far.
-The Logical Knowledge Base (LogicalKB) provides a vehicle to encode such constraints.
-In particular, the DS leverages an intuitive logical language, and enlists the constraints one-by-one.
-In \Cref{logic} we introduced the notion of Structured Argumentation as a formal tool to convert elements from a logical language into an Argumentation graph.
-Implementing and exploiting such a Structured Argumentation tool, HAMLET proceeds to resolve conflicts in the LogicalKB: the logical-encoded knowledge is transformed in a Problem Graph.%, that is then evaluated to determine possible inconsistencies in the input knowledge.
+
+\subsection{Generating the problem graph}
+
+Through Structured Argumentation, a formal tool to convert elements from a logical language into an Argumentation graph, HAMLET proceeds to resolve conflicts in the LogicalKB, then the logical-encoded knowledge is transformed in a Problem Graph. 
+
+\jg{Queste cose vanno sopra (perchè esistono nel problema)}
+\begin{definition}[Constraint]
+???
+\end{definition}
+
+\begin{definition}[Conflict]
+???
+\end{definition}
+
+\begin{example}[Conflict]
+With reference to \Cref{ex:kb}, ??? is an example of conflict.
+\end{example}
+%, that is then evaluated to determine possible inconsistencies in the input knowledge.
 %\jg{I would drop these three following sentences}
 %At the centre we find the DS. 
 %She interacts with both the Knowledge Base and the Problem Graph.
 %The former offers a common interface for encoding the knowledge discovered so far, while the latter a visual global overview of it---highlighting concordant and discordant insights.
 
+\begin{definition}[Problem graph]
+???
+\end{definition}
+
+\mf{Algoritmo per generare problem graph???}
+\jg{Sì, bocc lo ha, come dicevamo lo metteremmo nella sezione prima}
+
+\begin{example}[Problem graph] \label{ex:graph}
+With reference to \Cref{ex:kb}, the LogicalKB is used to generate the Problem Graph shown in \Cref{fig:pb_graph}, nodes represent arguments and edges represent attacks among them.
+There are five possible ML pipelines: $\mathcal{DT}$ (\texttt{p1}),  $\mathcal{D} \rightarrow \mathcal{DT}$ (\texttt{p2}),  $\mathcal{N} \rightarrow \mathcal{DT}$ (\texttt{p3}),  $\mathcal{D} \rightarrow \mathcal{N} \rightarrow \mathcal{DT}$ (\texttt{p4}), $\mathcal{N} \rightarrow \mathcal{D} \rightarrow \mathcal{DT}$ (\texttt{p5}).
+\end{example}
 %The DS can then consult the Problem Graph, outcome of this process.
 The benefit of the Problem Graph is two-fold.
-First of all, it can be leveraged by both the DS and Domain Experts to understand and summarise the current knowledge.
+First of all, it can be leveraged by both the DS and Domain Experts to understand and summarize the current knowledge.
 Second of all, thanks to its nature, it is straightforward to convert such a graph of constraints into a space of possible solutions (i.e., exploiting Argumentation semantics, it is easy to obtain all the sets of arguments -- constraints -- which hold together).
-As a matter of fact, this feature would relieve the DS of the burden of manually considering all the effects of the possible constraints.
-It is important to notice that, although the increased degree of automatisation, the Problem Graph allows the DS and Domain Experts to correct, revise, and supervise the process.
-Accordingly, possible inconsistencies -- due to diverging constraints -- can be verified by the DS using her knowledge.
-%Indeed, among all the benefits, it is possible to consider and visualise all the effects of the decisions with a human-readable medium.
-
-Once the knowledge has been accurately revised, an AutoML tool is leveraged to automatise the ML pipeline instantiation.
-Throughout the exploration, different solutions are tested, which contribute to augment the global knowledge about the problem.
-%Most of all, several constraints -- that the DS might not have considered in the process -- are disclosed.
-%In other words, AutoML receives a search space in input, which is explored, evaluated, and therefore populated.
-%The new insights are useful information to .
-Accordingly, some of the originally encoded knowledge by the DS and Domain Experts might be refuted or found inconsistent. %---w.r.t. some of the AutoML solutions.
-%The solutions of a search space intrinsic belong to the ilk search space that should be explored.
-HAMLET is designed to enable a transparent augmentation of the knowledge in the Problem Graph according to the newfound solutions.
-The updating procedure is the same as the one employed by the DS during the constraint encoding phase.
-Specifically, the AutoML solutions are automatically transposed to our logical language in the form of new constraints, and then added to the LogicalKB.
-Of course, a change in the LogicalKB translates in a change in the Problem Graph, allowing the DS and Domain Experts to visualise and \textit{argue} about it.
-The revision of the Graph is the key element in the process of augmenting the knowledge: the DS and Domain Experts can consult each other and discuss how the new insights relate with their initial knowledge.
-Indeed, thanks to the nature of the Problem Graph, it would be extremely easy to identify new possible conflicts and supporting arguments.
-Consequently, new constraints can be derived.
 
 \begin{example}
-In \Cref{ex:constraints} we introduce two possible ML constraints.
-We now provide their encoding in the LogicalKB, and the resulting Problem Graph.
-For the sake of clarity, we focus only on Discretisation ($\mathcal{D}$) and Normalisation ($\mathcal{N}$) as transformations, and Decision Tree ($\mathcal{DT}$) as the ML algorithm.
-\Cref{ls:theory} contains the LogicalKB expressed in a logic language: \texttt{t1} and \texttt{t2} represent $\mathcal{D}$ and $\mathcal{N}$ respectively, \texttt{a1} represents $\mathcal{DT}$.
-We consider the algorithms-related constraint \texttt{c1}, namely ``require $\mathcal{D}$ when applying $\mathcal{DT}$'', and the trnasformation-related constraint \texttt{c2}, that is ``no $\mathcal{N}$ in pipelines with $\mathcal{D}$''.
-This LogicalKB is used to generate the Problem Graph shown in \Cref{fig:pb_graph}, nodes represent arguments and edges represent attacks among them.
-There are five possible ML pipelines: $\mathcal{DT}$ (\texttt{p1}),  $\mathcal{D} \rightarrow \mathcal{DT}$ (\texttt{p2}),  $\mathcal{N} \rightarrow \mathcal{DT}$ (\texttt{p3}),  $\mathcal{D} \rightarrow \mathcal{N} \rightarrow \mathcal{DT}$ (\texttt{p4}), $\mathcal{N} \rightarrow \mathcal{D} \rightarrow \mathcal{DT}$ (\texttt{p5}).
 With no constraints, we cannot discard any ML pipeline (i.e., there are no incompatibilities between the arguments).
+In \Cref{ex:constraints} we introduced two possible ML constraints.
+We now provide their encoding in the LogicalKB, and the resulting Problem Graph.
 By introducing \texttt{c1}, attacks against \texttt{p1} and \texttt{p3} are generated (both pipelines contain $\mathcal{DT}$ but not $\mathcal{D}$).
 By introducing \texttt{c2}, attacks against \texttt{p4} and \texttt{p5} are generated (both pipelines contain $\mathcal{D}$ and $\mathcal{N}$).
 We can leverage a standard argumentation semantics (e.g., Dung's grounded semantics \cite{Dung1995abstractArg}) to evaluate the graph.
@@ -383,35 +553,72 @@ Among them, we retrieve the ones representing pipelines.
 \label{ex:theory}
 \end{example}
 
-\Cref{ex:theory} illustrates how HAMLET leverages Logic and Argumentation to handle the DS knowledge.
-The proposed logic formalism allows to easily encode the different ML constraints into a LogicalKB.
-We highlight that the Problem Graph generation is handled by an argumentation engine, which is available in the Supplementary Material \footnote{\url{https://queueinc.github.io/HAMLET-DATAPLAT2022/}}.
+As a matter of fact, this feature would relieve the DS of the burden of manually considering all the effects of the possible constraints.
+It is important to notice that, although the increased degree of automatization, the Problem Graph allows the DS and Domain Experts to correct, revise, and supervise the process.
+Accordingly, possible inconsistencies -- due to diverging constraints -- can be verified by the DS using her knowledge.
+%Indeed, among all the benefits, it is possible to consider and visualize all the effects of the decisions with a human-readable medium.
+
+Of course, a change in the LogicalKB translates in a change in the Problem Graph, allowing the DS and Domain Experts to visualize and \textit{argue} about it.
+The revision of the Graph is the key element in the process of augmenting the knowledge: the DS and Domain Experts can consult each other and discuss how the new insights relate with their initial knowledge.
+Indeed, thanks to the nature of the Problem Graph, it would be extremely easy to identify new possible conflicts and supporting arguments.
+Consequently, new constraints can be derived.
+
+\subsection{Extracting the search space}
+
+Given the problem graph, the search space of a pipeline can be extracted as follows.
+\mf{Algoritmo da problem graph a search space.}
+
+\begin{example}[Search space extraction]
+With reference to \Cref{ex:graph} ???
+\end{example}
+
+Once the knowledge has been accurately revised, an AutoML tool is leveraged to automatize the ML pipeline instantiation.
+Throughout the exploration, different solutions are tested, which contribute to augment the global knowledge about the problem.
+
+As to the implementation of the optimization process, rather than exhaustive or grid searches, we leverage Bayesian optimization to explore promising configurations as in Sequential Model-Based Optimization \cite{???}.
+Specifically, the process involves several iterations, through which some pipelines are explored.
+As the iterations advance, an increasingly accurate model of the search space is built on top of the previously explored configurations to suggest the most promising ones among the remaining.
+The configurations keep being explored, updating the model, until a budget in terms of either iterations or time is reached.
+
+\subsection{Augmenting the knowledge base}
+
+%Most of all, several constraints -- that the DS might not have considered in the process -- are disclosed.
+%In other words, AutoML receives a search space in input, which is explored, evaluated, and therefore populated.
+%The new insights are useful information to .
+Accordingly, some of the originally encoded knowledge by the DS and Domain Experts might be refuted or found inconsistent. %---w.r.t. some of the AutoML solutions.
+%The solutions of a search space intrinsic belong to the ilk search space that should be explored.
+HAMLET is designed to enable a transparent augmentation of the knowledge in the Problem Graph according to the newfound solutions.
+The updating procedure is the same as the one employed by the DS during the constraint encoding phase.
+Specifically, the AutoML solutions are automatically learned and recommended into our logical language in the form of new constraints.
+If accepted, such constraints will be added into the knowledge base.
+
+\mf{Extraction of the new constraints.}
+
 The use of the Problem Graph allows to prune the considered ML pipeline for the AutoML search space.
 AutoML could update the Problem Graph by extracting constraints from the performed exploration, and transposing them into the LogicalKB.
 For instance, the DS may not have considered that data at hand contain missing values.
 AutoML could help in identifying transformation-related constraints such as: ``require Imputation ($\mathcal{I}$) in all the pipelines''.
 The resulting constraints might be in conflict with the previous knowledge.
-In our vision, the DS is able to visualise such inconsistencies through the Problem Graph, and resolve them.
+In our vision, the DS is able to visualize such inconsistencies through the Problem Graph, and resolve them.
 
-We remark how our framework is compliant with the iterative nature of the CRISP-DM standard process model.
-%We already showed the iterative nature of the CRISP-DM process model.
-This aspect is crucial when trying to solve real-case problems through the use of modern data platforms.
-Indeed, not only the different CRISP-DM stages can be executed several times, but the whole process can be iterated, bringing new information about the problem.
-We claim that our framework support and ease the adoption of the described resolution process model, by providing a tool that is both human- and machine-readable.
-The knowledge can be automatically handled throughout iterations, supporting the DS in the whole analysis, in a continuous revision of the problem constraints.
-At each iteration, a portion of the knowledge is known and other is discovered.
-Its integration into a unified augmented knowledge graph allows to: \textit{i)} derive new constraints from the discovered knowledge, \textit{ii)} jgc{}{seamlessly} visualise possible inconsistencies and conflicts.
-This naturally leads to a new iteration based on the new augmented knowledge.
-Besides, the entire process might be boosted with the aid of an external knowledge.
-In our vision, the DS community could create a shared LogicalKB derived from the available literature and similar real-case problems.
+% \Cref{ex:theory} illustrates how HAMLET leverages Logic and Argumentation to handle the DS knowledge.
+% The proposed logic formalism allows to easily encode the different ML constraints into a LogicalKB.
+% We highlight that the Problem Graph generation is handled by an argumentation engine, which is available in the Supplementary Material \footnote{\url{https://queueinc.github.io/HAMLET-DATAPLAT2022/}}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusions and potential leveraging}\label{concl}
+
+\section{Experimental Evaluation}\label{experiments}
+
+\mf{??? TODO}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions and Future Work}\label{concl}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The increasing complexity in the state-of-the-art AutoML tools has led the DS to lose the control over the resolution process.
 We believe that human awareness about all the constraints and possible solutions of a ML problem is a fundamental aspect to consider, and consequently should play a key role in the design of next-generation data platforms.
-Accordingly, in this vision paper we present HAMLET, a human-centric AutoML framework based on Logic and Structured Argumentation.
+Accordingly, in this paper we present HAMLET, a human-centric AutoML framework based on Logic and Structured Argumentation.
 Logic is exploited to give a structure to the knowledge that the DS has to consider while deploying a solution.
 The advantage of such a choice is twofold.
 First of all, the logical encoding of the knowledge allows an easy exploration and verification of all the constraints that may apply to the case at hand---it is overwhelming for the DS to correctly handle the vast amount of them.
