@@ -91,21 +91,13 @@ numberstyle = \tiny,
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Machine learning (ML) plays a crucial role in data analysis and data platforms, integrated sets of technologies that collectively meets end-to-end data needs.
-In the last decade, we have witnessed an exponential growth in both the complexity and the number of ML techniques; leveraging such methods to solve real-case problems has become difficult for data scientists.
-Automated Machine Learning (AutoML) tools were devised to alleviate this task, but easily became as complex as the ML techniques themselves, with data scientist loosing again the control over the process.
-%.
-%The data scientist has started to rely on this kind of tools without understanding their functioning, thus loosing the control over the process.
+Machine learning (ML) plays a crucial role in data analysis and data platforms, integrated sets of technologies that collectively meet end-to-end data needs.
+In the last decade, we have witnessed exponential growth in both the complexity and the number of ML techniques; leveraging such methods to solve real-case problems has become difficult for data scientists.
+Automated Machine Learning (AutoML) tools were devised to alleviate this task but easily became as complex as the ML techniques themselves, with data scientists losing again the control over the process.
 In this paper, we extend and design HAMLET (Human-centric AutoMl via Logic and Argumentation), a framework that helps data scientists to redeem their centrality.
-% \mf{HAMLET is inspired to the well-known standard process model CRISP-DM: iteration after iteration, the knowledge is augmented by acquiring more constraints about the problem until a suitable solution is found.}
 HAMLET enables data scientists to express machine-learning and data constraints in a uniformed human- and machine-understandable medium.
-User-defined constraints are interpreted to devise the search space of an ML pipeline (including both pre-processing and modeling steps), then the pipeline is optimized through AutoML, and finally new constraints are learned and integrated into the previous ones through logic and argumentation.
-By doing so, not only it allows an easy exploration of the new knowledge at each iteration, but it also enforces a continuous revision via the AutoML tool and the confrontation between the data scientists and domain experts.
-
-% HAMLET is inspired to the well-known standard process model CRISP-DM.
-% Iteration after iteration, the knowledge is augmented by acquiring more constraints about the problem until a suitable solution is found.
-% HAMLET leverages Logic and Argumentation to merge both constraints and solutions in an uniformed human- and machine-readable medium.
-% Not only it allows an easy exploration of the new knowledge at each iteration, but it also enforces a continuous revision via the AutoML tool and the confrontation between the DS and Domain Experts.
+User-defined constraints are interpreted to devise the search space of an ML pipeline (including both pre-processing and modeling steps), then the pipeline is optimized through AutoML, and finally, new constraints are learned and integrated into the previous ones through logic and argumentation.
+By doing so, HAMLET not only allows easy exploration of the new knowledge at each iteration but also enforces a continuous revision via the AutoML tool and the confrontation between the data scientists and domain experts.
 \end{abstract}
 
 %%
@@ -131,44 +123,38 @@ By doing so, not only it allows an easy exploration of the new knowledge at each
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}\label{intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Data platforms, integrated sets of technologies that collectively meets end-to-end data needs, works towards the automation of data management and analysis \cite{DBLP:journals/fgcs/FranciaGGLRS21}.
-Machine Learning (ML) plays a key role in such processes; for instance it has been leveraged to devise cost models for querying data over heterogeneous data sources \cite{multi-store}, data management through data lineage and data exploration \cite{dataplat2}, and many big data analytics applications (that are well surveyed in \cite{zhou2017ml}).
+Data platforms, integrated sets of technologies that collectively meet end-to-end data needs, work towards the automation of data management and analysis \cite{DBLP:journals/fgcs/FranciaGGLRS21}.
+Machine Learning (ML) plays a key role in such processes; for instance, it has been leveraged to devise cost models for querying data over heterogeneous data sources \cite{multi-store}, data management through data lineage and data exploration \cite{dataplat2}, and many big data analytics applications (that are well surveyed in \cite{zhou2017ml}).
 
-Data platforms aims at supporting end-to-end data analysis; in this scope, Cross-Industry Standard Process for Data Mining (CRISP-DM) \cite{wirth2000crisp} is the most acknowledged standard process model and we will take it as a reference model henceforth: given a data mining/machine learning task to solve, the data scientist (DS) collects raw data in arbitrary formats from the data lake, builds up knowledge on both the problem and the data, translates such knowledge into \textit{constraints}, designs and trains a model, and finally deploys the solution into the data platform itself.
+Data platforms aim at supporting end-to-end data analysis; in this scope, Cross-Industry Standard Process for Data Mining (CRISP-DM) \cite{wirth2000crisp} is the most acknowledged standard process model and we will take it as a reference model henceforth: given a data mining/machine learning task to solve, the data scientist (DS) collects raw data in arbitrary formats from the data lake, builds up knowledge on both the problem and the data, translates such knowledge into \textit{constraints}, designs and trains a model, and finally deploys the solution into the data platform itself.
 Such solution usually consists of a \textit{pipeline}: a sequence of \textit{data pre-processing transformations} ending with an \textit{ML algorithm}.
-The DS instantiates the pipeline among a large set of \textit{algorithms}, which, in turns, can potentially have many hyper-parameters.
+The DS instantiates the pipeline among a large set of \textit{algorithms}, which, in turn, can potentially have many hyper-parameters.
 The accuracy of the deployed solution highly depends on finding both the best algorithms along with their hyper-parameters among an exponential search space.
 
 Automated Machine Learning (AutoML) tools have been devised with the aim of assisting the DS during the ML pipeline instantiation.
-They leverage state-of-the-art optimization approaches to smartly explore huge search spaces of solutions. %(i.e., ML pipelines with different techniques and hyper-parameters). 
+They leverage state-of-the-art optimization approaches to smartly explore huge search spaces of solutions.
 AutoML has been demonstrated to provide accurate performance, even in a limited time budget.
-During the setting up of the search space, it is highly important to the DS to leverage the knowledge about the problem, considering all the ML constraints. %(i.e., \textit{domain-related}, \textit{data-related}, \textit{transformation-related}, and \textit{algorithm related}). 
+During the setting up of the search space, it is highly important for the DS to leverage the knowledge about the problem, considering all the ML constraints. %(i.e., \textit{domain-related}, \textit{data-related}, \textit{transformation-related}, and \textit{algorithm related}). 
 %\jg{I am not sure if I would mention the kind of constraints without explaining what they are}
 Otherwise, it might lead the AutoML tool to retrieve \textit{invalid solutions} (i.e., the \textit{result} of those cannot be deemed \textit{correct}).
-Besides, AutoML tools became that complex to make it difficult for the DS to understand their functioning, hence losing the control over the process.
+Besides, AutoML tools became that complex to make it difficult for the DS to understand their functioning, hence losing control over the process.
 Researchers are aware of these problems \cite{XinWLSP21automationml}.
 
-The need of a human-centric and explainable framework for AutoML is real \cite{gil2019towards, lee2020human, wang2019human} (or even mandatory in recent nalytic scenarios where the user is interacting with mixed-reality and smart assistants \cite{DBLP:conf/dolap/FranciaGR19,DBLP:journals/is/FranciaGG22}), and it is crucial for the DS to augment her knowledge by learning new insights (e.g., new constraints) from the retrieved solutions.
-Indeed, the DS requires to understand the AutoML process in order to trust the proposed solutions \cite{drozdal2020trust}.
-While some works \cite{gil2019towards, lee2020human, wang2019human} have prescribed to use a human-centric framework for AutoML, yet they only suggest design requirements. Alternatively, the authors in \cite{ono2020pipelineprofiler} have proposed a tool that visualizes the best and the worst solutions retrieved by an AutoML tool.
+The need for a human-centric and explainable framework for AutoML is real \cite{gil2019towards, lee2020human, wang2019human} (or even mandatory in recent analytic scenarios where the user is interacting with mixed-reality and smart assistants \cite{DBLP:conf/dolap/FranciaGR19,DBLP:journals/is/FranciaGG22}), and it is crucial for the DS to augment her knowledge by learning new insights (e.g., new constraints) from the retrieved solutions.
+Indeed, the DS requires understanding the AutoML process in order to trust the proposed solutions \cite{drozdal2020trust}.
+While some works \cite{gil2019towards, lee2020human, wang2019human} have prescribed to use of a human-centric framework for AutoML, yet they only suggest design requirements. Alternatively, the authors in \cite{ono2020pipelineprofiler} have proposed a tool that visualizes the best and the worst solutions retrieved by an AutoML tool.
 We claim that a human-centric framework should provide the mechanisms to: \textit{(i)} help the DS to structure her knowledge about the problem in an effective search space; and \textit{(ii)} augment the knowledge initially possessed by the DS with the one produced by the AutoML optimization process. 
 %The use of such a framework would allow to restore the correct CRISP-DM information flow (i.e., the DS would be central in every part of the process and every stage would concur to the augmentation of her global knowledge).
 
 %However, they do not put any effort in providing a framework that merges AutoML inputs -- i.e., constraints -- with outputs---i.e., solutions.
 
 %overcome these problems and give to the DS full control on the data.
-At this purpose, HAMLET (Human-centric AutoMl via Logic and Argumentation; \Cref{fig:approach}), a framework that leverages AutomML, Logic, and Argumentation to:
-% \begin{itemize}
-    % \item
+For this purpose, HAMLET (Human-centric AutoMl via Logic and Argumentation; \Cref{fig:approach}), a framework that leverages AutomML, Logic, and Argumentation to:
 structure the ML constraints and the AutoML solutions in a Logical Knowledge Base (LogicalKB);
-    % \item 
 parse the LogicalKB into a human- and machine-readable medium called Problem Graph;
-    % \item 
 devise the AutoML search space from the Problem Graph;
-    % \item 
 leverage the Problem Graph to allow both the DS and an AutoML tool to revise the current knowledge.
-% \end{itemize}
-This paper extends and engineer the vision proposed in \cite{DBLP:conf/edbt/GiovanelliP22} as follows.
+This paper extends and engineers the vision proposed in \cite{DBLP:conf/edbt/GiovanelliP22} as follows.
 \begin{enumerate}[(i)]
     \item We design the formal foundation of our approach. 
     \item We extend the supported constraints.
@@ -176,13 +162,11 @@ This paper extends and engineer the vision proposed in \cite{DBLP:conf/edbt/Giov
     \item We provide a preliminary empirical evaluation of the approach. 
 \end{enumerate}
 
-The remainder of the paper is structured as follows. \mf{?? TODO}
-% \Cref{automl} and \Cref{logic} introduce the main notions of respectively AutoML and Argumentation.
-% \Cref{towards} illustrates our framework.
-% Finally, \Cref{concl} draws the conclusions and potential leveraging.
+The remainder of the paper is structured as follows. In \Cref{sec:related}, we introduce the related work and background necessary to understand the paper. Then, we provide the formal problem formulation in \Cref{sec:problem} and its implementation in \Cref{sec:implementation}.
+Finally, we provide some preliminary evaluation in \Cref{sec:test} and we draw the conclusion and future research directions in \Cref{sec:conclusion}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Related Work}
+\section{Background and Related Work}\label{sec:related}
 HAMLET intersects two research areas, \textit{automated machine learning} and \textit{logic \& argumentation}. 
 To the best of our knowledge, no contribution merges AutoML, logic, and argumentation to provide a human-centric approach for the optimization of ML pipelines.
 
@@ -248,7 +232,7 @@ In our view, once defined the right logical language for encoding the DS and Aut
 \mf{?? TODO}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Problem formulation}
+\section{Problem formulation}\label{sec:problem}
 
 \mf{Il running example lo potete sviluppare qui seguendo le definizioni e aggiungendo esempi. In questo modo, in Sec 3 l'utente vede come funziona il sistema ad alto livello, ancora non siamo arrivati a spiegare l'implementazione (che è nella sezione successiva). NB, alcuni punti delle subsec 2 e 3 sono dei patchwork di testo spostato e incollato; bisogna capire cosa tenere e metterlo "in fila". Le cose di "related" potrebbero essere anticipate in Sec 2, ma attenzione a non farla troppo corposa (imho max 2 colonne).}
 
@@ -503,7 +487,7 @@ The resulting constraints might be in conflict with the previous knowledge.
 In our vision, the DS is able to visualize such inconsistencies through the Problem Graph, and resolve them.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{HAMLET}
+\section{HAMLET}\label{sec:implementation}
 
 \mf{We implemented the prototype using Python, ML/data mining models are imported from the Sk-lean library, ... . Valutare se mettere riferimento al repo.}
 
@@ -581,16 +565,14 @@ The configurations keep being explored, updating the model, until a budget in te
 % Accordingly, some of the originally encoded knowledge by the DS and Domain Experts might be refuted or found inconsistent. %---w.r.t. some of the AutoML solutions.
 %The solutions of a search space intrinsic belong to the ilk search space that should be explored.
 HAMLET is designed to enable a transparent augmentation of the knowledge in the problem graph according to the newfound solutions.
-% The updating procedure is the same as the one employed by the DS during the constraint encoding phase.
-Specifically, new constraints are automatically learned out of the AutoML solutions and recommended into our logical language.
-If accepted by the DS, such constraints will be added into the knowledge base.
+Specifically, new constraints are automatically learned out of the AutoML solutions and recommended in our logical language.
+If accepted by the DS, such constraints will be added to the knowledge base.
 
 At this stage, we leverage frequent pattern mining techniques to learn constraints in an unsupervised manner.
-% since they can be directly transformed into constraints expressed on the machine learning pipelines.
 Frequent pattern mining is the task of finding the most frequent and relevant patterns in large datasets (e.g., finding the products frequently bought together in the domain of market basket analysis); depending on the pattern type, we look for (sub)sets \cite{srikant1995mining} or (sub)sequences \cite{srikant1996mining} frequently recurring among the explored pipeline instances.
 Since a pipeline instance is a sequence of algorithms, the set of the explored transactions can be directly mapped into a transactional dataset \cite{srikant1995mining} (where each pipeline instance is a transaction and each algorithm instance is an item).
-We set a minimum frequency (i.e., support) threshold to 5\% (i.e., to be retrieved, a set/sequence must occur at least in 5\% of the explored pipelines), the we extract the frequently occurring maximal\footnote{Maximal itemsets/sequences are patterns that are not contained into any other.} itemsets and sequences using well known algorithms, respectively \cite{???} and \cite{???}.
-We assign to each of the retrieved patterns a score representing the average accuracy of the pipelines they belong to, we map them into logical constraints, we sort them by their score, and we recommend the top-5 to the user (we also leave to the user the possibility to explore all of them). If accepted, the new constraints are added into the LogicalKB.
+We set a minimum frequency (i.e., support) threshold to 5\% (i.e., to be retrieved, a set/sequence must occur at least in 5\% of the explored pipelines), then we extract the frequently occurring maximal\footnote{Maximal itemsets/sequences are patterns that are not contained into any other. For instance, given two frequent patterns, $\{a, b, c\}$ and $\{a, b\}$, the former is maximal while the latter is not.} itemsets and sequences using well-known algorithms, respectively \cite{???} and \cite{???}.
+We assign to each of the retrieved patterns a score representing the average accuracy of the pipelines they belong to, we map them into logical constraints, we sort them by their score, and we recommend the top-5 to the user (we also leave to the user the possibility to explore all of them). If accepted, the new constraints are added to the LogicalKB.
 
 \mf{Come trasformare patterns in constraints e poi in formalismo logico}
 
@@ -605,12 +587,12 @@ We assign to each of the retrieved patterns a score representing the average acc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Experimental Evaluation}\label{experiments}
+\section{Experimental Evaluation}\label{sec:test}
 
 \mf{??? TODO}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusions and Future Work}\label{concl}
+\section{Conclusions and Future Work}\label{sec:conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The increasing complexity in the state-of-the-art AutoML tools has led the DS to lose the control over the resolution process.
