@@ -175,64 +175,48 @@ Moreover, multi-fidelity methods \cite{???} (i.e., the use of several partial es
 We believe that the DS has the duty to revise and supervise the suggested solutions as well as the process producing them.
 Yet, stacking (more and more) complex mechanisms on top of each other unavoidably led to a less understandable optimization that can be hardly controlled by the DS (especially if without a strong computer science background).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Logic \& Argumentation}\label{logic}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Logic is the abstract study of statements, sentences, and deductive arguments \cite{Paulson2018logichistory}.
+In this context, argumentation is an important tool for handling conflicting information (e.g., opinions and empirical data).
+In abstract argumentation \cite{Dung1995abstractArg}, a scenario can be represented by a directed graph. Each node represents an argument, and each edge denotes an attack by one argument on another. Each argument is regarded as atomic. There is no internal structure to an argument. Also, there is no specification of what is an argument or an attack. A graph can then be analyzed to determine which arguments are acceptable according to some general criteria (i.e., semantics) \cite{baroniCG11semantics}.
 
-% Formal logic in its actual form emerged from philosophy in the nineteenth century as the abstract study of statements, sentences and deductive arguments \cite{Paulson2018logichistory}. The final goal was to determine the validity of these elements just by examining the structures or logical forms that they embody, without considering their actual meaning or content. We can summarise logic as the definition and study of structured languages, which enables an unambiguous manipulation and a clear test of the validity of the statements expressed in those languages.
+A way to link abstract argumentation and logical formalisms has been advanced in the field of structured argumentation \cite{BesnardGHMPST14structured}, where we assume a formal logical language for representing knowledge (i.e., a logical knowledge base) and for specifying how arguments and conflicts (i.e., attacks) can be derived from that knowledge. 
+In the structured approach, the premises and claims of the argument are made explicit, and the relationship between them is formally defined through rules internal to the formalism.
+We can build the notion of attack as a binary relation over structured arguments that denotes when one argument is in conflict with another (e.g., contradictory claims or premises).
+One of the main frameworks for Structured Argumentation is ASPIC\textsuperscript{+}\cite{Modgil2014aspic+}. 
+In this formalism, arguments are built with two kinds of inference rules: strict rules, whose premises guarantee their conclusion, and defeasible rules, whose premises only create a presumption in favor of their conclusion. 
+Then conflicts between arguments can arise from both \textit{inconsistencies} in the logical knowledge base and the defeasibility of the reasoning steps in an argument (i.e., a defeasible rule used in reaching a certain conclusion from a set of premises can also be attacked).
 
-% For example, we can define a logical formalism as a precisely defined symbolic language that includes logical primitives such as ``and'', ``or'', ``not'', \ldots, and a series of rules for making logical deductions (e.g., \textit{modus ponens} \cite{susanne02mp}). Given a formalism of this type, it will be then possible to define a proof theory to determine the validity of statements expressed in it. Computational logic is the use of computers to automatize this procedure \cite{Paulson2018logichistory}.
-Logic is the abstract study of statements, sentences and deductive arguments \cite{Paulson2018logichistory}.
-% From its birth, it has been developed and improved widely and now includes a variety of formalisms and technologies. Between all, 
-In this context, argumentation is an important tool for handling conflicting information (e.g., opinions, empirical data).
-% This has led to a great number of researches trying to establish a computational model of logical arguments.
-%One of the most influential systems, proposed by Dung in his seminal work \cite{Dung1995abstractArg}, provides many insights into the nature of Argumentation, and it has led to a large number of works that have explored properties and developments of it \cite{besnardCL20argsurvey}.
-In Abstract Argumentation \cite{Dung1995abstractArg}, a scenario can be represented by a directed graph. Each node represents an argument, and each edge denotes an attack by one argument to another. Each argument is regarded as atomic. There is no internal structure to an argument. Also, there is no specification of what is an argument or an attack. A graph can then be analysed to determine which arguments are acceptable according to some general criteria (i.e., semantics) \cite{baroniCG11semantics}.
-
-A way to link Abstract Argumentation and logical formalisms has been advanced in the field of Structured Argumentation \cite{BesnardGHMPST14structured}, where we assume a formal logical language for representing knowledge (i.e., a Logical Knowledge Base), and specifying how arguments and conflicts (i.e., attacks) can be derived from that knowledge. 
-In the structured approach, premises and claims of the argument are made explicit, and the relationship between them is formally defined through rules internal to the formalism. We can build the notion of attack as a binary relation over structured arguments that denotes when one argument is in conflict with another (e.g., contradictory claims or premises).
-One of the main frameworks for Structured Argumentation is ASPIC\textsuperscript{+}\cite{Modgil2014aspic+}. In this formalism arguments are built with two kinds of inference rules: strict rules, whose premises guarantee their conclusion, and defeasible rules, whose premises only create a presumption in favour of their conclusion. 
-Then conflicts between arguments can arise from both \textit{inconsistencies} in the Logical Knowledge Base and the defeasibility of the reasoning steps in an argument (i.e., a defeasible rule used in reaching a certain conclusion from a set of premises can also be attacked).
-%Anyway, one of the most important features of the framework -- similarly to others formalisms \cite{Toni2014aba} in the Structured Argumentation field -- is the freedom that gives to users in the definition of the founding logical language to adopt. In this sense ASPIC\textsuperscript{+} can be seen not as a final framework but as a formalism to define custom Argumentation frameworks that satisfy a set of formal properties (e.g., logical consistency and closure postulates).
-
-%Here it was DSs
-In our view, once defined the right logical language for encoding the DS and AutoML knowledge, a Structured Argumentation model (e.g., an ASPIC\textsuperscript{+} instance \cite{arg2p-jlc}) would provide us with the formal machinery to build an Argumentation framework upon the data, while Abstract Argumentation would dispense the evaluation tools.
+Once defined the right logical language for encoding the DS and AutoML knowledge, a structured argumentation model (e.g., an ASPIC\textsuperscript{+} instance \cite{arg2p-jlc}) can support HAMLET with the formal machinery to build an argumentation framework upon the data, while abstract argumentation would dispense the evaluation tools.
 
 \subsection{Towards Human-Centered Approaches}
+As of now, the DS role in current AutoML tools is limited to choosing the dataset to analyze, the validation technique (e.g., cross validation or hold out), and the metric to optimize (e.g., accuracy or F1 score).
+AutoML researchers aim at making machine learning accessible to a wide audience and more interest is currently devoted to shifting from minimal (or no) human intervention to enabling human intervention.
+Auto-Weka \cite{kotthoff2019auto} and Auto-Sklearn \cite{feurer2019auto} enables non-expert users to build ML models, but are far too restrictive.
 
-The human role in current state-of-the-art AutoML tools is limited to choose: the dataset to analyze, the validation technique, and the metric to optimize.
-The solely focus is building an ML model with high predictive performance.
-Since the dawn of AutoML, researchers aim at making Machine Learning accessible to a wide audience.
-The methodology has recently shifted from minimizing the human intervention to enabling human intervention.
-Popular tools as Auto-Weka \cite{kotthoff2019auto} and Auto-Sklearn \cite{feurer2019auto} enables non-expert users to build ML models, but are far too restrictive.
-As advocated in \cite{drozdal2020trust}, users require to understand the process in order to trust the proposed solutions.
-This direction has been named as Human-centered AutoML, and it is pursued by both researchers and companies.
-As to the former, there are mainly two types of works: (i) overviews, that illustrate the current AutoML issues and enlist design requirements; and (ii) wrappers and frameworks, that are focused on deploying solutions to improve the human comprehension.
-As to the latter, there are large technology companies that try to capture as significant market share as possible by incorporating their tools with criteria such as fairness and interpretability.
+As advocated in \cite{drozdal2020trust}, DSs require to understand the process to trust the proposed solutions.
+This direction has been named ``human-centered AutoML'', and it is pursued by both researchers and companies.
+% As to the former, there are mainly two types of works: (i) overviews, that illustrate the current AutoML issues and enlist design requirements; and (ii) wrappers and frameworks, that are focused on deploying solutions to improve human comprehension.
+% As to the latter, there are large technology companies that try to capture as significant market share as possible by incorporating their tools with criteria such as fairness and interpretability. 
 
-Concerning the overview works, authors in\cite{khuat2022roles} provide an exhaustive dissertations of the state-of-the-art tools and suggest possible improvements based on the case at hand.
-In \cite{pfisterer2019towards}, authors draw an overview of the main AutoML problems, mostly highlighting that sparse models (i.e., which provide feedback explaining the results and reasoning behind the solution) are not preferred to much more complex ones, even though they have nearly identical predictive performance.  
-In \cite{wang2019human, XinWLSP21automationml, crisan2021fits}, interviews with data scientists are conducted to understand the perception of AutoML as well as their needs and expectations in the next-generation tools.
-The main insight is that the future of data science work will be a collaboration between humans and AI systems, in which both automation and human expertise are indispensable \cite{wang2019human}.
-To this end, AutoML should focus on: simplicity, reproducibility, and reliability \cite{XinWLSP21automationml, crisan2021fits}.
-In \cite{gil2019towards} the DS work is examinated under different perspectives (i.e., neuro and political science), in this terms the authors enlist how a DS would search for solutions using an AutoML system.
-
-As to the actual Human-centered tool in research, we found plenty of visualization wrappers, validated with practitioners.
-ATMSeer \cite{wang2019atmseer} provides different multi-granularity visualizations to enables users to monitor the AutoML process and analyze the searched models; PipelineProfiler \cite{ono2020pipelineprofiler} offers interactive visualizations of the AutoML outputs and enables the reproducibility of the results through notebook Jupiter; in \cite{drozdal2020trust}, the authors raise the need of incorporating transparency features in an AutoML tool.
-After a session interview they discover that -- out of all their proposed features -- model performance metrics and visualizations are the most important information to data scientists when establishing their trust with an AutoML tool.
-Other important research projects aim at enhancing current AutoML techniques towards easier human-interactions: (i) supporting ethic and fair constraints in Bayesian Optimization through a mathematical encoding \cite{perrone2021fair, yaghini2021human}; (ii) simplifying the usage of AutoML with symbolic annotations \cite{peng2020pyglove} and declarative languages \cite{kraska2013mlbase}; (iii) supporting fast feedbacks from AutoML by leveraging well-known mechanisms of the DBMS \cite{vartak2015supporting, xin2018accelerating}.
+As to research contributions, we found plenty of visualization wrappers.
+In \cite{drozdal2020trust}, the authors raise the need of incorporating transparency into AutoML: after a session interview, they discover that -- out of all their proposed features -- model performance metrics and visualizations are the most important information to data scientists when establishing their trust the proposed solutions.
+ATMSeer \cite{wang2019atmseer} provides different multi-granularity visualizations to enable users to monitor the AutoML process and analyze the searched models.
+PipelineProfiler \cite{ono2020pipelineprofiler} offers interactive visualizations of the AutoML outputs and enables the reproducibility of the results through notebook Jupiter.
+Other contributions enhance current AutoML techniques towards easier human-interactions by: (i) supporting ethic and fair constraints in Bayesian Optimization through a mathematical encoding \cite{perrone2021fair, yaghini2021human}; (ii) simplifying the usage of AutoML with symbolic annotations \cite{peng2020pyglove} and declarative languages \cite{kraska2013mlbase}; (iii) supporting fast feedbacks from AutoML by leveraging well-known mechanisms of the DBMS \cite{vartak2015supporting, xin2018accelerating} \mf{questa frase non è proprio chiarissima}.
 Recently, MILE \cite{lee2020human} proposes to perform AutoML analysis with an end-to-end framework that reflect a DBMS (i.e., a query language + a lineage optimization).
-%\jg{Forse ci si può fermare qua, senza la pippa delle differenze (sembra che ci arrampichiamo sugli specchi quando invece è semplice smarcarsi dato che fanno una cosa diversa}
-%The idea is compliant with the objectives of HAMLET (i.e., drive the optimization iteratively, based on previous results), even if the functioning is profoundly different.
-%Indeed, there is no trace of a feedback that goes beyond the mere visualizations of the result.
-%The authors do not conceive a support for encoding constraints, a reasoning about the search space but, most of all, they just proposed the idea with no implementation or tests.
 
-Finally, companies like Google and IBM are the ones most engaged in boosting the involvement of the Human in the loop.
-Google Vizer and Google Facets are the main two visualization tools.
-The former can reveal the optimization details of the different hyperparameters \cite{golovin2017google}, the latter is focused on analyzing the output and recognized biased-AI (i.e., ML models that discriminate on sensible attributes as gender)
+Companies like Google and IBM are the ones most engaged in boosting the involvement of the human in the loop.
+Google Vizer \cite{???} and Google Facets \cite{???} are the two main visualization tools.
+The former reveals the optimization details of the different hyperparameters \cite{golovin2017google}, the latter focuses on analyzing the output and recognizes biased-AI (e.g., ML models that discriminate on sensible attributes such as gender)
 As to IBM, AutoAI \cite{wang2020autoai} and AutoDS \cite{wang2021autods} are the tools developed within the MIT-IBM Watson AI Lab.
 In this context, several publications have been made \cite{wang2019human, muller2019data, drozdal2020trust, wang2020human, wang2021autods} with the aim of analyzing how a DS team works and assist it in every facet.
 
+Overall, an exhaustive dissertation of the state-of-the-art tools and required improvements is given in \cite{khuat2022roles} while in \cite{pfisterer2019towards}, the authors overview the main AutoML issues, mostly highlighting that sparse models \mf{non mi è chiaro, forse è troppo di dettaglio}(i.e., which provide feedback explaining the results and reasoning behind the solution) are not preferred to much more complex ones, even though they have nearly identical predictive performance.  
+In \cite{gil2019towards wang2019human, XinWLSP21automationml, crisan2021fits}, studies and interviews with data scientists are conducted to understand the perception of AutoML as well as their needs and expectations in the next-generation tools.
+The main insight is that the future of data science work will be a collaboration between humans and AI systems, in which both automation and human expertise are indispensable \cite{wang2019human}.
+To this end, AutoML should focus on: simplicity, reproducibility, and reliability \cite{XinWLSP21automationml, crisan2021fits}.
+% In \cite{gil2019towards} the DS work is examined under different perspectives (i.e., neuro and political science), in this terms, the authors enlist how a DS would search for solutions using an AutoML system.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
