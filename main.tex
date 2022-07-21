@@ -208,16 +208,16 @@ Recently, MILE \cite{lee2020human} proposes to perform AutoML analysis with an e
 
 Companies like Google and IBM are the ones most engaged in boosting the involvement of the human in the loop.
 Google Vizer \cite{???} and Google Facets \cite{???} are the two main visualization tools.
-The former reveals the optimization details of the different hyperparameters \cite{golovin2017google}, the latter focuses on analyzing the output and recognizes biased-AI (e.g., ML models that discriminate on sensible attributes such as gender)
+The former reveals the optimization details of the different hyperparameters \cite{golovin2017google}, and the latter focuses on analyzing the output and recognizes biased AI (e.g., ML models that discriminate on sensible attributes such as gender)
 As to IBM, AutoAI \cite{wang2020autoai} and AutoDS \cite{wang2021autods} are the tools developed within the MIT-IBM Watson AI Lab.
-In this context, several publications have been made \cite{wang2019human, muller2019data, drozdal2020trust, wang2020human, wang2021autods} with the aim of analyzing how a DS team works and assist it in every facet.
+In this context, several publications have been made \cite{wang2019human, muller2019data, drozdal2020trust, wang2020human, wang2021autods} with the aim of analyzing how a DS team works and assisting it in every facet \mf{questa carrellata di paper non mi piace troppo, non dice nulla}.
 
-Overall, an exhaustive dissertation of the state-of-the-art tools and required improvements is given in \cite{khuat2022roles} while in \cite{pfisterer2019towards}, the authors overview the main AutoML issues, mostly highlighting that sparse models \mf{non mi è chiaro, forse è troppo di dettaglio}(i.e., which provide feedback explaining the results and reasoning behind the solution) are not preferred to much more complex ones, even though they have nearly identical predictive performance.  
-In \cite{gil2019towards wang2019human, XinWLSP21automationml, crisan2021fits}, studies and interviews with data scientists are conducted to understand the perception of AutoML as well as their needs and expectations in the next-generation tools.
+Overall, an exhaustive dissertation of the state-of-the-art tools and required improvements is given in \cite{khuat2022roles} while in \cite{pfisterer2019towards}, the authors overview the main AutoML issues.  
+In \cite{gil2019towards, wang2019human, XinWLSP21automationml, crisan2021fits}, studies and interviews with data scientists are conducted to understand the perception of AutoML as well as their needs and expectations in the next-generation tools.
 The main insight is that the future of data science work will be a collaboration between humans and AI systems, in which both automation and human expertise are indispensable \cite{wang2019human}.
 To this end, AutoML should focus on: simplicity, reproducibility, and reliability \cite{XinWLSP21automationml, crisan2021fits}.
-% In \cite{gil2019towards} the DS work is examined under different perspectives (i.e., neuro and political science), in this terms, the authors enlist how a DS would search for solutions using an AutoML system.
 
+While the above-mentioned papers mainly focus on visualization, HAMLET brings the DS in the loop by allowing her to inject her knowledge into the process in the form of ML constraints through logic, optimize and learn new constraints through AutoML, and manage such constraints and possible conflicts through argumentation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Problem formulation}\label{sec:problem}
