@@ -27,22 +27,18 @@
 \algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
 
 \lstset{%
-  basicstyle=\small\ttfamily,
-  frame=single,
-  morecomment=[f][\color{Green}][0]{\#},
-}
-\RestyleAlgo{ruled}
-\lstset{
-tabsize = 4, %% set tab space width
-showstringspaces = false, %% prevent space marking in strings, string is defined as the text that is generally printed directly to the console
-numbers = left, %% display line numbers on the left
-commentstyle = \color{green}, %% set comment color
-keywordstyle = \color{blue}, %% set keyword color
-stringstyle = \color{red}, %% set string color
-rulecolor = \color{black}, %% set frame color to avoid being affected by text color
-basicstyle = \small \ttfamily , %% set listing font and size
-breaklines = true, %% enable line breaking
-numberstyle = \tiny,
+    basicstyle=\small\ttfamily,
+    frame=single,
+    morecomment=[f][\color{Green}][0]{\#},
+    tabsize = 4, %% set tab space width
+    showstringspaces = false, %% prevent space marking in strings, string is defined as the text that is generally printed directly to the console
+    commentstyle = \color{green}, %% set comment color
+    keywordstyle = \color{blue}, %% set keyword color
+    stringstyle = \color{red}, %% set string color
+    rulecolor = \color{black}, %% set frame color to avoid being affected by text color
+    basicstyle = \small \ttfamily , %% set listing font and size
+    breaklines = true, %% enable line breaking
+    numberstyle = \tiny,
 }
 
 % \newcounter{example}[section]
@@ -237,7 +233,29 @@ Finally, the best solution is deployed.
 HAMLET intersects CRISP-DM, allowing the DS to inject and augment her knowledge of the domain and data at hand while automatizing the optimization of the ML pipeline. 
 We now dig the foundation of HAMLET by incrementally introducing the concepts necessary to move from AutoML to Logic and Argumentation and back.
 
-\subsection{AutoML formalization}
+\begin{table}[]
+    \centering
+    \footnotesize
+    \begin{tabular}{cl}
+        \toprule
+        Symbol & Meaning \\
+        \midrule
+        $A$ & Algorithm \\
+        $\gamma$ & Hyperparameter \\
+        $S$ & Step \\
+        $P$ & Pipeline \\
+        $\lambda_*$ & Instance of * \\
+        $\Lambda_*$ & Domain of * \\
+        $\Lambda$ & Search space \\
+        \bottomrule
+    \end{tabular}
+    \caption{Main symbols used in the paper}
+    \label{tab:symbols}
+\end{table}
+
+To support the reader, we summarize the main notation in \Cref{tab:symbols}.
+
+\subsection{AutoML Formalization}
 Following CRISP-DM, the DS usually works in a close cooperation with domain experts to enlist both \textit{domain-related} constraints and \textit{data-related} constraints; Domain and data understanding are repeated until the DS is satisfied by the acquired knowledge.
 Then, the DS integrates data pre-processing and modeling techniques to build the solution that is finally evaluated and deployed;
 such a solution consists of an ML pipeline: a series of data pre-processing transformations and an ML algorithm.
@@ -364,7 +382,7 @@ Given a search space $\Lambda$ and a set of constraints $\mathcal{C}$, finding t
 
 In our implementation, we use the balanced accuracy \cite{???} as $rel()$.
 
-\subsection{Logic and Argumentation formalization}
+\subsection{Logic and Argumentation Formalization}
 
 AutoML is not explainable, hence it does not provide the DS with feedback that would help to augment her knowledge about the problem:
 % \subsection{The role of logic}\label{crisp}
@@ -774,7 +792,7 @@ As a consequence, we need to produce the entire convex search space first, and t
 
 % We first extract all the statements claimed by the arguments in the extension that represent the conformation that the space should assume (steps, algorithms, hyperparameters and their domain).
 % Then, we map the space expressed in the AutoML language to a standard AutoML format that can be inputed to the optimization subsystem.
-\subsection{Exploring a constrained search space}\label{subsec:constrained_automl}
+\subsection{Exploring a Constrained Search Space}\label{subsec:constrained_automl}
 
 % Once the knowledge has been accurately revised and evaluated, an AutoML tool is leveraged to automate the ML pipeline instantiation.
 
@@ -796,13 +814,7 @@ The configurations keep being explored, updating the model, until a budget in te
 With CFO, there is also an estimation of the evaluation time to consider the frugality of the suggested configurations -- hence favoring the configurations requiring a smaller amount of time.
 Throughout the exploration, different solutions are tested, which contribute to augmenting the global knowledge about the problem.
 
-\subsection{Mining of AutoML for rules recommendation}
-%Most of all, several constraints -- that the DS might not have considered in the process -- are disclosed.
-%In other words, AutoML receives a search space in input, which is explored, evaluated, and therefore populated.
-%The new insights are useful information to .
-% Accordingly, some of the originally encoded knowledge by the DS and domain experts might be refuted or found inconsistent. %---w.r.t. some of the AutoML solutions.
-%The solutions of a search space intrinsic belong to the ilk search space that should be explored.
-% HAMLET enables a transparent augmentation of the knowledge in the Problem Graph according to the newfound solutions.
+\subsection{Mining of AutoML for Rule Recommendation}
 New constraints are automatically learned out of the configurations explored by AutoML and recommended in our logical language.
 If accepted by the DS, such constraints will be added to the knowledge base.
 
@@ -848,11 +860,11 @@ As a matter of fact, it is well known that discretization improves the performan
 
 For the experimental evaluation of the framework we identified a search space of 6 different steps: 5 Data Pre-processing steps followed by the final step of Modelling, that is the task of classification. 
 The list of algorithms per step and the number of hyperparameters per algorithm is reported in \Cref{tab:search_space}. 
-Among all the Data Pre-processing transformations available in Scikit-learn, we discarded Encoding because OpenML (i.e., a repository for data acquisition and benchmarking) provides them already encoded.
+Among all the data pre-processing transformations available in Scikit-learn, we discarded Encoding because OpenML (i.e., a repository for data acquisition and benchmarking) provides them already encoded.
 Besides, we leveraged imbalance-learn for Rebalancing transformations.
 As to the classification task, we included the list of available classifiers in its entirety.
 
-To test both the efficacy and the efficiency of our approach, we defined three different experimental configurations.
+To test both the effectiveness and the efficiency of our approach, we defined three different experimental configurations.
 In each configuration, HAMLET was run 4 times (i.e., iterations of knowledge augmentation) with the aim of exploring 250 configurations in 1800 seconds (30 minutes) per time.
 We distinguish the following three variants:
 \begin{itemize}
@@ -897,8 +909,8 @@ Yet, for the dataset 554 (\textit{mnist\_784}), the number of visited configurat
     \end{threeparttable}
 \end{table}
 
-\subsection{Efficacy}
-To assess the efficacy of our approach, we employed the balanced accuracy as the quality metric of the performance.
+\subsection{Effectiveness}
+To assess the effectiveness of our approach, we employed the balanced accuracy as the quality metric of the performance.
 In the binary case, such a score is equal to:
 $$
 \texttt{Balanced accuracy} = \frac{1}{2}\left( \frac{TP}{TP + FN} + \frac{TN}{TN + FP}\right )
@@ -907,7 +919,7 @@ where $TP$ and $TN$ stand respectively for True Positive and True Negative (i.e.
 The score avoids inflated performance estimations on imbalanced datasets.
 For balanced datasets, the score is equal to the conventional accuracy (i.e., the number of correct predictions divided by the total number of predictions), otherwise it drops to $\frac{1}{n\_classes}$.
 
-\Cref{fig:efficacy} illustrates the performance achieved by both the baseline and the three variants of HAMLET.
+\Cref{fig:effectiveness} illustrates the performance achieved by both the baseline and the three variants of HAMLET.
 We can observe that the use of HAMLET is clearly beneficial.
 In four datasets out of five the framework overcomes the baseline, in the remaining one it registers a minimal drop (i.e., about 0.006).
 The most notable result concerns the dataset har. 
@@ -922,8 +934,8 @@ Indeed, for this experiments we considered rules that are successful on a statis
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{img/barchart_delta.png}
-    \caption{Results assessing the efficacy of HAMLET w.r.t. the baseline.}
-    \label{fig:efficacy}
+    \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline.}
+    \label{fig:effectiveness}
 \end{figure}
 
 \subsection{Efficiency}
