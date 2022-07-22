@@ -639,7 +639,7 @@ It is important to notice that, although the increased degree of automation, the
 Accordingly, possible inconsistencies -- due to diverging constraints -- can be verified by the DS using her knowledge.
 
 Any change in the LogicalKB translates into a change in the Problem Graph, allowing the DS and domain experts to visualize it and \textit{argue} about it.
-the revision of the graph is the key element in the process of augmenting the knowledge: the DS and domain experts can consult each other and discuss how the new insights relate to their initial knowledge.
+the revision of the Problem Graph is the key element in the process of augmenting the knowledge: the DS and domain experts can consult each other and discuss how the new insights relate to their initial knowledge.
 Indeed, thanks to the nature of the Problem Graph, it would be extremely easy to identify new possible conflicts and supporting arguments.
 Furthermore, AutoML can update the Problem Graph by extracting constraints from the performed exploration, and transposing them into the LogicalKB.
 For instance, the DS may not have considered that the dataset contains missing values.
@@ -651,16 +651,16 @@ The inferred/learned knowledge can be automatically handled throughout iteration
 
 \section{HAMLET}\label{sec:implementation}
 
-HAMLET iterates over three phases (\Cref{fig:approach}): (i) generation the problem graph out of the LogicalKB, (ii) extraction of the search space, and (iii) augmentation of the LogicalKB.
+HAMLET iterates over three phases (\Cref{fig:approach}): (i) generation the Problem Graph out of the LogicalKB, (ii) extraction of the search space, and (iii) augmentation of the LogicalKB.
 
 A first prototype of the system is available at \url{https://github.com/QueueInc/HAMLET}.
 The prototype is composed of two sub-modules: the first, written in Kotlin and running on the JVM, exposes a graphical interface on which the data scientists can compile and revise the LogicalKB. 
-The module is also responsible for the generation and evaluation of the problem graph; it implements the structured argumentation functionalities based on the arg2p \cite{arg2p-jlc}, an ASPIC+-based framework, to meet the specifications from \Cref{sec:problem}.
-% , in order to completely delegate to it the construction of the graph and its evaluation. 
+The module is also responsible for the generation and evaluation of the Problem Graph; it implements the structured argumentation functionalities based on the arg2p \cite{arg2p-jlc}, an ASPIC+-based framework, to meet the specifications from \Cref{sec:problem}.
+% , in order to completely delegate to it the construction of the Problem Graph and its evaluation. 
 The second module, written in Python, is responsible for performing the AutoML optimization and the extraction of the new constraints from the explored space.
 % \mf{Già detto sopra} In what follows, we describe the main elements that characterize the implementation: a) generation of the Problem Graph, b) set up of the Constrained AutoML process, and c) mining of the new rules to add to the LogicalKB.
 
-\subsection{Generating the Problem Graph from the LogicalKB}
+\subsection{Generating the Problem Graph}
 In \Cref{sec:problem}, we defined the LogicalKB as the set of rules specified by the DS using her knowledge.
 The LogicalKB also includes a set of hard-encoded rules representing inferences necessary to characterize the AutoML problems.
 These rules are joined to the ones defined by the DS and used to build the Problem Graph (i.e., argumentation framework).
@@ -711,8 +711,8 @@ Consequently, \texttt{\{c2, a1, hc2\}} is refuted and the the pipelines attacked
 
 % \subsection{Extracting the Search Space from the Problem Graph}
 
-Given the problem graph and its grounded extension $e$ (we recall that the problem graph contains \textit{all} the generated pipelines -- including their partial permutations), the search space can be extracted as in \Cref{spacealgorithm}. 
-We iterate over all the generated pipelines in the problem graph and we recursively build their domain: the pipeline domain is the Cartesian product of the step domains, the step domain is the disjoint union of the algorithm domains (we leverage the disjoint union since each algorithm can be picked as an alternative to the others), the algorithm domain is the Cartesian product of its hyperparameters; the domain of a hyperparameter is given by definition.
+Given the Problem Graph and its grounded extension $e$ (we recall that the Problem Graph contains \textit{all} the generated pipelines -- including their partial permutations), the search space can be extracted as in \Cref{spacealgorithm}. 
+We iterate over all the generated pipelines in the Problem Graph and we recursively build their domain: the pipeline domain is the Cartesian product of the step domains, the step domain is the disjoint union of the algorithm domains (we leverage the disjoint union since each algorithm can be picked as an alternative to the others), the algorithm domain is the Cartesian product of its hyperparameters; the domain of a hyperparameter is given by definition.
 Finally, the search space is the disjoint union of all the alternative pipeline domains.
 
 Noticeably, while the search space could be constrained during its construction (e.g., by simply adding an ``if'' condition to check the validity of each pipeline at \Cref{spacealgorithm} line 10), current AutoML frameworks only support optimization in convex spaces \cite{???}.
@@ -720,7 +720,7 @@ As a consequence, we need to produce the entire convex search space first, and t
 % and discard the invalid pipelines as we encounter them (this comes at almost no computational time since the pipelines are directly discarded and not executed).
 
 \begin{algorithm}[t]
-\caption{Search space from the problem graph}
+\caption{Search space from the Problem Graph}
 \label{spacealgorithm}
 \footnotesize
 \begin{algorithmic}[1]
@@ -774,11 +774,11 @@ As a consequence, we need to produce the entire convex search space first, and t
 
 % We first extract all the statements claimed by the arguments in the extension that represent the conformation that the space should assume (steps, algorithms, hyperparameters and their domain).
 % Then, we map the space expressed in the AutoML language to a standard AutoML format that can be inputed to the optimization subsystem.
-\subsection{Constrained AutoML}\label{subsec:constrained_automl}
+\subsection{Exploring a constrained search space}\label{subsec:constrained_automl}
 
 % Once the knowledge has been accurately revised and evaluated, an AutoML tool is leveraged to automate the ML pipeline instantiation.
 
-The Problem Graph is not only used to build the search space but it is also evaluated to understand which pipelines are invalid and which constraints are valid.
+the Problem Graph is not only used to build the search space but it is also evaluated to understand which pipelines are invalid and which constraints are valid.
 We combine the following techniques.
 \begin{itemize}
     \item Invalid pipelines are used to discourage the exploration of 
@@ -796,41 +796,45 @@ The configurations keep being explored, updating the model, until a budget in te
 With CFO, there is also an estimation of the evaluation time to consider the frugality of the suggested configurations -- hence favoring the configurations requiring a smaller amount of time.
 Throughout the exploration, different solutions are tested, which contribute to augmenting the global knowledge about the problem.
 
-\subsection{Rules Mining}
-
+\subsection{Mining of AutoML for rules recommendation}
 %Most of all, several constraints -- that the DS might not have considered in the process -- are disclosed.
 %In other words, AutoML receives a search space in input, which is explored, evaluated, and therefore populated.
 %The new insights are useful information to .
 % Accordingly, some of the originally encoded knowledge by the DS and domain experts might be refuted or found inconsistent. %---w.r.t. some of the AutoML solutions.
 %The solutions of a search space intrinsic belong to the ilk search space that should be explored.
-HAMLET is designed to enable a transparent augmentation of the knowledge in the problem graph according to the newfound solutions.
-Specifically, new constraints are automatically learned out of the AutoML solutions and recommended in our logical language.
+% HAMLET enables a transparent augmentation of the knowledge in the Problem Graph according to the newfound solutions.
+New constraints are automatically learned out of the configurations explored by AutoML and recommended in our logical language.
 If accepted by the DS, such constraints will be added to the knowledge base.
 
 At this stage, we leverage frequent pattern mining techniques to learn constraints in an unsupervised manner.
 Frequent pattern mining is the task of finding the most frequent and relevant patterns in large datasets (e.g., finding the products frequently bought together in the domain of market basket analysis); depending on the constraint type, we look for (sub)sets \cite{srikant1995mining} or (sub)sequences \cite{srikant1996mining} frequently recurring among the explored pipelines.
 Since a pipeline is a sequence of steps, the set of the explored pipelines can be directly mapped into a transactional dataset \cite{srikant1995mining} (where each pipeline is a transaction and each step is an item).
 
-We mine the same constraints we support at the argumentation level (i.e., mandatory, forbidden, mandatory\_order), so that AutoML can be as expressive as the DS.
+We mine and recommend the same constraints we support at the argumentation level (i.e., $mandatory$, $forbidden$, $mandatory\_order$) so that AutoML can be as expressive as the DS.
 For mandatory and forbidden constraints we look for (sub)sets \cite{srikant1995mining} frequently recurring among the explored pipelines.
-Specifically, for each of the mined classification algorithms, we set a minimum frequency (i.e., support) threshold to 60\% (i.e., to be retrieved, a set/sequence must occur at least in 60\% of the explored pipelines), and extract the frequently occurring maximal\footnote{Maximal itemsets are patterns that are not contained into any other. For instance, given two frequent patterns, $\{a, b, c\}$ and $\{a, b\}$, the former is maximal while the latter is not.} itemsets.
-When mining mandatory constraints we consider only the patterns with high performance (e.g., $metric \geq 0.7 s.t. 0 \leq metric \leq 1$), on the contrary, when mining forbidden constraints we consider only the patterns with low performance (e.g., $metric \leq 0.3 s.t. 0 \leq metric \leq 1$).
-When it comes to mandatory\_order constraints, the same considerations of the mandatory constraints stand, except that we look for (sub)sequences \cite{srikant1996mining} of exactly length equal to 2.
-In such a way, we discover dependencies in pairs of transformations as in \cite{giovanelli2021data}, and let the logical paradigm to deduce the implications.   
+Specifically, we split the explored configurations by the applied classification algorithm, set a minimum frequency (i.e., support) threshold to 60\% (i.e., to be retrieved, a set/sequence must occur at least in 60\% of the explored pipelines), and extract frequent maximal
+\footnote{Maximal itemsets are patterns that are not contained in any other.
+For instance, given two frequent patterns, $\{a, b, c\}$ and $\{a, b\}$, the former is maximal while the latter is not.
+}
+itemsets.
+The recommendation depends on the constraint.
+\begin{itemize}
+    \item $mandatory$: we consider only the patterns with good performance (i.e., $0.7 \leq metric \geq 1.0$); 
+    \item $forbidden$: we consider only the patterns with bad performance (i.e., $0.0 \leq metric \leq 0.3$);
+    \item $mandatory\_order$: the same considerations of the mandatory constraints stand, except that we look for (sub)sequences \cite{srikant1996mining} of length equal to 2.
+    In such a way, we discover dependencies in pairs of transformations as in \cite{giovanelli2021data} and let the logical paradigm deduce the implications.   
+\end{itemize}
 As to the employed mining algorithms, we leveraged well-known implementations: \cite{???} and \cite{???} respectively for itemsets and sequences mining.
 
 \begin{example}[Rules Mining]
-Let us consider again the graph in \Cref{ex:hard_coded_rules} showing the effects of mining. 
-% In particular, among the possible constraints, we focus on the mandatory ones.
-The AutoML results are filtered according to the chosen metric, the algorithm \cite{???} is applied, and the constraint \texttt{c3} is suggested:
+With reference to the Problem Graph in \Cref{ex:hard_coded_rules},
+the AutoML results are filtered according to the chosen metric, the algorithm \cite{???} is applied, and let us assume that the constraint \texttt{c3} is suggested:
 \begin{lstlisting}[mathescape=true]
 c3 : $\Rightarrow$ mandatory($\langle\mathcal{D}\rangle$, $\mathcal{D}t$).
 \end{lstlisting}
 The constraints specifies ``mandatory $\mathcal{D}$ in pipelines with $\mathcal{D}t$''.
-As a matter of fact, it is well known that discretization improves the performance of tree-based algorithms giving to them the ability of applying multiple split in the decision nodes.
-
+As a matter of fact, it is well known that discretization improves the performance of tree-based algorithms giving to them the ability to apply multiple split in the decision nodes.
 \Cref{fig:toy_example}c shows the effect of the applied constraint: a new portion of the search space is excluded from the extension ($p1$).
-% Let's say that the DS accept the constraint, visualize the restricted space, and decides to run another iteration of HAMLET.
 \end{example}
 
 % \Cref{ex:theory} illustrates how HAMLET leverages Logic and Argumentation to handle the DS knowledge.
