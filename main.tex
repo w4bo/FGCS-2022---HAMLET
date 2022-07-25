@@ -144,9 +144,9 @@ We claim that a human-centric framework should provide the mechanisms to: (i) he
 
 For this purpose, we introduce HAMLET (Human-centric AutoMl via Logic and Argumentation; \Cref{fig:approach}), a framework that leverages AutomML, Logic, and Argumentation to:
 structure the ML constraints and the AutoML solutions in a Logical Knowledge Base (LogicalKB);
-parse the LogicalKB into a human- and machine-readable medium called Problem Graph;
-devise the AutoML search space from the Problem Graph;
-leverage the Problem Graph to allow both the DS and an AutoML tool to revise the current knowledge.
+parse the LogicalKB into a human- and machine-readable medium called problem graph;
+devise the AutoML search space from the problem graph;
+leverage the problem graph to allow both the DS and an AutoML tool to revise the current knowledge.
 This paper extends and engineers the vision proposed in \cite{DBLP:conf/edbt/GiovanelliP22} as follows.
 \begin{enumerate}[(i)]
     \item We design the formal foundation of our approach. 
@@ -473,25 +473,21 @@ c1 : $\Rightarrow$ forbidden($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/toy_example1.png}
-        \caption{$Something$}
         \label{fig:running_a}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/toy_example2.png}
-        \caption{$Something$}
         \label{fig:running_b}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/toy_example3.png}
-        \caption{$Something$}
         \label{fig:running_c}
     \end{subfigure}
-    \caption{Example of a Problem Graph. Green nodes are valid arguments, red ones are refuted.}
-    \jg{Figure b sbagliata (cambiare gli identificatori degli argomenti)}
+    \caption{Examples of problem graphs. Green nodes are valid arguments, red ones are refuted. \jg{Figure b sbagliata (cambiare id argomenti)}}
     \label{fig:toy_example}
 \end{figure*}
 
@@ -574,7 +570,7 @@ In this case, \texttt{c1} (i.e., ``forbid $\mathcal{N}$ in pipelines with $\math
 %     \item Proposta: A noi serve il problem graph, io cercherei di scrivere un paragrafo soft in cui si descrivono (in linguaggio naturale) i concetti base che sono usati in seguito e rimandare il lettore a \cite{Modgil2014aspic+} per la formalizzazione completa.
 % \end{itemize}
 % }
-% %, then the logical-encoded knowledge is transformed in a Problem Graph. 
+% %, then the logical-encoded knowledge is transformed in a problem graph. 
 % Let us now introduce some general notions from Structured Argumentation \cite{Modgil2014aspic+}.
 
 % \begin{definition}[Argument]\label{args}
@@ -626,32 +622,39 @@ In this case, \texttt{c1} (i.e., ``forbid $\mathcal{N}$ in pipelines with $\math
 % \end{itemize}
 % \end{definition}
 
-% Using these definitions we can finally introduce the Problem Graph. 
+% Using these definitions we can finally introduce the problem graph. 
 % \mf{--- Fine}
 
-We will now proceed to give an informal introduction to some key elements from the Structured Argumentation literature. For a complete introduction refer to the work in \cite{Modgil2014aspic+}.
+To create a problem graph, which is the medium readable by users and machines, we informally (for the sake of conciseness) introduce the key elements from structured argumentation; a complete formalization is found in \cite{Modgil2014aspic+}.
+Given an argumentation theory, an \textit{argument} is created for every rule with no premises -- e.g., from the rule $r : \Rightarrow c$, we derive an argument with \textit{conclusion} $c$ using $r$.
+Then, we recursively apply the other rules in the theory to the newly generated argument -- e.g., we can use the argument with conclusion $c$ and the rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$; this is repeated until no new argument can be generated.
+% The first components we need are arguments. In ASPIC\textsuperscript{+} \cite{Modgil2014aspic+}, they are defined in a recursive way starting from an argumentation theory as the one in Definition \ref{system}. First, an argument is created for every rule with no premises – e.g., from the rule $r : \Rightarrow c$, we can derive an argument concluding $c$ using $r$. Then, we recursively apply the other rules in the theory to the newly generated arguments – e.g., we can use the argument with conclusion $c$ and the rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$.
+% The last step is repeated until no new argument can be generated.
 
-The first components we need are arguments. In ASPIC\textsuperscript{+} \cite{Modgil2014aspic+}, they are defined in a recursive way starting from an argumentation theory as the one in Definition \ref{system}. First, an argument is created for every rule with no premises – e.g., from the rule $r : \Rightarrow c$, we can derive an argument concluding $c$ using $r$. Then, we recursively apply the other rules in the theory to the newly generated arguments – e.g., we can use the argument with conclusion $c$ and the rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$.
-The last step is repeated until no new argument can be generated.
+An \textit{argumentation framework} is defined using the arguments built from an argumentation theory and their \textit{attack} relations.
+% (i.e., nodes and edges within an argumentation graph).
+Attacks are inconsistencies between arguments' conclusions and are computed using a conflict function (\Cref{conflictauto}); e.g., given two arguments concluding respectively $a$ and $b$, and the conflict function $c$ such that $c(a) = \{b\}$, then $b$ directly attacks $a$ (i.e., $b$ is in conflict with $a$).
+The attack is propagated to all the arguments built over the receiver of the attack---e.g., if $a_1$ directly attacks $a_2$, and $a_2$'s conclusion is used to derive $a_3$, then $a_1$ also attacks $a_3$.
+Also, we can define a \textit{preference} relation over arguments using a partial ordering over the rules in the argumentation theory:
+% The impact of this relation on the framework is straightforward:
+it is impossible for an argument to be attacked by the least preferred ones, even if they are in conflict.
+In other words, we can explicitly solve inconsistencies in the LogicalKB using priorities over rules.
+We exploit the \textit{last-weakest} ordering as presented in \cite{Modgil2014aspic+}.
 
-An argumentation framework is defined using all the arguments built from an argumentation theory and their attack relation (nodes and edges in the argumentation graph). Attacks represent possible conflicts and inconsistencies between arguments’ conclusions. They are computed using a conflict function as the one in Definition \ref{conflictauto}. For instance, given two arguments concluding respectively $a$ and $b$, and a conflict function $c$ s.t. $c(a) = \{b\}$, then the latter argument directly attacks the former ($b$ is in conflict with $a$). The attack is then propagated to all the arguments built over the receiver of the attack–--e.g., if $a1$ directly attacks $a2$, and $a2$’s conclusion  is used to derive $a3$, then $a1$ also attacks $a3$.
-
-An important element of the ASPIC\textsuperscript{+} framework is the possibility to define a preference relation over arguments using a partial ordering over the rules in the theory. The impact of this relation on the framework is straightforward: it will be impossible for an argument to be attacked by the least preferred ones, even if they are in conflict. In other words, it is possible to explicitly solve inconsistencies in the knowledge base using priorities over rules. For the purposes of this paper, we exploit the \textit{last-weakest} ordering as presented in \cite{Modgil2014aspic+}.
-
-The evaluation of an argumentation framework is performed through semantics. In simple terms, semantics allow us to determine all the sets of arguments in a framework that are consistent (extensions). We only exploit grounded semantics as defined in \cite{Dung1995abstractArg}. This semantics is defined as the most skeptical between all the possible extensions---i.e., it includes only the arguments that are verified by all the possible interpretations of the graph.
-
+Finally, the evaluation of an argumentation framework is performed through semantics, which determines all the sets of arguments that are consistent (called \textit{extensions}) in an argumentation framework.
+We exploit grounded semantics \cite{Dung1995abstractArg} to produce a \textit{grounded extension}; this semantics is the most skeptical among all the possible extensions---i.e., it includes only the arguments that are verified by all the possible interpretations. % of the graph.
 
 \begin{definition}[Problem Graph]
-Given a LogicalKB $L_{KB}$, we call Problem Graph the argumentation framework built starting from the argumentation theory $\langle L_{ML}, L_{KB} \rangle$ using the conflict function $c_{ML}$.
+Given a LogicalKB $L_{KB}$, we call problem graph the argumentation framework built starting from the argumentation theory $\langle L_{ML}, L_{KB} \rangle$ using the conflict function $c_{ML}$.
 \end{definition}
 
-The benefits of the Problem Graph are two-fold.
+The benefits of the problem graph are two-fold.
 First of all, it can be leveraged by DSs and domain experts to understand and summarize and visualize the current knowledge.
-second of all, it is straightforward to convert such a graph of constraints into a space of possible solutions (i.e., exploiting argumentation semantics, it is easy to obtain all the sets of arguments -- constraints -- which hold together).
-%The DS can then consult the Problem Graph, outcome of this process.
+Second of all, it is straightforward to convert such a graph of constraints into a space of possible solutions (i.e., exploiting argumentation semantics, it is easy to obtain all the sets of arguments -- constraints -- which hold together).
+%The DS can then consult the problem graph, outcome of this process.
 
 \begin{example}[Problem graph]
-\Cref{fig:toy_example}a illustrates the Problem Graph extracted from the LogicalKB introduced in \Cref{ex:kb,ex:conflict} and evaluated under grounded semantics.
+\Cref{fig:toy_example}a illustrates the problem graph extracted from the LogicalKB introduced in \Cref{ex:kb,ex:conflict} and evaluated under grounded semantics.
 Arguments are represented as nodes, attacks as arrows and the colors represent the state of the arguments according to the semantics: red for refuted arguments, and green for \mf{??? the ones in the extension. la definizione di (grounded?) extension è abbastanza nascosta}.
 The arguments are identified through the set of rules used to build them.
 In the upper part of the figure, we have a group of undefeated arguments, namely \texttt{s1}, \texttt{s2}, \texttt{s3}, \texttt{a1}, and \texttt{a2}, representing the basic knowledge used to setup the AutoML search space -- i.e. steps and algorithms.
@@ -662,15 +665,15 @@ The arguments in the extension give us all the information that we should use du
 \end{example}
 
 The use of argumentation relieves the DS of the burden of manually considering all the effects of the possible constraints.
-It is important to notice that, although the increased degree of automation, the Problem Graph allows the DS and domain experts to correct, revise, and supervise the process.
+It is important to notice that, although the increased degree of automation, the problem graph allows the DS and domain experts to correct, revise, and supervise the process.
 Accordingly, possible inconsistencies -- due to diverging constraints -- can be verified by the DS using her knowledge.
 
-Any change in the LogicalKB translates into a change in the Problem Graph, allowing the DS and domain experts to visualize it and \textit{argue} about it.
-the revision of the Problem Graph is the key element in the process of augmenting the knowledge: the DS and domain experts can consult each other and discuss how the new insights relate to their initial knowledge.
-Indeed, thanks to the nature of the Problem Graph, it would be extremely easy to identify new possible conflicts and supporting arguments.
-Furthermore, AutoML can update the Problem Graph by extracting constraints from the performed exploration, and transposing them into the LogicalKB.
+Any change in the LogicalKB translates into a change in the problem graph, allowing the DS and domain experts to visualize it and \textit{argue} about it.
+the revision of the problem graph is the key element in the process of augmenting the knowledge: the DS and domain experts can consult each other and discuss how the new insights relate to their initial knowledge.
+Indeed, thanks to the nature of the problem graph, it would be extremely easy to identify new possible conflicts and supporting arguments.
+Furthermore, AutoML can update the problem graph by extracting constraints from the performed exploration, and transposing them into the LogicalKB.
 For instance, the DS may not have considered that the dataset contains missing values.
-AutoML helps in identifying the new transformation-related constraint ``require Imputation ($\mathcal{I}$) in all the pipelines'' and adds it to the LogicalKB ($mandatory(<\mathcal{I}>, \mathcal{C}l)$).
+AutoML helps in identifying the new transformation-related constraint ``require Imputation ($\mathcal{I}$) in all the pipelines'' and adds it to the LogicalKB ($mandatory(\langle \mathcal{I} \rangle, \mathcal{C}l)$).
 % Of course, the resulting constraints might be in conflict with the previous knowledge.
 
 The described process is compliant with and augments the CRISP-DM process.
@@ -678,19 +681,19 @@ The inferred/learned knowledge can be automatically handled throughout iteration
 
 \section{HAMLET}\label{sec:implementation}
 
-HAMLET iterates over three phases (\Cref{fig:approach}): (i) generation the Problem Graph out of the LogicalKB, (ii) extraction of the search space, and (iii) augmentation of the LogicalKB.
+HAMLET iterates over three phases (\Cref{fig:approach}): (i) generation the problem graph out of the LogicalKB, (ii) extraction of the search space, and (iii) augmentation of the LogicalKB.
 
 A first prototype of the system is available at \url{https://github.com/QueueInc/HAMLET}.
 The prototype is composed of two sub-modules: the first, written in Kotlin and running on the JVM, exposes a graphical interface on which the data scientists can compile and revise the LogicalKB. 
-The module is also responsible for the generation and evaluation of the Problem Graph; it implements the structured argumentation functionalities based on the arg2p \cite{arg2p-jlc}, an ASPIC+-based framework, to meet the specifications from \Cref{sec:problem}.
-% , in order to completely delegate to it the construction of the Problem Graph and its evaluation. 
+The module is also responsible for the generation and evaluation of the problem graph; it implements the structured argumentation functionalities based on the arg2p \cite{arg2p-jlc}, an ASPIC+-based framework, to meet the specifications from \Cref{sec:problem}.
+% , in order to completely delegate to it the construction of the problem graph and its evaluation. 
 The second module, written in Python, is responsible for performing the AutoML optimization and the extraction of the new constraints from the explored space.
-% \mf{Già detto sopra} In what follows, we describe the main elements that characterize the implementation: a) generation of the Problem Graph, b) set up of the Constrained AutoML process, and c) mining of the new rules to add to the LogicalKB.
+% \mf{Già detto sopra} In what follows, we describe the main elements that characterize the implementation: a) generation of the problem graph, b) set up of the Constrained AutoML process, and c) mining of the new rules to add to the LogicalKB.
 
 \subsection{Generating the Problem Graph}
 In \Cref{sec:problem}, we defined the LogicalKB as the set of rules specified by the DS using her knowledge.
 The LogicalKB also includes a set of hard-encoded rules representing inferences necessary to characterize the AutoML problems.
-These rules are joined to the ones defined by the DS and used to build the Problem Graph (i.e., argumentation framework).
+These rules are joined to the ones defined by the DS and used to build the problem graph (i.e., argumentation framework).
 
 A subset of rules is shown in \Cref{rules-arg2p}.
 The first two ($hc0$ and $hc1$) define how to automatically derive a pipeline using algorithms and steps.
@@ -736,10 +739,8 @@ Consequently, \texttt{\{c2, a1, hc2\}} is refuted and the the pipelines attacked
 \label{ex:hard_coded_rules}
 \end{example}
 
-% \subsection{Extracting the Search Space from the Problem Graph}
-
-Given the Problem Graph and its grounded extension $e$ (we recall that the Problem Graph contains \textit{all} the generated pipelines -- including their partial permutations), the search space can be extracted as in \Cref{spacealgorithm}. 
-We iterate over all the generated pipelines in the Problem Graph and we recursively build their domain: the pipeline domain is the Cartesian product of the step domains, the step domain is the disjoint union of the algorithm domains (we leverage the disjoint union since each algorithm can be picked as an alternative to the others), the algorithm domain is the Cartesian product of its hyperparameters; the domain of a hyperparameter is given by definition.
+Given the problem graph and its grounded extension $e$ (we recall that the problem graph contains \textit{all} the generated pipelines -- including their partial permutations), the search space can be extracted as in \Cref{spacealgorithm}. 
+We iterate over all the generated pipelines in the problem graph and we recursively build their domain: the pipeline domain is the Cartesian product of the step domains, the step domain is the disjoint union of the algorithm domains (we leverage the disjoint union since each algorithm can be picked as an alternative to the others), the algorithm domain is the Cartesian product of its hyperparameters; the domain of a hyperparameter is given by definition.
 Finally, the search space is the disjoint union of all the alternative pipeline domains.
 
 Noticeably, while the search space could be constrained during its construction (e.g., by simply adding an ``if'' condition to check the validity of each pipeline at \Cref{spacealgorithm} line 10), current AutoML frameworks only support optimization in convex spaces \cite{???}.
@@ -747,11 +748,11 @@ As a consequence, we need to produce the entire convex search space first, and t
 % and discard the invalid pipelines as we encounter them (this comes at almost no computational time since the pipelines are directly discarded and not executed).
 
 \begin{algorithm}[t]
-\caption{Search space from the Problem Graph}
+\caption{Search Space from the Problem Graph}
 \label{spacealgorithm}
 \footnotesize
 \begin{algorithmic}[1]
-\Require{$e$: Problem Graph grounded extension}    
+\Require{$e$: Grounded extension of the problem graph}    
 \Ensure{$\Lambda$: Search Space}
     % \SetKwFunction{FMain}{GetSpace}
     % \SetKwProg{Fn}{Function}{:}{}
@@ -784,7 +785,7 @@ As a consequence, we need to produce the entire convex search space first, and t
     \EndProcedure
     \item[]
     \State $\Lambda \leftarrow \varnothing$ \Comment{Initialize the search space}
-    \ForEach{$pipeline(\alpha, A) \in e $}  \Comment{For each pipeline with $\alpha$ steps and alg. $A$}
+    \ForEach{$pipeline(\alpha, A) \in e $} \Comment{For each argument in extension that is a pipeline with $\alpha$ steps and alg. $A$...}
         \State $ \Lambda_{P} \leftarrow \textup{GetDomain(A)}$ \Comment{Init. pipeline domain with algorithm domain}
         \ForEach{$S \in \alpha$}  \Comment{For each step in the pipeline...}
             \State $\Lambda_{S}  \leftarrow \varnothing$ \Comment{Init. the step domain}
@@ -803,9 +804,7 @@ As a consequence, we need to produce the entire convex search space first, and t
 % Then, we map the space expressed in the AutoML language to a standard AutoML format that can be inputed to the optimization subsystem.
 \subsection{Exploring a Constrained Search Space}\label{subsec:constrained_automl}
 
-% Once the knowledge has been accurately revised and evaluated, an AutoML tool is leveraged to automate the ML pipeline instantiation.
-
-the Problem Graph is not only used to build the search space but it is also evaluated to understand which pipelines are invalid and which constraints are valid.
+The problem graph is not only used to build the search space but it is also evaluated to understand which pipelines are invalid and which constraints are valid.
 We combine the following techniques.
 \begin{itemize}
     \item Invalid pipelines are used to discourage the exploration of 
@@ -848,7 +847,7 @@ The recommendation depends on the constraint.
 As to the employed mining algorithms, we leveraged well-known implementations: \cite{???} and \cite{???} respectively for itemsets and sequences mining.
 
 \begin{example}[Rules Mining]
-With reference to the Problem Graph in \Cref{ex:hard_coded_rules},
+With reference to the problem graph in \Cref{ex:hard_coded_rules},
 the AutoML results are filtered according to the chosen metric, the algorithm \cite{???} is applied, and let us assume that the constraint \texttt{c3} is suggested:
 \begin{lstlisting}[mathescape=true]
 c3 : $\Rightarrow$ mandatory($\langle\mathcal{D}\rangle$, $\mathcal{D}t$).
@@ -860,7 +859,7 @@ As a matter of fact, it is well known that discretization improves the performan
 
 % \Cref{ex:theory} illustrates how HAMLET leverages Logic and Argumentation to handle the DS knowledge.
 % The proposed logic formalism allows to easily encode the different ML constraints into a LogicalKB.
-% We highlight that the Problem Graph generation is handled by an argumentation engine, which is available in the Supplementary Material \footnote{\url{https://queueinc.github.io/HAMLET-DATAPLAT2022/}}.
+% We highlight that the problem graph generation is handled by an argumentation engine, which is available in the Supplementary Material \footnote{\url{https://queueinc.github.io/HAMLET-DATAPLAT2022/}}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
