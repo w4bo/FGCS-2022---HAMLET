@@ -13,6 +13,7 @@
 \usepackage{threeparttable,booktabs}
 \usepackage{algpseudocode}
 \usepackage{algorithm}
+\usepackage{balance}
 \usepackage[normalem]{ulem}
 \usepackage[dvipsnames]{xcolor}
 \newtheorem{example}{Example}
@@ -233,7 +234,7 @@ We now dig the foundation of HAMLET by incrementally introducing the concepts ne
 \begin{table}[t]
     \centering
     \footnotesize
-    \caption{Main symbols used in the paper. \mf{Aggiungere i simboli mancanti}}
+    \caption{Main symbols used in the paper. \mf{Aggiungere i simboli mancanti ???}}
     \begin{tabular}{cl}
         \toprule
         Symbol & Meaning \\
@@ -503,10 +504,10 @@ c1 : $\Rightarrow$ forbidden($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
 %, a formal tool to convert elements from a logical language into an Argumentation graph,
 When applying constraints, they can be conflicting.
 
-\begin{definition}[Conflict]
-The conflict function $c$ is a function from $L$ to $2^L$---i.e. given a statement from $L$ the function returns the set of conflicting statements.
-\mf{Si può togliere? Alla fine riusciamo a inglobarla direttamente in quella sotto}
-\end{definition}
+% \begin{definition}[Conflict]
+% The conflict function $c$ is a function from $L$ to $2^L$---i.e. given a statement from $L$ the function returns the set of conflicting statements.
+% \mf{Si può togliere? Alla fine riusciamo a inglobarla direttamente in quella sotto ???}
+% \end{definition}
 
 First we reify the constraints from \Cref{constraints} in the conflict function.
 
@@ -565,68 +566,80 @@ In this case, \texttt{c1} (i.e., ``forbid $\mathcal{N}$ in pipelines with $\math
 \label{ex:conflict}
 \end{example}
 
-\mf{--- Inizio.}
-\mf{Questa parte (da --- Inizio a --- Fine) è molto tosta. Secondo me dobbiamo considerare una serie di fattori:
-\begin{itemize}
-    \item la venue (che parla di data platforms, machine learning puro è già un pelo borderline) e l'audience. Stiamo dando una formalizzazione molto complicata a persone che non sono nel settore di logica e argumentation e in questo forma non riuscirebbero a capirla (servirebbero almeno esempi/intuizioni/descrizioni). Il rischio---molto probabile imho---è di ricevere critiche sulla complessità del paper e---molto meno probabile---di ricevere un feedback di out of topic dalla venue
-    \item la novità di questa formalizzazione, se ho capito bene è presa quasi uguale da \cite{Modgil2014aspic+}, quindi sarebbe più un background e non un contributo vero alla problem formulation
-    \item Proposta: A noi serve il problem graph, io cercherei di scrivere un paragrafo soft in cui si descrivono (in linguaggio naturale) i concetti base che sono usati in seguito e rimandare il lettore a \cite{Modgil2014aspic+} per la formalizzazione completa.
-\end{itemize}
-}
-%, then the logical-encoded knowledge is transformed in a Problem Graph. 
-Let us now introduce some general notions from Structured Argumentation \cite{Modgil2014aspic+}.
+% \mf{--- Inizio.}
+% \mf{Questa parte (da --- Inizio a --- Fine) è molto tosta. Secondo me dobbiamo considerare una serie di fattori:
+% \begin{itemize}
+%     \item la venue (che parla di data platforms, machine learning puro è già un pelo borderline) e l'audience. Stiamo dando una formalizzazione molto complicata a persone che non sono nel settore di logica e argumentation e in questo forma non riuscirebbero a capirla (servirebbero almeno esempi/intuizioni/descrizioni). Il rischio---molto probabile imho---è di ricevere critiche sulla complessità del paper e---molto meno probabile---di ricevere un feedback di out of topic dalla venue
+%     \item la novità di questa formalizzazione, se ho capito bene è presa quasi uguale da \cite{Modgil2014aspic+}, quindi sarebbe più un background e non un contributo vero alla problem formulation
+%     \item Proposta: A noi serve il problem graph, io cercherei di scrivere un paragrafo soft in cui si descrivono (in linguaggio naturale) i concetti base che sono usati in seguito e rimandare il lettore a \cite{Modgil2014aspic+} per la formalizzazione completa.
+% \end{itemize}
+% }
+% %, then the logical-encoded knowledge is transformed in a Problem Graph. 
+% Let us now introduce some general notions from Structured Argumentation \cite{Modgil2014aspic+}.
 
-\begin{definition}[Argument]\label{args}
-Starting from an argumentation theory $AT=\langle L, R \rangle$ we can build an argument $Ar$ as:
-\begin{enumerate}
-    \item $Ar_1, \ldots, Ar_n \Rightarrow \psi$ if $\exists Ar_1, \ldots, Ar_n$ s.t. $\exists$ a rule $r$ = $Conc(Ar_1), \ldots, Conc(Ar_n) \Rightarrow \psi \in R$.
-    \begin{itemize}
-        \item $Conc(Ar)$ = $\psi$,
-        \item $Sub(Ar)$ = {$Sub(Ar_1) \cup \ldots \cup Sub(Ar_n) \cup \{Ar\}$},
-        \item $TopRule(Ar)$ = $r$
-    \end{itemize}
-\end{enumerate}
-\end{definition}
+% \begin{definition}[Argument]\label{args}
+% Starting from an argumentation theory $AT=\langle L, R \rangle$ we can build an argument $Ar$ as:
+% \begin{enumerate}
+%     \item $Ar_1, \ldots, Ar_n \Rightarrow \psi$ if $\exists Ar_1, \ldots, Ar_n$ s.t. $\exists$ a rule $r$ = $Conc(Ar_1), \ldots, Conc(Ar_n) \Rightarrow \psi \in R$.
+%     \begin{itemize}
+%         \item $Conc(Ar)$ = $\psi$,
+%         \item $Sub(Ar)$ = {$Sub(Ar_1) \cup \ldots \cup Sub(Ar_n) \cup \{Ar\}$},
+%         \item $TopRule(Ar)$ = $r$
+%     \end{itemize}
+% \end{enumerate}
+% \end{definition}
 
-Given an argument $Ar$ we write:
-\begin{itemize}
-    \item $Conc(Ar)$, for the conclusion of the argument;
-    \item $Sub(Ar)$, for the set of arguments supporting $Ar$;
-    \item $TopRule(Ar)$, for the last rule used to build the argument.
-\end{itemize}
+% Given an argument $Ar$ we write:
+% \begin{itemize}
+%     \item $Conc(Ar)$, for the conclusion of the argument;
+%     \item $Sub(Ar)$, for the set of arguments supporting $Ar$;
+%     \item $TopRule(Ar)$, for the last rule used to build the argument.
+% \end{itemize}
 
-We can define a preference relation over arguments in order to explicitly solve possible inconsistencies in the knowledge base using priorities over rules. 
+% We can define a preference relation over arguments in order to explicitly solve possible inconsistencies in the knowledge base using priorities over rules. 
 
-\begin{definition}[Preference]\label{pref}
-Given two arguments $Ar'$ and $Ar''$ built from the argumentation theory $AT=\langle L, R \rangle$ and a partial ordering over the rules in $R$, we say that $Ar'$ is preferred to $Ar''$ ($Ar' \succ Ar''$) iff $TopRule(Ar') \succ TopRule(Ar'')$.
-\end{definition}
+% \begin{definition}[Preference]\label{pref}
+% Given two arguments $Ar'$ and $Ar''$ built from the argumentation theory $AT=\langle L, R \rangle$ and a partial ordering over the rules in $R$, we say that $Ar'$ is preferred to $Ar''$ ($Ar' \succ Ar''$) iff $TopRule(Ar') \succ TopRule(Ar'')$.
+% \end{definition}
 
-Arguments are linked together using the conflict function defined in \Cref{conflictauto}.
+% Arguments are linked together using the conflict function defined in \Cref{conflictauto}.
 
-\begin{definition}[Attack]\label{attack}
-An argument $Ar$ attacks an argument $B$ (on $B' \in Sub(B)$) iff $Conc(B') \in c(Conc(A))$ and $B' \not\succ Ar$.
-\end{definition}
+% \begin{definition}[Attack]\label{attack}
+% An argument $Ar$ attacks an argument $B$ (on $B' \in Sub(B)$) iff $Conc(B') \in c(Conc(A))$ and $B' \not\succ Ar$.
+% \end{definition}
 
-\begin{definition}[Argumentation Framework]
-Let $AT$ be an argumentation theory $\langle L, R \rangle$. An abstract argumentation framework defined by $AT$, is a tuple $<\mathcal{A}r,\leadsto>$ where:
-\begin{itemize}
-    \item $\mathcal{A}r$ is the smallest set of all finite arguments constructed from $AT$ satisfying \Cref{args};
-    \item $\leadsto$ is defined as \{$(X, Y)|X,Y \in A$, and $X$ attacks $Y$\}  
-\end{itemize}
-\end{definition}
+% \begin{definition}[Argumentation Framework]
+% Let $AT$ be an argumentation theory $\langle L, R \rangle$. An abstract argumentation framework defined by $AT$, is a tuple $<\mathcal{A}r,\leadsto>$ where:
+% \begin{itemize}
+%     \item $\mathcal{A}r$ is the smallest set of all finite arguments constructed from $AT$ satisfying \Cref{args};
+%     \item $\leadsto$ is defined as \{$(X, Y)|X,Y \in A$, and $X$ attacks $Y$\}  
+% \end{itemize}
+% \end{definition}
 
-\mf{Ci sono lettere overlapping, tra cui X e S. X ha la stessa semantica di prima ???}
-\begin{definition}\label{semantics}
-Let $<\mathcal{A}r, \leadsto >$ be an Argumentation Framework. For any $X \in \mathcal{A}r$, $X$ is acceptable with respect to some $S \subseteq \mathcal{A}r$ iff $\forall Y$ s.t. $(Y, X) \in \leadsto$ implies $\exists Z \in S$ s.t. $(Z, Y) \in \leadsto$. Let $S \subseteq \mathcal{A}r$ be conflict free, i.e. there are no $B$, $C$ in $S$ such that $(B,C) \in \leadsto$. Then:
-\begin{itemize}
-    \item $S$ is an admissible extension iff $X \in S$ implies $X$ is acceptable w.r.t. $S$;
-    \item $S$ is a complete extension iff $X \in S$ iff $X$ is acceptable w.r.t. $S$;
-    \item $S$ is the grounded extension iff it is the set inclusion minimal complete extension.
-\end{itemize}
-\end{definition}
+% \mf{Ci sono lettere overlapping, tra cui X e S. X ha la stessa semantica di prima ???}
+% \begin{definition}\label{semantics}
+% Let $<\mathcal{A}r, \leadsto >$ be an Argumentation Framework. For any $X \in \mathcal{A}r$, $X$ is acceptable with respect to some $S \subseteq \mathcal{A}r$ iff $\forall Y$ s.t. $(Y, X) \in \leadsto$ implies $\exists Z \in S$ s.t. $(Z, Y) \in \leadsto$. Let $S \subseteq \mathcal{A}r$ be conflict free, i.e. there are no $B$, $C$ in $S$ such that $(B,C) \in \leadsto$. Then:
+% \begin{itemize}
+%     \item $S$ is an admissible extension iff $X \in S$ implies $X$ is acceptable w.r.t. $S$;
+%     \item $S$ is a complete extension iff $X \in S$ iff $X$ is acceptable w.r.t. $S$;
+%     \item $S$ is the grounded extension iff it is the set inclusion minimal complete extension.
+% \end{itemize}
+% \end{definition}
 
-Using these definitions we can finally introduce the Problem Graph. 
-\mf{--- Fine}
+% Using these definitions we can finally introduce the Problem Graph. 
+% \mf{--- Fine}
+
+We will now proceed to give an informal introduction to some key elements from the Structured Argumentation literature. For a complete introduction refer to the work in \cite{Modgil2014aspic+}.
+
+The first components we need are arguments. In ASPIC\textsuperscript{+} \cite{Modgil2014aspic+}, they are defined in a recursive way starting from an argumentation theory as the one in Definition \ref{system}. First, an argument is created for every rule with no premises – e.g., from the rule $r : \Rightarrow c$, we can derive an argument concluding $c$ using $r$. Then, we recursively apply the other rules in the theory to the newly generated arguments – e.g., we can use the argument with conclusion $c$ and the rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$.
+The last step is repeated until no new argument can be generated.
+
+An argumentation framework is defined using all the arguments built from an argumentation theory and their attack relation (nodes and edges in the argumentation graph). Attacks represent possible conflicts and inconsistencies between arguments’ conclusions. They are computed using a conflict function as the one in Definition \ref{conflictauto}. For instance, given two arguments concluding respectively $a$ and $b$, and a conflict function $c$ s.t. $c(a) = \{b\}$, then the latter argument directly attacks the former ($b$ is in conflict with $a$). The attack is then propagated to all the arguments built over the receiver of the attack–--e.g., if $a1$ directly attacks $a2$, and $a2$’s conclusion  is used to derive $a3$, then $a1$ also attacks $a3$.
+
+An important element of the ASPIC\textsuperscript{+} framework is the possibility to define a preference relation over arguments using a partial ordering over the rules in the theory. The impact of this relation on the framework is straightforward: it will be impossible for an argument to be attacked by the least preferred ones, even if they are in conflict. In other words, it is possible to explicitly solve inconsistencies in the knowledge base using priorities over rules. For the purposes of this paper, we exploit the \textit{last-weakest} ordering as presented in \cite{Modgil2014aspic+}.
+
+The evaluation of an argumentation framework is performed through semantics. In simple terms, semantics allow us to determine all the sets of arguments in a framework that are consistent (extensions). We only exploit grounded semantics as defined in \cite{Dung1995abstractArg}. This semantics is defined as the most skeptical between all the possible extensions---i.e., it includes only the arguments that are verified by all the possible interpretations of the graph.
+
 
 \begin{definition}[Problem Graph]
 Given a LogicalKB $L_{KB}$, we call Problem Graph the argumentation framework built starting from the argumentation theory $\langle L_{ML}, L_{KB} \rangle$ using the conflict function $c_{ML}$.
@@ -908,7 +921,13 @@ Among these, we do not report the results for the dataset mnist\_784 since the n
 \end{table}
 
 \subsection{Effectiveness}
-We employed balanced accuracy as the quality metric of the performance.
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=.4]{img/barchart_delta.png}
+    \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline. \mf{Ingrandire il font, togliere i titoli, \#explored pipeline instances}}
+    \label{fig:effectiveness}
+\end{figure}
+We employ balanced accuracy as the quality metric.
 For instance, in case of (two) binary classes, such a score is
 $$
 \texttt{Balanced accuracy} = \frac{1}{2}\left( \frac{TP}{TP + FN} + \frac{TN}{TN + FP}\right )
@@ -938,14 +957,14 @@ The preliminary results highlight that both the LogicalKB and rule recommendatio
 % The drops concerning the implementations PKB and PKB + IKA emphasize the importance of a Knowledge Base specific to the case at hand.
 % Indeed, for this experiment, we considered rules that are successful on a statistical scale.
 
+\subsection{Efficiency}
 \begin{figure}[t]
     \centering
-    \includegraphics[scale=.4]{img/barchart_delta.png}
-    \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline. \mf{Ingrandire il font, togliere i titoli, \#explored pipeline instances}}
-    \label{fig:effectiveness}
+    \includegraphics[scale=0.4]{img/barchart_delta_iteration.png}
+    \caption{Results assessing the efficiency of HAMLET w.r.t. the baseline}
+    \label{fig:efficiency}
 \end{figure}
 
-\subsection{Efficiency}
 \Cref{fig:efficiency} compares the number of explored pipeline instances within which HAMLET and the baseline visited the best result.
 We observe a decisive impact on the optimization execution.
 Every implementation of our framework is faster than the baseline (while producing solution with higher accuracy in 4 cases out of 5); the higher the gap of No. configurations, the more efficient HAMLET is.
@@ -955,12 +974,7 @@ Yet, the efficiency of the approach is attributed to the knowledge injection mec
 Thanks to this mechanism, the optimization process have information about the search space (i.e., the PKB) since the very first configuration.
 As a matter of fact, we observe that the PKB implementation overcomes the IKA implementation for each dataset excepts for wilt, in which we register a slight lag (i.e., 12 configurations).
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[scale=0.4]{img/barchart_delta_iteration.png}
-    \caption{Results assessing the efficiency of HAMLET w.r.t. the baseline}
-    \label{fig:efficiency}
-\end{figure}
+
 
 \section{Conclusions and Future Work}\label{sec:conclusion}
 
