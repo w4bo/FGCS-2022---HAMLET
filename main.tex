@@ -179,7 +179,8 @@ Yet, stacking (more and more) complex mechanisms on top of each other unavoidabl
 \subsection{Logic \& Argumentation}\label{logic}
 Logic is the abstract study of statements, sentences, and deductive arguments \cite{Paulson2018logichistory}.
 In this context, argumentation is an important tool for handling conflicting information (e.g., opinions and empirical data).
-In abstract argumentation \cite{Dung1995abstractArg}, a scenario can be represented by a directed graph. Each node represents an argument, and each edge denotes an attack by one argument on another. Each argument is regarded as atomic. There is no internal structure to an argument. Also, there is no specification of what is an argument or an attack. A graph can then be analyzed to determine which arguments are acceptable according to some general criteria (i.e., semantics) \cite{baroniCG11semantics}.
+In abstract argumentation \cite{Dung1995abstractArg}, a scenario can be represented by a directed graph.
+Each node represents an argument, and each edge denotes an attack by one argument on another. Each argument is regarded as atomic. There is no internal structure to an argument. Also, there is no specification of what is an argument or an attack. A graph can then be analyzed to determine which arguments are acceptable according to some general criteria (i.e., semantics) \cite{baroniCG11semantics}.
 
 A way to link abstract argumentation and logical formalisms has been advanced in the field of structured argumentation \cite{BesnardGHMPST14structured}, where we assume a formal logical language for representing knowledge (i.e., a logical knowledge base) and for specifying how arguments and conflicts (i.e., attacks) can be derived from that knowledge. 
 In the structured approach, the premises and claims of the argument are made explicit, and the relationship between them is formally defined through rules internal to the formalism.
@@ -473,18 +474,21 @@ c1 : $\Rightarrow$ forbidden($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/toy_example1.png}
+        \caption{}
         \label{fig:running_a}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/toy_example2.png}
+        \caption{}
         \label{fig:running_b}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/toy_example3.png}
+        \caption{}
         \label{fig:running_c}
     \end{subfigure}
     \caption{Examples of problem graphs. Green nodes are valid arguments, red ones are refuted. \jg{Figure b sbagliata (cambiare id argomenti)}}
@@ -645,7 +649,7 @@ Finally, the evaluation of an argumentation framework is performed through seman
 We exploit grounded semantics \cite{Dung1995abstractArg} to produce a \textit{grounded extension}; this semantics is the most skeptical among all the possible extensions---i.e., it includes only the arguments that are verified by all the possible interpretations. % of the graph.
 
 \begin{definition}[Problem Graph]
-Given a LogicalKB $L_{KB}$, we call problem graph the argumentation framework built starting from the argumentation theory $\langle L_{ML}, L_{KB} \rangle$ using the conflict function $c_{ML}$.
+We call \emph{Problem Graph} a graph in which nodes are arguments and edges are attacks from the argumentation framework that is built on the argumentation theory $\langle L_{ML}, LogicalKB \rangle$ and the conflict function $c_{ML}$.
 \end{definition}
 
 The benefits of the problem graph are two-fold.
@@ -655,7 +659,7 @@ Second of all, it is straightforward to convert such a graph of constraints into
 
 \begin{example}[Problem graph]
 \Cref{fig:toy_example}a illustrates the problem graph extracted from the LogicalKB introduced in \Cref{ex:kb,ex:conflict} and evaluated under grounded semantics.
-Arguments are represented as nodes, attacks as arrows and the colors represent the state of the arguments according to the semantics: red for refuted arguments, and green for \mf{??? the ones in the extension. la definizione di (grounded?) extension è abbastanza nascosta}.
+Arguments are represented as nodes, attacks as arrows and the colors represent the state of the arguments according to the semantics: red for refuted arguments, and green for the ones in the extension.
 The arguments are identified through the set of rules used to build them.
 In the upper part of the figure, we have a group of undefeated arguments, namely \texttt{s1}, \texttt{s2}, \texttt{s3}, \texttt{a1}, and \texttt{a2}, representing the basic knowledge used to setup the AutoML search space -- i.e. steps and algorithms.
 Then, we have an argument for every pipeline in \Cref{ex:conflict}: from \texttt{p1} to \texttt{p5} the pipelines regarding $\mathcal{D}t$, from \texttt{p6} to \texttt{p10} the ones regarding $\mathcal{K}nn$.
@@ -752,7 +756,8 @@ As a consequence, we need to produce the entire convex search space first, and t
 \label{spacealgorithm}
 \footnotesize
 \begin{algorithmic}[1]
-\Require{$e$: Grounded extension of the problem graph}    
+% \Require{$e$: Grounded extension of the problem graph}  
+\Require{PG(N, E): Nodes abd Edges of a Problem graph \mf{Va bene così? O ci serve extension???}}    
 \Ensure{$\Lambda$: Search Space}
     % \SetKwFunction{FMain}{GetSpace}
     % \SetKwProg{Fn}{Function}{:}{}
@@ -785,7 +790,7 @@ As a consequence, we need to produce the entire convex search space first, and t
     \EndProcedure
     \item[]
     \State $\Lambda \leftarrow \varnothing$ \Comment{Initialize the search space}
-    \ForEach{$pipeline(\alpha, A) \in e $} \Comment{For each argument in extension that is a pipeline with $\alpha$ steps and alg. $A$...}
+    \ForEach{$pipeline(\alpha, A) \in N$} \Comment{For each argument that is a pipeline with $\alpha$ steps and alg. $A$...}
         \State $ \Lambda_{P} \leftarrow \textup{GetDomain(A)}$ \Comment{Init. pipeline domain with algorithm domain}
         \ForEach{$S \in \alpha$}  \Comment{For each step in the pipeline...}
             \State $\Lambda_{S}  \leftarrow \varnothing$ \Comment{Init. the step domain}
