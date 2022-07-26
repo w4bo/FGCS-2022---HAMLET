@@ -171,7 +171,7 @@ Recently, AutoML is no longer limited to optimizing just the ML algorithm phase,
 In doing so, Auto-sklearn \cite{feurer2019auto} fixes the arrangement of the transformations a priori, without considering that the most performing arrangement changes according to the problem and dataset at hand.
 However, considering several arrangements translates into larger search spaces, not easy to explore.
 Moreover, multi-fidelity methods \cite{???} (i.e., the use of several partial estimations to boost the time-consuming evaluation process) have been exploited to let AutoML tools explore as many configurations as possible. 
-\mf{Meta-learning (i.e., learning on top of learning) has been used to warm-start the Bayesian optimization (i.e., to boost the convergence process) by suggesting promising configurations (i.e., that worked well in previous similar real-case problems) \cite{giovanelli2021data}. Distaccarci da meta-learning ???}
+\mf{@JG: Meta-learning (i.e., learning on top of learning) has been used to warm-start the Bayesian optimization (i.e., to boost the convergence process) by suggesting promising configurations (i.e., that worked well in previous similar real-case problems) \cite{giovanelli2021data}. Distaccarci da meta-learning ???}
 
 We believe that the DS has the duty to revise and supervise the suggested solutions as well as the process producing them.
 Yet, stacking (more and more) complex mechanisms on top of each other unavoidably led to a less understandable optimization that can be hardly controlled by the DS (especially if without a strong computer science background).
@@ -205,14 +205,14 @@ As to research contributions, we found plenty of visualization wrappers.
 In \cite{drozdal2020trust}, the authors raise the need of incorporating transparency into AutoML: after a session interview, they discover that -- out of all their proposed features -- model performance metrics and visualizations are the most important information to data scientists when establishing their trust the proposed solutions.
 ATMSeer \cite{wang2019atmseer} provides different multi-granularity visualizations to enable users to monitor the AutoML process and analyze the searched models.
 PipelineProfiler \cite{ono2020pipelineprofiler} offers interactive visualizations of the AutoML outputs and enables the reproducibility of the results through notebook Jupiter.
-Other contributions enhance current AutoML techniques towards easier human-interactions by: (i) supporting ethic and fair constraints in Bayesian Optimization through a mathematical encoding \cite{perrone2021fair, yaghini2021human}; (ii) simplifying the usage of AutoML with symbolic annotations \cite{peng2020pyglove} and declarative languages \cite{kraska2013mlbase}; (iii) supporting fast feedbacks from AutoML by leveraging well-known mechanisms of the DBMS \cite{vartak2015supporting, xin2018accelerating} \mf{questa frase non è proprio chiarissima ???}.
+Other contributions enhance current AutoML techniques towards easier human-interactions by: (i) supporting ethic and fair constraints in Bayesian Optimization through a mathematical encoding \cite{perrone2021fair, yaghini2021human}; (ii) simplifying the usage of AutoML with symbolic annotations \cite{peng2020pyglove} and declarative languages \cite{kraska2013mlbase}; (iii) supporting fast feedbacks from AutoML by leveraging well-known mechanisms of the DBMS \cite{vartak2015supporting, xin2018accelerating} \mf{@JG: questa frase non è proprio chiarissima ???}.
 Recently, MILE \cite{lee2020human} proposes to perform AutoML analysis with an end-to-end framework that reflect a DBMS (i.e., a query language + a lineage optimization).
 
 Companies like Google and IBM are the ones most engaged in boosting the involvement of the human in the loop.
 Google Vizer \cite{???} and Google Facets \cite{???} are the two main visualization tools.
 The former reveals the optimization details of the different hyperparameters \cite{golovin2017google}, and the latter focuses on analyzing the output and recognizes biased AI (e.g., ML models that discriminate on sensible attributes such as gender)
 As to IBM, AutoAI \cite{wang2020autoai} and AutoDS \cite{wang2021autods} are the tools developed within the MIT-IBM Watson AI Lab.
-In this context, several publications have been made \cite{wang2019human, muller2019data, drozdal2020trust, wang2020human, wang2021autods} with the aim of analyzing how a DS team works and assisting it in every facet \mf{questa carrellata di paper non mi piace troppo, non dice nulla ???}.
+In this context, several publications have been made \cite{wang2019human, muller2019data, drozdal2020trust, wang2020human, wang2021autods} with the aim of analyzing how a DS team works and assisting it in every facet \mf{@JG: questa carrellata di paper non mi piace troppo, non dice nulla ???}.
 
 Overall, an exhaustive dissertation of the state-of-the-art tools and required improvements is given in \cite{khuat2022roles} while in \cite{pfisterer2019towards}, the authors overview the main AutoML issues.  
 In \cite{gil2019towards, wang2019human, XinWLSP21automationml, crisan2021fits}, studies and interviews with data scientists are conducted to understand the perception of AutoML as well as their needs and expectations in the next-generation tools.
@@ -235,10 +235,10 @@ We now dig the foundation of HAMLET by incrementally introducing the concepts ne
 \begin{table}[t]
     \centering
     \footnotesize
-    \caption{Main symbols used in the paper. \mf{Aggiungere i simboli mancanti ???}}
+    \caption{Main symbols used in the paper. \mf{@JG @GP: Aggiungere/verificare i simboli -- principali -- mancanti ???}}
     \begin{tabular}{cl}
         \toprule
-        Symbol & Meaning \\
+        \textbf{Symbol} & \textbf{Meaning} \\
         \midrule
         $A$ & Algorithm \\
         $\gamma$ & Hyperparameter \\
@@ -423,7 +423,7 @@ Given a propositional language $L$, we define $L_{ML}$ as $L \cup X$, with $X$ t
     \item hyperparameter($A$, $\gamma$, $\eta$) with $A, \gamma, \eta \in L$, representing an hyperparameter $\gamma$ for the algorithm $A$ of type $\eta$ (e.g., numerical, categorical);
     \item domain($A$, $\gamma$, $\Lambda_\gamma$) with $A, \gamma, \Lambda_\gamma \in L$, representing an hyperparameter $\gamma$ for the algorithm $A$ with domain $\Lambda_\gamma$;
     \item pipeline($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a pipeline consisting of the sequence of steps $\langle S_1, \ldots, S_n \rangle$ and the classification algorithm $A$;
-    \item mandatory($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a constraint imposing the steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$; \mf{non credo di poter definire constraint su sugli step, ma solo sul algoritmi. Sbaglio? Cosa facciamo?}
+    \item mandatory($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a constraint imposing the steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$; \mf{@GP: non credo di poter definire constraint su sugli step, ma solo sul algoritmi. Sbaglio? Cosa facciamo?}
     \item forbidden($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a constraint forbidding the steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$;
     \item mandatory\_order($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a constraint imposing the sequence of steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$.
 \end{itemize}
@@ -431,7 +431,7 @@ Given a propositional language $L$, we define $L_{ML}$ as $L \cup X$, with $X$ t
 
 The set of rules $R$ in the theory is used to define how elements from the language are combined together.
 $R$ consists of (i) a set rules specified by the DS and a (ii) set of common rules we encoded to enable the automatic derivation of pipelines and constraints. 
-\mf{Funziona come paragone??? Intuitively, with reference to the well known C language, $X$ is a set of known functions (e.g., the $return$ and $if$ statements), $L$ is a set of known keywords (e.g., $\#define~SIZE$) and $R$ is the program written by the computer scientist plus some library functions.}
+\mf{@GP: Funziona come paragone 101, modificalo a piacere??? Intuitively, with reference to the well known C language, $X$ is a set of known functions (e.g., the $return$ and $if$ statements), $L$ is a set of known keywords (e.g., $\#define~SIZE$) and $R$ is the program written by the computer scientist plus some library functions.}
 
 % \begin{example}[Automatic rule derivation]
 % Given the two statements $step(\mathcal{D})$ (i.e., ``it exists a discretization step'') and  $algorithm(\mathcal{D}t, \mathcal{C}l)$ (i.e., ``it exists a decistion tree algorithm in the classification step''), examples of common rules in $R$ are
@@ -506,7 +506,6 @@ When applying constraints, they can be conflicting.
 
 % \begin{definition}[Conflict]
 % The conflict function $c$ is a function from $L$ to $2^L$---i.e. given a statement from $L$ the function returns the set of conflicting statements.
-% \mf{Si può togliere? Alla fine riusciamo a inglobarla direttamente in quella sotto ???}
 % \end{definition}
 
 First we reify the constraints from \Cref{constraints} in the conflict function.
@@ -566,14 +565,6 @@ In this case, \texttt{c1} (i.e., ``forbid $\mathcal{N}$ in pipelines with $\math
 \label{ex:conflict}
 \end{example}
 
-% \mf{--- Inizio.}
-% \mf{Questa parte (da --- Inizio a --- Fine) è molto tosta. Secondo me dobbiamo considerare una serie di fattori:
-% \begin{itemize}
-%     \item la venue (che parla di data platforms, machine learning puro è già un pelo borderline) e l'audience. Stiamo dando una formalizzazione molto complicata a persone che non sono nel settore di logica e argumentation e in questo forma non riuscirebbero a capirla (servirebbero almeno esempi/intuizioni/descrizioni). Il rischio---molto probabile imho---è di ricevere critiche sulla complessità del paper e---molto meno probabile---di ricevere un feedback di out of topic dalla venue
-%     \item la novità di questa formalizzazione, se ho capito bene è presa quasi uguale da \cite{Modgil2014aspic+}, quindi sarebbe più un background e non un contributo vero alla problem formulation
-%     \item Proposta: A noi serve il problem graph, io cercherei di scrivere un paragrafo soft in cui si descrivono (in linguaggio naturale) i concetti base che sono usati in seguito e rimandare il lettore a \cite{Modgil2014aspic+} per la formalizzazione completa.
-% \end{itemize}
-% }
 % %, then the logical-encoded knowledge is transformed in a problem graph. 
 % Let us now introduce some general notions from Structured Argumentation \cite{Modgil2014aspic+}.
 
@@ -627,7 +618,6 @@ In this case, \texttt{c1} (i.e., ``forbid $\mathcal{N}$ in pipelines with $\math
 % \end{definition}
 
 % Using these definitions we can finally introduce the problem graph. 
-% \mf{--- Fine}
 
 To create a problem graph, which is the medium readable by users and machines, we informally (for the sake of conciseness) introduce the key elements from structured argumentation; a complete formalization is found in \cite{Modgil2014aspic+}.
 Given an argumentation theory, an \textit{argument} is created for every rule with no premises -- e.g., from the rule $r : \Rightarrow c$, we derive an argument with \textit{conclusion} $c$ using $r$.
@@ -692,7 +682,6 @@ The prototype is composed of two sub-modules: the first, written in Kotlin and r
 The module is also responsible for the generation and evaluation of the problem graph; it implements the structured argumentation functionalities based on the arg2p \cite{arg2p-jlc}, an ASPIC+-based framework, to meet the specifications from \Cref{sec:problem}.
 % , in order to completely delegate to it the construction of the problem graph and its evaluation. 
 The second module, written in Python, is responsible for performing the AutoML optimization and the extraction of the new constraints from the explored space.
-% \mf{Già detto sopra} In what follows, we describe the main elements that characterize the implementation: a) generation of the problem graph, b) set up of the Constrained AutoML process, and c) mining of the new rules to add to the LogicalKB.
 
 \subsection{Generating the Problem Graph}
 In \Cref{sec:problem}, we defined the LogicalKB as the set of rules specified by the DS using her knowledge.
@@ -757,7 +746,7 @@ As a consequence, we need to produce the entire convex search space first, and t
 \footnotesize
 \begin{algorithmic}[1]
 % \Require{$e$: Grounded extension of the problem graph}  
-\Require{PG(N, E): Nodes abd Edges of a Problem graph \mf{Va bene così? O ci serve extension???}}    
+\Require{PG(N, E): Nodes abd Edges of a Problem graph \mf{@GP: Va bene così? O ci serve extension???}}    
 \Ensure{$\Lambda$: Search Space}
     % \SetKwFunction{FMain}{GetSpace}
     % \SetKwProg{Fn}{Function}{:}{}
@@ -846,10 +835,9 @@ The recommendation depends on the constraint.
 \begin{itemize}
     \item $mandatory$: we consider only the patterns with good performance (i.e., $0.7 \leq metric \leq 1.0$); 
     \item $forbidden$: we consider only the patterns with bad performance (i.e., $0.0 \leq metric \leq 0.3$);
-    \item $mandatory\_order$: the same considerations of the mandatory constraints stand, except that we look for (sub)sequences \cite{srikant1996mining} of length equal to 2.
-    In such a way, we discover dependencies in pairs of transformations as in \cite{giovanelli2021data} and let the logical paradigm deduce the implications.   
+    \item $mandatory\_order$: the same considerations of the mandatory constraints stand, except that we look for (sub)sequences \cite{srikant1996mining} of length 2 to discover ordering dependencies in pairs of steps \cite{giovanelli2021data} and let the logical paradigm deduce the implications.   
 \end{itemize}
-As to the employed mining algorithms, we leveraged well-known implementations: \cite{???} and \cite{???} respectively for itemsets and sequences mining.
+We leveraged well-known implementations \cite{???} and \cite{???} for itemsets and sequences mining, respectively.
 
 \begin{example}[Rules Mining]
 With reference to the problem graph in \Cref{ex:hard_coded_rules},
@@ -903,7 +891,7 @@ Among these, we do not report the results for the dataset mnist\_784 since the n
     \centering
         \begin{tabular}{ll|ll|ll|ll}
             \toprule
-             OpenMLID \tnote{a} & Dataset & \multicolumn{2}{c}{Instances} & \multicolumn{2}{c}{Features} & \multicolumn{2}{c}{Classes}  \\ \midrule
+             \textbf{OpenMLID} \tnote{a} & \textbf{Dataset} & \multicolumn{2}{c}{\textbf{Instances}} & \multicolumn{2}{c}{\textbf{Features}} & \multicolumn{2}{c}{\textbf{Classes}}  \\ \midrule
              40983 & wilt & 4839 & \footnotesize{\texttt{L}} & 6 & \footnotesize{\texttt{L}} & 2 & \footnotesize{\texttt{L}}\\
              40499 & texture & 5500& \footnotesize{\texttt{L}} & 41& \footnotesize{\texttt{L}} & 11& \footnotesize{\texttt{H}}\\
              1485 & madelon & 2600 & \footnotesize{\texttt{L}} & 501 & \footnotesize{\texttt{H}} & 2 & \footnotesize{\texttt{L}}\\
@@ -928,7 +916,7 @@ Among these, we do not report the results for the dataset mnist\_784 since the n
 \begin{figure}[t]
     \centering
     \includegraphics[scale=.4]{img/barchart_delta.png}
-    \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline. \mf{Ingrandire il font, togliere i titoli, \#explored pipeline instances}}
+    \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline. \mf{@JG: Ingrandire il font, togliere i titoli, \#explored pipeline instances}}
     \label{fig:effectiveness}
 \end{figure}
 We employ balanced accuracy as the quality metric.
@@ -971,7 +959,7 @@ The preliminary results highlight that both the LogicalKB and rule recommendatio
 
 \Cref{fig:efficiency} compares the number of explored pipeline instances within which HAMLET and the baseline visited the best result.
 We observe a decisive impact on the optimization execution.
-Every implementation of our framework is faster than the baseline (while producing solution with higher accuracy in 4 cases out of 5); the higher the gap of No. configurations, the more efficient HAMLET is.
+Every implementation of our framework is faster than the baseline (while producing solution with higher accuracy in 4 cases out of 5); the higher the gap in explored pipeline instances, the more efficient HAMLET is.
 The best result is achieved by the PKB + IKA implementation (with a gap of 617 configurations) since, as discussed in the previous experiment, it leverages all types of provided constraints.
 The knowledge augmentation boosts the convergence of the optimization model run after run.
 Yet, the efficiency of the approach is attributed to the knowledge injection mechanism (i.e., \Cref{subsec:constrained_automl}).
@@ -1001,6 +989,7 @@ The directions for future work are plentiful, among them:
 and (iv) couple HAMLET with a visualization metaphor (e.g., based on the problem graph) to help data scientists' understanding.
 
 \bibliographystyle{elsarticle-num} 
+\balance
 \bibliography{refs}
 
 \end{document}
