@@ -16,6 +16,8 @@
 \usepackage{balance}
 \usepackage[normalem]{ulem}
 \usepackage[dvipsnames]{xcolor}
+\usepackage{soul}
+
 \newtheorem{example}{Example}
 \newtheorem{definition}{Definition}
 \newtheorem{formula}{Formula}
@@ -26,6 +28,7 @@
 \newtheorem{req}{Requisite}
 \algnewcommand\algorithmicforeach{\textbf{for each}}
 \algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
+\newcommand{\argtup}{{Arg{\sf 2}P}}
 
 \lstset{%
     basicstyle=\small\ttfamily,
@@ -50,7 +53,7 @@
 \newcommand{\gp}[1]{{\color{red}{\textbf{#1}}}}
 \newcommand{\gpc}[2]{{\color{red}{\textbf{#1}}} {\color{blue}\sout{#2}}}
 \newcommand{\jg}[1]{{\color{orange}{\textbf{#1}}}}
-\newcommand{\jgc}[2]{{\color{orange}{\textbf{#1}}} {\color{blue}\sout{#2}}}
+\newcommand{\jgc}[2]{{\color{orange}{\textbf{#1}}} {\color{orange}\sout{#2}}}
 \newcommand{\mf}[1]{{\color{blue}{\textbf{#1}}}}
 \newcommand{\mfc}[2]{{\color{blue}{\textbf{#1}}} {\color{blue}\sout{#2}}}
    
@@ -62,7 +65,7 @@
 \begin{frontmatter}
 %%
 %% The "title" command
-\title{HAMLET: Human-centered AutoML via Structured Argumentation}
+\title{HAMLET: a framework for Human-centered AutoML via Structured Argumentation}
 %% The "author" command and its associated commands are used to define
 %% the authors and their affiliations.
 % \author{Joseph Giovanelli}
@@ -100,17 +103,17 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Machine learning (ML) plays a crucial role in data analysis and data platforms, integrated sets of technologies that collectively meet end-to-end data needs.
-In the last decade, we have witnessed exponential growth in both the complexity and the number of ML techniques; leveraging such methods to solve real-case problems has become difficult for data scientists.
-Automated Machine Learning (AutoML) tools were devised to alleviate this task but easily became as complex as the ML techniques themselves, with data scientists losing again control over the process.
-In this paper, we design and extend HAMLET (Human-centric AutoMl via Logic and Argumentation), a framework that helps data scientists to redeem their centrality.
-HAMLET enables data scientists to express machine-learning and data constraints in a uniformed human- and machine-understandable medium.
-User-defined constraints are interpreted to devise the search space of an ML pipeline (including both pre-processing and classification steps), then the pipeline is optimized through AutoML, and finally, new constraints are learned and integrated into the previous ones through logic and argumentation.
-By doing so, HAMLET not only allows easy exploration of the new knowledge at each iteration but also enforces a continuous revision via the AutoML tool and the confrontation between the data scientists and domain experts.
+Machine Learning (ML) plays a crucial role in data analysis and data platforms, integrated sets of technologies that collectively meet end-to-end data needs.
+In the last decade, we have witnessed exponential growth in both the complexity and the number of ML techniques; leveraging such methods to solve real-case problems has become difficult for Data Scientists.
+Automated Machine Learning (AutoML) tools were devised to alleviate this task but easily became as complex as the ML techniques themselves, with Data Scientists losing again control over the process.
+In this paper, we design and extend HAMLET (Human-centered AutoMl via Logic and Argumentation), a framework that helps Data Scientists to redeem their centrality.
+HAMLET enables Data Scientists to express machine-learning and data constraints in a uniformed human- and machine-readable medium.
+User-defined constraints are interpreted to drive the exploration of ML pipelines (including both pre-processing and classification steps), then the best pipeline instance is retrieved by AutoML, and finally, new constraints are learned and integrated through Logic and Argumentation.
+By doing so, HAMLET not only allows easy exploration of the new knowledge at each iteration but also enforces a continuous revision via the AutoML tool and the confrontation between the Data Scientists and domain experts.
 \end{abstract}
 
 \begin{keyword}
-AutoML, Logic, Argumentation, CRISP-DM, Data Scientist, Machine learning
+Human-centered, AutoML, Logic, Argumentation, CRISP-DM, Data Scientist, Machine learning
 \end{keyword}
 \end{frontmatter}
 
@@ -125,75 +128,83 @@ AutoML, Logic, Argumentation, CRISP-DM, Data Scientist, Machine learning
 Data platforms, integrated sets of technologies that collectively meet end-to-end data needs, work towards the automation of data management and analysis \cite{DBLP:journals/fgcs/FranciaGGLRS21}.
 Machine Learning (ML) plays a key role in such processes; for instance, it has been leveraged to devise cost models for querying data over heterogeneous data sources \cite{multi-store}, data management through data lineage and data exploration \cite{dataplat2}, and many big data analytics applications (that are well surveyed in \cite{zhou2017ml}).
 
-Data platforms aim at supporting end-to-end data analysis; in this scope, Cross-Industry Standard Process for Data Mining (CRISP-DM) \cite{wirth2000crisp} is the most acknowledged standard process model and we will take it as a reference model henceforth: given a data mining/machine learning task to solve, the data scientist (DS) collects raw data in arbitrary formats from the data lake, builds up knowledge on both the problem and the data, translates such knowledge into \textit{constraints}, designs and trains a model, and finally deploys the solution into the data platform itself.
-Such solution usually consists of a \textit{pipeline}: a sequence of \textit{data pre-processing transformations} ending with an \textit{ML algorithm}.
-The DS instantiates the pipeline among a large set of \textit{algorithms}, which, in turn, can potentially have many hyperparameters.
+Data platforms aim at supporting end-to-end data analysis; in this scope, Cross-Industry Standard Process for Data Mining (CRISP-DM) \cite{wirth2000crisp} is the most acknowledged standard process model and we will take it as a reference model henceforth: given a Machine Learning task to solve, the Data Scientist (DS) collects raw data in arbitrary formats from the data lake, builds up knowledge on both the problem and the data, translates such knowledge into \textit{constraints}, designs and trains a model, and finally deploys the solution into the data platform itself.
+Such a solution usually consists of a \textit{ML pipeline}: a sequence of \textit{data pre-processing transformations} ending with an \textit{ML task}.
+The DS instantiates the pipeline among a large set of \textit{algorithms}, which, in turn, can potentially have many \textit{hyperparameters}.
 The accuracy of the deployed solution depends on finding both the best algorithms along with their hyperparameters within an exponential search space.
 
-Automated Machine Learning (AutoML) tools have been devised with the aim of assisting the DS while optimizing the ML pipeline.
+Automated Machine Learning (AutoML) tools have been devised with the aim of assisting the DS in finding such an ML pipeline.
 They leverage state-of-the-art optimization approaches to smartly explore huge search spaces of solutions.
 AutoML has been demonstrated to provide accurate performance, even in a limited time budget.
 When setting up the search space, it is highly important for the DS to inject her knowledge about the problem into ML \textit{constraints} that prevent the AutoML tool to retrieve invalid solutions (i.e., the result of those cannot be deemed correct).
 However, AutoML tools became that complex to make it difficult for the DS to understand their functioning, hence losing control over the process \cite{XinWLSP21automationml}.
 
-The need for a human-centric and explainable framework for AutoML is real \cite{gil2019towards, lee2020human, wang2019human} (or even mandatory in recent analytic scenarios where the user is interacting with mixed-reality and smart assistants \cite{DBLP:conf/dolap/FranciaGR19,DBLP:journals/is/FranciaGG22}), and it is crucial for the DS to augment her knowledge by learning new insights (e.g., new constraints) from the retrieved solutions.
+The need for a human-centered and explainable framework for AutoML is real \cite{gil2019towards, lee2020human, wang2019human} (or even mandatory in recent analytic scenarios where the user is interacting with mixed-reality and smart assistants \cite{DBLP:conf/dolap/FranciaGR19,DBLP:journals/is/FranciaGG22}), and it is crucial for the DS to augment her knowledge by learning new insights (e.g., new constraints) from the retrieved solutions.
 Indeed, the DS requires understanding the AutoML process in order to trust the proposed solutions \cite{drozdal2020trust}.
-While some works \cite{gil2019towards, lee2020human, wang2019human} prescribe the usage of a human-centric framework for AutoML, yet they only suggest design requirements.
+Some works \cite{gil2019towards, lee2020human, wang2019human} prescribe the usage of a human-centered framework for AutoML, yet they only suggest design requirements.
 Alternatively, the authors in \cite{ono2020pipelineprofiler} have proposed a tool that visualizes the best and the worst solutions retrieved by an AutoML tool.
-We claim that a human-centric framework should provide the mechanisms to: (i) help the DS to structure her knowledge about the problem in an effective search space; and (ii) augment the knowledge initially possessed by the DS with the one produced by the AutoML optimization process. 
+We claim that a human-centered framework should provide the mechanisms to: (i) help the DS to structure her knowledge about the problem in an effective search space; and (ii) augment the knowledge initially possessed by the DS with the one produced by the AutoML optimization process. 
 
-For this purpose, we introduce HAMLET (Human-centric AutoMl via Logic and Argumentation; \Cref{fig:approach}), a framework that leverages AutomML, Logic, and Argumentation to:
+For this purpose, we introduce HAMLET (Human-centered AutoMl via Logic and Argumentation; \Cref{fig:approach}), a framework that leverages AutomML and Structured Argumentation to:
 structure the ML constraints and the AutoML solutions in a Logical Knowledge Base (LogicalKB);
-parse the LogicalKB into a human- and machine-readable medium called problem graph;
-devise the AutoML search space from the problem graph;
-leverage the problem graph to allow both the DS and an AutoML tool to revise the current knowledge.
+parse the LogicalKB into a human- and machine-readable medium called Problem Graph;
+devise the AutoML search space from the Problem Graph;
+leverage the Problem Graph to allow both the DS and an AutoML tool to revise the current knowledge.
 This paper extends and engineers the vision proposed in \cite{DBLP:conf/edbt/GiovanelliP22} as follows.
 \begin{enumerate}[(i)]
     \item We design the formal foundation of our approach. 
-    \item We extend the supported constraints.
+    \item We \jg{extend??} the supported constraints.
     \item We implement a functioning prototype of HAMLET.
     \item We provide a preliminary empirical evaluation of the approach. 
 \end{enumerate}
 
-The remainder of the paper is structured as follows. In \Cref{sec:related}, we introduce the related work and background necessary to understand the paper. Then, we provide the formal problem formulation in \Cref{sec:problem} and its implementation in \Cref{sec:implementation}.
-Finally, we provide some preliminary evaluation in \Cref{sec:test} and we draw the conclusion and future research directions in \Cref{sec:conclusion}.
+The remainder of the paper is structured as follows. In \Cref{sec:related}, we introduce the related work and background \gp{\st{necessary to understand the paper}}. Then, we provide the problem formulation in \Cref{sec:problem} and its implementation in \Cref{sec:implementation}.
+Finally, we provide some preliminary evaluation in \Cref{sec:test}, and we draw the conclusions and future research directions in \Cref{sec:conclusion}.
 
 \section{Background and Related Work}\label{sec:related}
-HAMLET intersects two research areas, \textit{automated machine learning} and \textit{logic \& argumentation}. 
-To the best of our knowledge, no contribution lies in this intersection to provide a human-centric approach for the optimization of ML pipelines.
+HAMLET intersects two research areas, \textit{Automated Machine Learning} and \textit{Argumentation}. 
+To the best of our knowledge, no contribution lies in this intersection to provide a human-centered approach for the optimization of ML pipelines.
 
 \subsection{Automated Machine Learning}
-AutoML tools aim to lighten the DS in the overwhelming practice of finding the best ML pipeline; such pipelines mainly refer to supervised classification tasks.
-In the early days, only the optimization of a single ML algorithm was addressed.
-Auto-Weka \cite{kotthoff2019auto} formalized the problem as ``combined algorithm selection and hyperparameter optimization'': various ML algorithms and hyperparameters are tested over a dataset to find the most performing configuration. Such optimization was successfully coped by leveraging Bayesian optimization \cite{frazier2018tutorial}, a sequential design strategy for global optimization: until a limit (budget) of iterations or time is reached, an increasingly accurate model is built on top of the previously explored configurations.
+AutoML tools lighten the DS in the overwhelming practice of finding the best ML pipeline; such pipelines mainly refer to supervised classification tasks.
+In the early days, only the optimization of a single ML algorithm was addressed. \jg{sembra che si ottimizzi un solo algoritmo, precedentemente la frase era ``only the optimization of modelling was addresed'' perchè CRISP-DM era più trattato nell'intorduction, ma ora non si sa cosa modelling sia}
+Auto-Weka \cite{kotthoff2019auto} formalized the problem as ``combined algorithm selection and hyperparameter optimization'': various ML algorithms and hyperparameters are tested over a dataset to find the most performing configuration. Such optimization was successfully implemented by leveraging Bayesian optimization \cite{frazier2018tutorial}, a sequential design strategy for global optimization: until a limit (budget) of iterations or time is reached, an increasingly accurate model is built on top of the previously explored configurations.
 
-Recently, AutoML is no longer limited to optimizing just the ML algorithm phase, but it includes data pre-processing \cite{giovanelli2021effective,quemy2019data}.
+Recently, AutoML is no longer limited to optimizing just the ML algorithm phase, but it includes data pre-processing \cite{giovanelli2021effective, quemy2019data}.
 In doing so, Auto-sklearn \cite{feurer2019auto} fixes the arrangement of the transformations a priori, without considering that the most performing arrangement changes according to the problem and dataset at hand.
 However, considering several arrangements translates into larger search spaces, not easy to explore.
-Moreover, multi-fidelity methods \cite{???} (i.e., the use of several partial estimations to boost the time-consuming evaluation process) have been exploited to let AutoML tools explore as many configurations as possible. 
-\mf{@JG: Meta-learning (i.e., learning on top of learning) has been used to warm-start the Bayesian optimization (i.e., to boost the convergence process) by suggesting promising configurations (i.e., that worked well in previous similar real-case problems) \cite{giovanelli2021data}. Distaccarci da meta-learning ???}
+Moreover, multi-fidelity methods \cite{falkner2018bohb} (i.e., the use of several partial estimations to boost the time-consuming evaluation process) have been exploited to let AutoML tools explore as many configurations as possible. 
+
+Meta-learning (i.e., learning on top of learning \gp{sto inciso mi pare inutile}) leverages the previous performance of pipeline instances on a wide range of different datasets to provide several recommendations for the dataset at hand, such as promising pipeline instances (acting as an alternative to Bayesian optimization) and search spaces producing pipelines with good performance.
+Yet, meta-learning per se performs poorly, because it provides coarse-grained recommendations, while it is beneficial in warm-starting Bayesian optimization (i.e., the suggested pipeline instances are visited at the beginning to boost the convergence process) \gp{sta frase si capisce ma forse si può migliorare}.
+With respect to HAMLET, meta-learning can be leveraged as a support in building the Logical Knowledge Base (i.e., learning constraints the are effective on many similar datasets).
+% Meta-learning (i.e., learning on top of learning) consists of leveraging previous performance of pipeline instances on a wide range of different datasets to provide -- for the dataset at hand -- several recommendations.
+% The approach is flexible and can be used to suggest: promising pipeline instances, hence as an alternative of Bayesian optimization, search spaces that worked well.
+% Yet, meta-learning per se performs poorly because provides coarse-grained information.
+% As it has been discovered beneficial in warm-starting Bayesian optimization (i.e., the suggested pipeline instances are visited at the beginning to boost the convergence process), meta-learning can be also leveraged as a support in building the Logical Knowledge Base of our approach (i.e., extracting constraints from pipelines instances and search spaces that worked well).
 
 We believe that the DS has the duty to revise and supervise the suggested solutions as well as the process producing them.
 Yet, stacking (more and more) complex mechanisms on top of each other unavoidably led to a less understandable optimization that can be hardly controlled by the DS (especially if without a strong computer science background).
 
-\subsection{Logic \& Argumentation}\label{logic}
-Logic is the abstract study of statements, sentences, and deductive arguments \cite{Paulson2018logichistory}.
-In this context, argumentation is an important tool for handling conflicting information (e.g., opinions and empirical data).
-In abstract argumentation \cite{Dung1995abstractArg}, a scenario can be represented by a directed graph.
+\subsection{Formal Argumentation}\label{logic}
+\gp{\st{Logic is the abstract study of statements, sentences, and deductive arguments} \cite{Paulson2018logichistory}.}
+\gp{\st{In this context, }}Argumentation is a well-known formal tool for handling conflicting information (e.g., opinions and empirical data).
+In Abstract Argumentation \cite{Dung1995abstractArg}, a scenario can be represented by a directed graph.
 Each node represents an argument, and each edge denotes an attack by one argument on another. Each argument is regarded as atomic. There is no internal structure to an argument. Also, there is no specification of what is an argument or an attack. A graph can then be analyzed to determine which arguments are acceptable according to some general criteria (i.e., semantics) \cite{baroniCG11semantics}.
 
-A way to link abstract argumentation and logical formalisms has been advanced in the field of structured argumentation \cite{BesnardGHMPST14structured}, where we assume a formal logical language for representing knowledge (i.e., a logical knowledge base) and for specifying how arguments and conflicts (i.e., attacks) can be derived from that knowledge. 
+A way to link Abstract Argumentation and logical formalisms has been advanced in the field of Structured Argumentation \cite{BesnardGHMPST14structured}, where we assume a formal logical language for representing knowledge (i.e., a Logical Knowledge Base) and for specifying how arguments and conflicts (i.e., attacks) can be derived from that knowledge. 
 In the structured approach, the premises and claims of the argument are made explicit, and the relationship between them is formally defined through rules internal to the formalism.
 We can build the notion of attack as a binary relation over structured arguments that denotes when one argument is in conflict with another (e.g., contradictory claims or premises).
 One of the main frameworks for Structured Argumentation is ASPIC\textsuperscript{+}\cite{Modgil2014aspic+}. 
 In this formalism, arguments are built with two kinds of inference rules: strict rules, whose premises guarantee their conclusion, and defeasible rules, whose premises only create a presumption in favor of their conclusion. 
-Then conflicts between arguments can arise from both \textit{inconsistencies} in the logical knowledge base and the defeasibility of the reasoning steps in an argument (i.e., a defeasible rule used in reaching a certain conclusion from a set of premises can also be attacked).
+Then conflicts between arguments can arise from both \textit{inconsistencies} in the Logical Knowledge Base and the defeasibility of the reasoning steps in an argument (i.e., a defeasible rule used in reaching a certain conclusion from a set of premises can also be attacked).
 
-Once defined the right logical language for encoding the DS and AutoML knowledge, a structured argumentation model (e.g., an ASPIC\textsuperscript{+} instance \cite{arg2p-jlc}) can support HAMLET with the formal machinery to build an argumentation framework upon the data, while abstract argumentation would dispense the evaluation tools.
+Once defined the right logical language for encoding the DS and AutoML knowledge, a Structured Argumentation model (e.g., an ASPIC\textsuperscript{+} instance \cite{arg2p-jlc}) can support HAMLET with the formal machinery to build an Argumentation framework upon the data, while Abstract Argumentation would dispense the evaluation tools.
 
 \subsection{Towards Human-Centered Approaches}
+\jg{Quasi che la sezione di logica spezza il flusso tra automl e human-centered automl, invertirei 2.2 e 2.3}\gp{Approvo, adesso la sezione di argomentazione sembra messa a caso, mentre l'ultima frase della 2.3 sembra perfetta per introdurre questa sub}
 As of now, the DS role in current AutoML tools is limited to choosing the dataset to analyze, the validation technique (e.g., cross validation or hold out), and the metric to optimize (e.g., accuracy or F1 score).
-AutoML researchers aim at making machine learning accessible to a wide audience and more interest is currently devoted to shifting from minimal (or no) human intervention to enabling human intervention.
+AutoML researchers aim at making Machine Learning accessible to a wide audience and more interest is currently devoted to shifting from minimal (or no) human intervention to enabling human intervention \gp{Mi pare contraddittorio: vogliono rendere automl più accessibile diminuendo l'automazione?}.
 Auto-Weka \cite{kotthoff2019auto} and Auto-Sklearn \cite{feurer2019auto} enables non-expert users to build ML models, but are far too restrictive.
 
 As advocated in \cite{drozdal2020trust}, DSs require to understand the process to trust the proposed solutions.
@@ -202,26 +213,27 @@ This direction has been named ``human-centered AutoML'', and it is pursued by bo
 % As to the latter, there are large technology companies that try to capture as significant market share as possible by incorporating their tools with criteria such as fairness and interpretability. 
 
 As to research contributions, we found plenty of visualization wrappers.
-In \cite{drozdal2020trust}, the authors raise the need of incorporating transparency into AutoML: after a session interview, they discover that -- out of all their proposed features -- model performance metrics and visualizations are the most important information to data scientists when establishing their trust the proposed solutions.
+In \cite{drozdal2020trust}, the authors raise the need of incorporating transparency into AutoML: after a session interview, they discover that -- out of all their proposed features -- model performance metrics and visualizations are the most important information to DSs when establishing their trust in the proposed solutions.
 ATMSeer \cite{wang2019atmseer} provides different multi-granularity visualizations to enable users to monitor the AutoML process and analyze the searched models.
-PipelineProfiler \cite{ono2020pipelineprofiler} offers interactive visualizations of the AutoML outputs and enables the reproducibility of the results through notebook Jupiter.
-Other contributions enhance current AutoML techniques towards easier human-interactions by: (i) supporting ethic and fair constraints in Bayesian Optimization through a mathematical encoding \cite{perrone2021fair, yaghini2021human}; (ii) simplifying the usage of AutoML with symbolic annotations \cite{peng2020pyglove} and declarative languages \cite{kraska2013mlbase}; (iii) supporting fast feedbacks from AutoML by leveraging well-known mechanisms of the DBMS \cite{vartak2015supporting, xin2018accelerating} \mf{@JG: questa frase non è proprio chiarissima ???}.
-Recently, MILE \cite{lee2020human} proposes to perform AutoML analysis with an end-to-end framework that reflect a DBMS (i.e., a query language + a lineage optimization).
+PipelineProfiler \cite{ono2020pipelineprofiler} offers interactive visualizations of the AutoML outputs and enables the reproducibility of the results through a Jupiter notebook.
+Other contributions enhance current AutoML techniques towards easier human-interactions by: (i) supporting ethic and fair constraints in Bayesian Optimization through a mathematical encoding \cite{perrone2021fair, yaghini2021human}; (ii) simplifying the usage of AutoML with symbolic annotations \cite{peng2020pyglove} and declarative languages \cite{kraska2013mlbase}; (iii) supporting fast feed-backs from AutoML (i.e., runs that are less time-consuming) by leveraging well-known mechanisms of the DBMS (e.g., lineage optimization) \cite{vartak2015supporting, xin2018accelerating}.
+Recently, MILE \cite{lee2020human} has proposed to perform AutoML analysis with an end-to-end framework that reflect a DBMS (i.e., a query language + a lineage optimization).
 
 Companies like Google and IBM are the ones most engaged in boosting the involvement of the human in the loop.
-Google Vizer \cite{???} and Google Facets \cite{???} are the two main visualization tools.
-The former reveals the optimization details of the different hyperparameters \cite{golovin2017google}, and the latter focuses on analyzing the output and recognizes biased AI (e.g., ML models that discriminate on sensible attributes such as gender)
+Google Vizer \cite{golovin2017google} and Google Facets\footnote{\url{https://pair-code.github.io/facets/}} are the two main visualization tools.
+The former reveals details of the different hyperparameter tried in the optimization \cite{golovin2017google}, and the latter focuses on analyzing the output and recognizes biased AI (e.g., ML models that discriminate on sensible attributes such as gender).
 As to IBM, AutoAI \cite{wang2020autoai} and AutoDS \cite{wang2021autods} are the tools developed within the MIT-IBM Watson AI Lab.
-In this context, several publications have been made \cite{wang2019human, muller2019data, drozdal2020trust, wang2020human, wang2021autods} with the aim of analyzing how a DS team works and assisting it in every facet \mf{@JG: questa carrellata di paper non mi piace troppo, non dice nulla ???}.
+Specifically, the former enables non-technical users to define and customize their business goals as constraints. 
+The latter assists the DS team throughout the CRISP-DM process (e.g., in data collection and pipeline design \cite{muller2019data, wang2021autods} and in the augmentation of the DS's knowledge about the dataset features \cite{drozdal2020trust}).
 
 Overall, an exhaustive dissertation of the state-of-the-art tools and required improvements is given in \cite{khuat2022roles} while in \cite{pfisterer2019towards}, the authors overview the main AutoML issues.  
-In \cite{gil2019towards, wang2019human, XinWLSP21automationml, crisan2021fits}, studies and interviews with data scientists are conducted to understand the perception of AutoML as well as their needs and expectations in the next-generation tools.
+In \cite{gil2019towards, XinWLSP21automationml, crisan2021fits}, studies and interviews with DSs are conducted to understand their perception of AutoML as well as their needs and expectations in the next-generation tools.
 The main insight is that the future of data science work will be a collaboration between humans and AI systems, in which both automation and human expertise are indispensable \cite{wang2019human}.
 To this end, AutoML should focus on: simplicity, reproducibility, and reliability \cite{XinWLSP21automationml, crisan2021fits}.
 
-While the above-mentioned papers mainly focus on visualization, HAMLET brings the DS in the loop by allowing her to inject her knowledge into the process in the form of ML constraints through logic, optimize and learn new constraints through AutoML, and manage such constraints and possible conflicts through argumentation.
+While the above-mentioned papers mainly focus on visualization, HAMLET brings the DS in the loop by allowing her to inject her knowledge into the process in the form of ML constraints \gp{\st{through logic}}, optimize and learn new constraints through AutoML, and manage such constraints and possible conflicts through Argumentation.
 
-\section{Problem formulation}\label{sec:problem}
+\section{Problem Formulation}\label{sec:problem}
 \Cref{fig:approach} illustrates the overview of HAMLET.
 When addressing ML problems, DSs usually follow a process model such as CRISP-DM that entails the following steps.
 ``Domain understanding'' focuses on understanding the goals (we recall that we consider supervised classification task) and requirements of the project. 
@@ -230,18 +242,20 @@ When addressing ML problems, DSs usually follow a process model such as CRISP-DM
 Finally, the best solution is deployed.
 
 HAMLET intersects CRISP-DM, allowing the DS to inject and augment her knowledge of the domain and data at hand while automatizing the optimization of the ML pipeline. 
-We now dig the foundation of HAMLET by incrementally introducing the concepts necessary to move from AutoML to Logic and Argumentation and back.
+We now dig the foundation of HAMLET by incrementally introducing the concepts necessary to move from AutoML to Logic and Argumentation.
+To support the reader, we summarize the main notation in \Cref{tab:symbols}.
 
 \begin{table}[t]
     \centering
     \footnotesize
-    \caption{Main symbols used in the paper. \mf{@JG @GP: Aggiungere/verificare i simboli -- principali -- mancanti ???}}
+    \caption{Main symbols used in the paper.}
     \begin{tabular}{cl}
         \toprule
         \textbf{Symbol} & \textbf{Meaning} \\
         \midrule
         $A$ & Algorithm \\
-        $\gamma$ & Hyperparameter \\
+        $h$ & Algorithm hyperparameter \\
+        $t$ & Domain type \\
         $S$ & Step \\
         $P$ & Pipeline \\
         $\lambda_*$ & Instance of * \\
@@ -252,9 +266,8 @@ We now dig the foundation of HAMLET by incrementally introducing the concepts ne
     \label{tab:symbols}
 \end{table}
 
-To support the reader, we summarize the main notation in \Cref{tab:symbols}.
-
 \subsection{AutoML Formalization}
+\jg{Questo cappello in parte è uguale a quello che si dice nel cappello della 3, per me si dovrebbero unificare sopra (portando su le cose dei constraint)}
 Following CRISP-DM, the DS usually works in a close cooperation with domain experts to enlist both \textit{domain-related} constraints and \textit{data-related} constraints; Domain and data understanding are repeated until the DS is satisfied by the acquired knowledge.
 Then, the DS integrates data pre-processing and modeling techniques to build the solution that is finally evaluated and deployed;
 such a solution consists of an ML pipeline: a series of data pre-processing transformations and an ML algorithm.
@@ -267,7 +280,7 @@ A \textit{dataset} $D$ is a collection of data items that is characterized by a 
 \begin{definition}[Algorithm]
 An \textit{algorithm} $A$ is a function that transforms an input dataset $D'$ into a new dataset $D''$.
 Besides the dataset, the set of $A$'s (possibly empty) inputs are called \textit{hyperparameters}.
-Each hyperparameter $\gamma$ has a domain $\Lambda_\gamma$, and the Cartesian product of all hyperparameter domains is denoted with $\Lambda_A$.
+Each hyperparameter $h$ has a domain $\Lambda_h$, and the Cartesian product of all hyperparameter domains is denoted with $\Lambda_A$.
 We call \textit{algorithm instance} $\lambda_A \in \Lambda_A$ an algorithm whose hyperparameters have been assigned with values from their respective domains.
 \end{definition}
 
@@ -279,7 +292,591 @@ The step domain is defined as a disjoint union of the algorithm domains $\Lambda
 \end{definition}
 
 Where $\cupdot$ combines the domains of the given algorithms, while retaining the original domain membership (i.e., it is possible to refer to the domain of each algorithm included in a step).
-\Cref{tab:search_space} summarizes the list of the steps and algorithms leveraged in HAMLET (but the approach can also be extended).
+%\Cref{tab:search_space} summarizes the list of the steps and algorithms leveraged in HAMLET (but the approach can also be extended).
+
+\begin{example}[Algorithm and step]
+Examples of steps are Normalization ($\mathcal{N}$), Discretization ($\mathcal{D}$), and Classification ($\mathcal{C}l$). 
+An algorithm for Classification is Decision Tree  ($\mathcal{D}t$) \cite{DBLP:books/wa/BreimanFOS84}, and its implementation (DecisionTreeClassifier) \footnote{\url{https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html}} %(last accessed on 2022-07-10).} 
+can have several hyperparameters, among them the maximum $\textup{depth}$ $(\mathbb{N}^+)$ of the tree and the minimum $\textup{samples split}$ $(\mathbb{N}^+)$ required to split a node; hence $\Lambda_{\mathcal{D}t} = \mathbb{N}^+ \times \mathbb{N}^+ \times \ldots$.
+An example of algorithm instance is $\lambda_{\mathcal{D}t}= \{ \textup{depth}=3,\textup{samples\_split}=10, \ldots \}$.
+\end{example}
+
+\jg{Qua si mette subito lo step di classificazione, quando il forte di questa formalizzazione è che è generale (vale per tutti i task).}
+\begin{definition}[Pipeline]
+Given a set of pre-processing steps $\mathcal{S} = \{S_1,\ldots, S_{|\mathcal{S}|}\}$ and a Classification algorithm $A$ from the Classification step $S_{class}$, a \textit{pipeline} $P$ is a sequence that concatenates (optional) steps from $\mathcal{S}$ and $A$.
+The domain of a pipeline is $\Lambda_P = [\Lambda_{S_1} \times \ldots \times] \Lambda_A$. \jg{Perchè le quadre?}
+\end{definition}
+
+\begin{definition}[Pipeline instance]
+Given the domain of a pipeline $\Lambda_P$, a \textit{pipeline instance} $\lambda_P$ is a sequence of algorithm instances $\langle \lambda_{A_1}, \ldots, \lambda_{A_{|P|}} \rangle$ such that $\lambda_P = (\lambda_{A_1} \times \ldots \times \lambda_{A_{|P|}}) \in \Lambda_P$.
+\end{definition}
+
+% \begin{example}[Pipeline and pipeline instance]
+% Examples of pipelines are 
+% \begin{align*}
+%     P_1 &= \langle Discretization, Normalization, DecisionTree \rangle\\
+%     P_2 &= \langle Normalization, Discretization, DecisionTree \rangle\\
+%     P_3 &= \langle DecisionTree \rangle
+% \end{align*}
+% and an example of instance of the pipeline $P_1$ is
+% \begin{align*}
+%     \lambda_{P_1} &= \langle \lambda_{\textup{Binarizer}}, \lambda_{\textup{MinMaxScaler}}, \lambda_{\textup{DecisionTreeClassifier}} \rangle\\
+%     \lambda_\textup{Binarizer}&=\{ \textup{n\_bins}=3 \}, \lambda_\textup{MinMaxScaler} =\{ \varnothing \}\\
+%     \lambda_\textup{DecisionTreeClassifier}&=\{ \textup{depth}=3,\textup{samplesSplit}=10, \ldots \}
+% \end{align*}
+% \end{example}
+
+\begin{example}[Pipeline and pipeline instance]
+Given the steps Normalization ($\mathcal{N}$) and Discretization ($\mathcal{D}$), the possible pipelines for the DecisionTree ($\mathcal{D}t$) are:
+\begin{align*}
+    P_1 &= \langle \mathcal{D}t \rangle &
+    P_2 &= \langle \mathcal{D}, \mathcal{D}t \rangle & 
+    P_4 &= \langle \mathcal{D}, \mathcal{N}, \mathcal{D}t \rangle \\
+    &&
+    P_3 &= \langle \mathcal{N}, \mathcal{D}t \rangle & P_5 &= \langle \mathcal{N}, \mathcal{D}, \mathcal{D}t \rangle
+\end{align*}
+Given \textup{Binarizer} ($\mathcal{B}$) as algorithm of Discretization ($\mathcal{D}$) and \textup{MinMaxScaler} ($\mathcal{M}m$) as algorithm of Normalization ($\mathcal{N}$), an  example of instance of the pipeline $P_4$ is:
+\begin{align*}
+    \lambda_{P_4} &= \langle \lambda_{\mathcal{B}},~ \lambda_{\mathcal{M}m},~ \lambda_{\mathcal{D}t} \rangle &&& \\
+    \lambda_{\mathcal{B}}&=\{ \textup{n\_bins}=3 \}, &\lambda_{\mathcal{M}m}=\{ \varnothing \}, &
+    &\lambda_{\mathcal{D}t}=\{ \textup{depth}=3, \ldots \}
+\end{align*}
+\end{example}
+
+Depending the on the involved algorithms, their order and hyperparameters, the search space out of which the best pipeline instance is select is defined as follows; its extraction is later discussed in \Cref{spacealgorithm}.
+
+\begin{definition}[Search space]
+The search space $\Lambda$ is the Cartesian product of the Classification step and the disjoint union of the all partial permutations of the steps domains.
+\end{definition}\jg{non si capisce molto, anche perchè il classification step è tra gli step che andresti a permutare}
+
+AutoML comes to help by optimizing the exploration of such space.
+However, the exploration is not only about algorithms and hyperparameters, but should also consider and fulfill the given constraints.
+Considering all the constraint combinations is overwhelming and, additionally, \textit{conflicts} might occur; for instance in the case of ethical \cite{boston-house} and legal fields that easily inject conflicting constraints into the search space.
+%The DS can cope with it in two different ways: \textit{i)} create a weak-constrained search space to leave to the optimization more freedom in finding the final solution; \textit{ii)} collect enough constraints to guarantee the correctness of the solution.
+%However, both of these approaches present evident problems.
+%The former would lead to a search space too large, and the optimization cannot guarantee sub-optimal solutions. 
+% The DS collects constraints to guarantee the correctness of the solution, anticipating the effect of each of them, and finally defining the search space.
+%The former would lead to a ill-defined search space, and hence to find invalid solutions (i.e., the result cannot be deemed correct).
+%The latter involves the DS gathering all the constraints, anticipating the effect of each -- and the combination -- of them, and finally defining the search space.
+
+\begin{definition}[Constraint]\label{constraints}
+A constraint $C \subseteq \Lambda$ is a subset of search space that is either \textit{mandatory} or \textit{forbidden}. Given a pipeline instance $\lambda_P \in \Lambda_P \subseteq \Lambda$
+\begin{itemize}
+    \item a mandatory constraint $C$ is fulfilled if  $\lambda_P \cap C \ne \varnothing$;
+    \item a forbidden constraint $C$ is fulfilled if  $\lambda_P \cap C = \varnothing$.
+    % \item a forbidden constraint $C$ reduces the search space such that $\Lambda'_P = \Lambda_P \setminus C$.
+\end{itemize}
+\end{definition}
+
+Mandatory constraints are sub-domains that must include at least a portion of a pipeline, while forbidden constraints are sub-domains that must be avoided by any pipeline.
+
+\begin{example}[Machine Learning pipeline and constraint]
+Given the Normalization step and Decision Tree as a Classification algorithm, an example of algorithm-related constraint is ``forbid Normalization in pipelines with Decision Tree''.
+This discards all the ML pipelines containing both Normalization and Decision Tree.
+\label{ex:constraints}
+\end{example}
+
+\begin{definition}[Constrained pipeline optimization]
+Given a search space $\Lambda$ and a set of constraints $\mathcal{C}$, finding the best pipeline instance $\hat{\lambda}_P$ is defined as $\hat{\lambda}_P = argmax_{\lambda_P \in \Lambda_P} metric(\lambda_P)$, where $metric(\lambda_P)$ is the function evaluating the goodness of $\lambda_P$ and the explored pipelines fulfill the constraints in $\mathcal{C}$.
+\end{definition}
+
+In HAMLET, $metric()$ is the balanced accuracy \cite{DBLP:conf/icpr/BrodersenOSB10}.
+
+\subsection{Argumentation Formalization}
+
+AutoML is not explainable, hence it does not provide the DS with feedback that would help to augment her knowledge about the problem:
+% \subsection{The role of logic}\label{crisp}
+% The two identified requisites share a common need: 
+it is necessary to represent both the DS knowledge about the problem and the outcome of the AutoML tool in a uniform human-readable medium so that the former can help the optimization
+% DS's knowledge can be an input for the optimization process
+% ---search space definition. Then, this initial knowledge can be augmented with the possible solutions provided by an AutoML tool.
+and then augmented by learning from the explored configurations of pipeline instances (e.g., to derive new constraints that increase the DS awareness).
+% (i.e., the awareness about the problem increases).
+% We see the augmented knowledge as an awareness determined by an increased expertise on the correct constraints.
+% The finding of such correct constraints leads to the finding of the correct solution---if exists.
+% In other words, at each CRISP-DM iteration, the knowledge is encoded into the AutoML tool, which provides a feedback (i.e., augmented knowledge) in the same format.
+We leverage Logic as the key element in defining a common structure (i.e., a uniformed human- and machine-readable medium) on which the knowledge of both the DS and the AutoML tool can be combined fruitfully.
+In a way, our approach follows the steps of the well known logical based expert systems, of which it is possible to find a great number of successful examples \cite{tan17es}.
+% In literature, it is also possible to find two well-known issues \cite{coats88esfail}: lack of scalability and difficulties in the definition of a sound knowledge base that encodes all the required pieces of information.
+% Yet, we believe they do not affect our model.
+% As to the former, the amount of the acquired knowledge (i.e. the problem constraints) through CRISP-DM iterations is not enough to label such a problem as a \textit{big data problem}, and hence scalability should not be an issue.
+% As to the latter, we believe that the analysis process would only benefit from the clearness given by such a structured investigation.
+Logic provides the tools to cope with one of the distinctive features of the knowledge we want to deal with: inconsistency. Indeed, the ML process is the product of possible attempts, validated or refuted by a consequent evaluation. Hence, the mechanism used to encode the knowledge is required to manage this constant revision process.
+This is the role of Argumentation---one of the main approaches for dealing with inconsistent knowledge and defeasible reasoning. 
+% All the statements necessary for reasoning, are stored into a Logical Knowledge Base.
+% It would allow our framework to deal with possible conflicts deriving from inconsistent constraints, while also providing an human- and machine-readable interpretation over the knowledge.
+
+\begin{definition}[Argumentation Theory]\label{system}
+An Argumentation theory is a tuple AS=$\langle L, R \rangle$ with:
+\begin{itemize}
+    \item $L$ an Argumentation language;
+    \item $R$ the set of defeasible rules in the form $r : \phi_0,\ldots, \phi_n \Rightarrow \phi$, where $\phi_0,\ldots, \phi_n,\phi$ are well-formed formulae in the $L$ language and $r$ is the identifier of the rule; we call $\phi_0,\ldots, \phi_n$ the premises of the rule, and $\phi$ its conclusion.
+    Rules with no premises are allowed (i.e. $r : \Rightarrow \phi$).
+\end{itemize}
+\end{definition}
+
+In the following two definitions, we specialize $L$ into the language $L_{ML}$ expressing all the basic elements of an AutoML problem and $R$ into a Logical Knowledge Base written in the language $L_{ML}$.
+
+\begin{definition}[AutoML Language]
+Given an argumentation language $L$, we define $L_{ML}$ as $L \cup X$, with $X$ the following set of predicates\footnote{For the sake of conciseness, when writing in terms of language statements, the letters $S$ (and $A$) refer to the name of the step (and algorithm) \jg{Lo metterei nel testo}}:
+\begin{itemize}
+    \item step($S$) with $S \in L$, representing a step $S$ in the pipeline;
+    \item algorithm($S$, $A$) with $S, A \in L$, representing an algorithm $A$ for the step $S$;
+    \item hyperparameter($A$, $h$, $t$) with $A, h, t \in L$, representing an hyperparameter $h$ for the algorithm $A$ of type $t$ (e.g., numerical, categorical);
+    \item domain($A$, $h$, $\Lambda_h$) with $A, h, \Lambda_h \in L$, representing an hyperparameter $h$ for the algorithm $A$ with domain $\Lambda_h$;
+    \item pipeline($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a pipeline consisting of the sequence of steps $\langle S_1, \ldots, S_n \rangle$ and the Classification algorithm $A$;
+    \item mandatory($\langle S_1, \ldots, S_n \rangle$, $Z$) with $S_1, \ldots, S_n, Z \in L$, representing a constraint imposing the steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$ ($Z = A$) or on all the Classification pipelines ($Z = \mathcal{C}l$);
+    \item forbidden($\langle S_1, \ldots, S_n \rangle$, $Z$) with $S_1, \ldots, S_n, Z \in L$, representing a constraint forbidding the steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$ ($Z = A$) or on all the Classification pipelines ($Z = \mathcal{C}l$);
+    \item mandatory\_order($\langle S_1, \ldots, S_n \rangle$, $Z$) with $S_1, \ldots, S_n, Z \in L$, representing a constraint imposing the sequence of steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$ ($Z = A$) or on all the Classification pipelines ($Z = \mathcal{C}l$).
+\end{itemize}
+\end{definition}
+
+The set of rules $R$ in the theory is used to define how elements from the language are combined together.
+$R$ consists of (i) a set rules specified by the DS and a (ii) set of common rules we encoded to enable the automatic derivation of pipelines and constraints. 
+
+% \begin{example}[Automatic rule derivation]
+% Given the two statements $step(\mathcal{D})$ (i.e., ``it exists a discretization step'') and  $algorithm(\mathcal{D}t, \mathcal{C}l)$ (i.e., ``it exists a decistion tree algorithm in the classification step''), examples of common rules in $R$ are
+% \begin{align*}
+% &step(\mathcal{D}), algorithm(\mathcal{D}t, \mathcal{C}l) \Rightarrow pipeline(\langle\mathcal{D}\rangle, \mathcal{D}t)\\
+% &mandatory(\langle\mathcal{D}\rangle, \mathcal{C}l), algorithm(\mathcal{D}t, \mathcal{C}l) \Rightarrow mandatory(\langle\mathcal{D}\rangle, \mathcal{D}t)
+% \end{align*}
+% The first rule generates a pipeline, while the second constraints for all the classification algorithms ($\mathcal{C}l$) to the single algorithm $\mathcal{D}t$. 
+% \end{example}
+
+\begin{definition}[Logical Knowledge Base]
+Given the language $L_{ML}$, we call Logical Knowledge Base (LogicalKB) the set of rules for a given AutoML problem.
+\end{definition}
+
+% A Logical Knowledge Base can be represented as a list of Prolog statements.
+In other words, the DS leverages an intuitive logical language, and enlists the constraints one-by-one.
+In our vision, the DS community could create a shared LogicalKB derived from the available literature and similar real-case problems.
+
+\begin{example}[Logical Knowledge Base]\label{ex:kb}
+We focus on Discretization ($\mathcal{D}$),  Normalization ($\mathcal{N}$) and Classification ($\mathcal{C}l$) steps, and, for the sake of brevity, we define the algorithms only for the last step: Decision Tree ($\mathcal{D}t$) and K-Nearest Neighbors ($\mathcal{K}nn$).
+\begin{lstlisting}[mathescape=true]
+# define Discretization step
+s1 : $\Rightarrow$ step($\mathcal{D}$).
+# define Normalization step
+s2 : $\Rightarrow$ step($\mathcal{N}$).
+# define Classification step
+s3 : $\Rightarrow$ step($\mathcal{C}l$).
+# DT is a Classification algorithm
+a1 : $\Rightarrow$ algorithm($\mathcal{C}l$, $\mathcal{D}t$).
+# Knn is a Classification algorithm
+a2 : $\Rightarrow$ algorithm($\mathcal{C}l$, $\mathcal{K}nn$).
+# Forbid Normalization when using DT
+c1 : $\Rightarrow$ forbidden($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
+\end{lstlisting}
+\noindent \texttt{s1}, \texttt{s2}, and \texttt{s3} represent the steps; \texttt{a1} and \texttt{a2} represent the algorithms; finally, \texttt{c1} represent the algorithm-related constraint from \Cref{ex:constraints}, namely ``forbid $\mathcal{N}$ in pipelines with $\mathcal{D}t$''.
+\end{example}
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/toy_example1.png}
+        \caption{}
+        \label{fig:running_a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/toy_example2.png}
+        \caption{}
+        \label{fig:running_b}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/toy_example3.png}
+        \caption{}
+        \label{fig:running_c}
+    \end{subfigure}
+    \caption{Examples of Problem Graphs. Green nodes are valid arguments, red ones are refuted. Arrows are attacks.}
+    \label{fig:toy_example}
+\end{figure*}
+
+% In the last paragraphs we identified two main requirements for a human-centered framework (i.e., structure the DS knowledge in a well-defined AutoML search space, and provide the solutions in accordance with the input knowledge).
+% We also introduced Computational Logic -- Argumentation in particular -- as the main tool in our investigation.
+% Let us now delve into details of how these pieces converge in our framework.
+%It is now time to show how these ideas converge in our framework.
+
+% Through Structured Argumentation
+%, a formal tool to convert elements from a logical language into an Argumentation graph,
+When applying constraints, they can be conflicting.
+% \begin{definition}[Conflict]
+% The conflict function $c$ is a function from $L$ to $2^L$---i.e. given a statement from $L$ the function returns the set of conflicting statements.
+% \end{definition}
+First we reify the constraints from \Cref{constraints} in the conflict function.
+
+% \begin{definition}[AutoML Conflict]\label{conflictauto}
+% The conflict function $c_{ML}$ is a function from $L_{ML}$ to $2^{L_{ML}}$ that given a statement from $L_{ML}$ the function returns the set of conflicting statements, such that: \gp{non mi piace}
+% \begin{itemize}
+%     \item $mandatory(S_1, A) \in c(pipeline(S_2, A))$ if $S_1 \not \subseteq S_2$
+%     \item $forbidden(S_1, A) \in c(pipeline(S_2, A))$ if $S_1 \subseteq S_2$
+%     \item $mandatory\_order(S_1, A) \in c(pipeline(S_2, A))$ if $S_2$ and $S_1$ do not respect the same ordering(\gp{?})
+%     \item $mandatory(S_1, A) \in c(forbidden(S_2, A))$ if $S_2 \subseteq S_1$
+%     \item $forbidden(S_1, A) \in c(mandatory(S_2, A))$ if $S_1 \subseteq S_2$
+%     \item $mandatory\_order(S_1, A) \in c(mandatory\_order(S_2, A))$ if $S_2$ and $S_1$ do not respect the same ordering(\gp{?})
+% \end{itemize}
+% \end{definition}
+\begin{definition}[AutoML Conflict]\label{conflictauto}
+The conflict function $c_{ML}$ is a function from $L_{ML}$ to $2^{L_{ML}}$ that given a statement from $L_{ML}$ returns the set of conflicting statements.
+\end{definition}
+
+\gp{toglierei l'itemize}
+
+At the moment, we support the AutoML conflicts on ``pipeline vs constraint'' and ``constraint vs constraint''. 
+Formally, let us consider two lists of steps $\alpha = \langle \ldots, S_i, S_j, \ldots \rangle$ and $\beta = \langle \ldots, S_y, S_x, \ldots \rangle$.
+\begin{itemize}
+    \item Pipeline vs constraint: return the constraints that are not satisfied by the pipeline given as parameter.
+    \begin{align*}
+    c_{ML}&(pipeline(\beta, A)) = \\
+        &\{mandatory(\alpha, A)~|~\exists S_i \in \alpha~s.t.~S_i \notin \beta\}~\cup \\
+        &\{forbidden(\alpha, A)~|~\forall S_i \in \alpha,~S_i \in \beta \}~\cup\\
+        &\{mandatory\_order(\alpha, A)~|~\exists S_i, S_j \in \alpha, S_x, S_y \in \beta, \\&\qquad\qquad\qquad S_i = S_x, S_j = S_y~s.t.~i < j, x > y\}
+    \end{align*}
+    Intuitively, given a pipeline ending with the algorithm $A$ (i.e., $pipeline(\langle S_i, S_j \rangle, A)$), the pipeline is conflicting with a $mandatory$ constraint if the pipeline does not contains at least a mandatory step (e.g., the pipeline is conflicting with $mandatory(\langle S_j, S_k \rangle, A)$), with a $forbidden$ constraint if the pipeline \gp{contains all the forbidden steps} (e.g., the pipeline is conflicting with $forbidden(\langle S_j \rangle, A)$), with a $mandatory\_order$ constraint if the pipeline contains at least two steps that are not in the mandatory order (e.g., the pipeline is conflicting with $mandatory\_order(\langle S_j, S_i \rangle, A)$).
+    \item Constraint vs constraint: return the constraints conflicting with other constraints.
+    \begin{align*}
+        c_{ML}&(forbidden(\beta, A)) = \{mandatory(\alpha, A)~|~\forall S_j \in \beta, S_j \in \alpha\}\\
+        c_{ML}&(mandatory(\beta, A)) = \{forbidden(\alpha, A)~|~\forall S_j \in \alpha, S_j \in \beta\}\\
+        c_{ML}&(mandatory\_order(\beta, A)) = \\
+        &\{mandatory\_order(\alpha, A)~|~\exists S_i, S_j \in \alpha, S_x, S_y \in \beta, \\&\qquad\qquad\qquad S_i = S_x, S_j = S_y~s.t.~i < j, x > y\}
+    \end{align*}
+    Intuitively, $mandatory$ and $forbidden$ constraints are in conflict if all the forbidden steps are included in the mandatory constraint (i.e.,  $mandatory(\langle S_i, S_j, S_k \rangle, A))$ and a $forbidden(\langle S_i, S_j \rangle, A))$), this hold symmetrically for $forbidden$ and $mandatory$ constraints. Two $mandatory\_order$ constraints are in conflict if they contain at least two steps in different order (i.e.,  $mandatory\_order(\langle S_i, S_j, S_k \rangle, A))$ and a $mandatory\_order(\langle S_j, S_i \rangle, A))$).
+\end{itemize}
+
+
+\begin{example}[AutoML conflict]
+With reference to the LogicalKB in \Cref{ex:kb}, let us consider the set of rules that represent the pipelines related to $\mathcal{D}t$:
+\begin{lstlisting}[mathescape=true]
+# pipeline ending with a DT
+p1 : $\Rightarrow$ pipeline($\mathcal{D}t$).
+# Discretization and DT
+p2 : $\Rightarrow$ pipeline($\langle\mathcal{D}\rangle$, $\mathcal{D}t$).
+# Normalization and DT
+p3 : $\Rightarrow$ pipeline($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
+# Discretization, Normalization, and DT
+p4 : $\Rightarrow$ pipeline($\langle\mathcal{D}$, $\mathcal{N}\rangle$, $\mathcal{D}t$).
+# Normalization, Discretization, and DT
+p5 : $\Rightarrow$ pipeline($\langle\mathcal{N}$, $\mathcal{D}\rangle$, $\mathcal{D}t$).
+\end{lstlisting}
+In this case, \texttt{c1} (i.e., ``forbid $\mathcal{N}$ in pipelines with $\mathcal{D}t$'') is in conflict with the \textit{pipeline} statements \texttt{p3}, \texttt{p4}, and \texttt{p5} since they contain $\mathcal{N}$ and $\mathcal{D}t$.
+\label{ex:conflict}
+\end{example}
+
+% %, then the logical-encoded knowledge is transformed in a Problem Graph. 
+% Let us now introduce some general notions from Structured Argumentation \cite{Modgil2014aspic+}.
+
+% \begin{definition}[Argument]\label{args}
+% Starting from an Argumentation theory $AT=\langle L, R \rangle$ we can build an argument $Ar$ as:
+% \begin{enumerate}
+%     \item $Ar_1, \ldots, Ar_n \Rightarrow \psi$ if $\exists Ar_1, \ldots, Ar_n$ s.t. $\exists$ a rule $r$ = $Conc(Ar_1), \ldots, Conc(Ar_n) \Rightarrow \psi \in R$.
+%     \begin{itemize}
+%         \item $Conc(Ar)$ = $\psi$,
+%         \item $Sub(Ar)$ = {$Sub(Ar_1) \cup \ldots \cup Sub(Ar_n) \cup \{Ar\}$},
+%         \item $TopRule(Ar)$ = $r$
+%     \end{itemize}
+% \end{enumerate}
+% \end{definition}
+
+% Given an argument $Ar$ we write:
+% \begin{itemize}
+%     \item $Conc(Ar)$, for the conclusion of the argument;
+%     \item $Sub(Ar)$, for the set of arguments supporting $Ar$;
+%     \item $TopRule(Ar)$, for the last rule used to build the argument.
+% \end{itemize}
+
+% We can define a preference relation over arguments in order to explicitly solve possible inconsistencies in the knowledge base using priorities over rules. 
+
+% \begin{definition}[Preference]\label{pref}
+% Given two arguments $Ar'$ and $Ar''$ built from the Argumentation theory $AT=\langle L, R \rangle$ and a partial ordering over the rules in $R$, we say that $Ar'$ is preferred to $Ar''$ ($Ar' \succ Ar''$) iff $TopRule(Ar') \succ TopRule(Ar'')$.
+% \end{definition}
+
+% Arguments are linked together using the conflict function defined in \Cref{conflictauto}.
+
+% \begin{definition}[Attack]\label{attack}
+% An argument $Ar$ attacks an argument $B$ (on $B' \in Sub(B)$) iff $Conc(B') \in c(Conc(A))$ and $B' \not\succ Ar$.
+% \end{definition}
+
+% \begin{definition}[Argumentation Framework]
+% Let $AT$ be an Argumentation theory $\langle L, R \rangle$. An Abstract Argumentation framework defined by $AT$, is a tuple $<\mathcal{A}r,\leadsto>$ where:
+% \begin{itemize}
+%     \item $\mathcal{A}r$ is the smallest set of all finite arguments constructed from $AT$ satisfying \Cref{args};
+%     \item $\leadsto$ is defined as \{$(X, Y)|X,Y \in A$, and $X$ attacks $Y$\}  
+% \end{itemize}
+% \end{definition}
+
+% \mf{Ci sono lettere overlapping, tra cui X e S. X ha la stessa semantica di prima ???}
+% \begin{definition}\label{semantics}
+% Let $<\mathcal{A}r, \leadsto >$ be an Argumentation Framework. For any $X \in \mathcal{A}r$, $X$ is acceptable with respect to some $S \subseteq \mathcal{A}r$ iff $\forall Y$ s.t. $(Y, X) \in \leadsto$ implies $\exists Z \in S$ s.t. $(Z, Y) \in \leadsto$. Let $S \subseteq \mathcal{A}r$ be conflict free, i.e. there are no $B$, $C$ in $S$ such that $(B,C) \in \leadsto$. Then:
+% \begin{itemize}
+%     \item $S$ is an admissible extension iff $X \in S$ implies $X$ is acceptable w.r.t. $S$;
+%     \item $S$ is a complete extension iff $X \in S$ iff $X$ is acceptable w.r.t. $S$;
+%     \item $S$ is the grounded extension iff it is the set inclusion minimal complete extension.
+% \end{itemize}
+% \end{definition}
+
+% Using these definitions we can finally introduce the Problem Graph. 
+
+To create a Problem Graph, which is the medium readable by users and machines, we informally (for the sake of conciseness) introduce the key elements from Structured Argumentation; a complete formalization is available in \cite{Modgil2014aspic+}.
+Given an Argumentation theory, an \textit{argument} is created for every rule with no premises (e.g., from the rule $r : \Rightarrow c$, we derive an argument with \textit{conclusion} $c$ using $r$).
+Then, we recursively apply the other rules in the theory to the newly generated argument (e.g., we can use the argument with conclusion $c$ and the following rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$).
+This is repeated until no new argument can be generated.
+In the rest of the paper we will refer to an argument with the set of rules used to generate it (e.g., given $r : \Rightarrow c$ and $r1 : c \Rightarrow d$, we will write $r$ and $r1$ when referring to the rules and $\{r\}$ and $\{r, r1\}$ for -- respectively -- the argument with \textit{conclusion} $c$ using $r$ and the argument with \textit{conclusion} $d$ using $r$ and $r1$).
+%For instance, given a rule $r : \Rightarrow \phi$, we will write $r$ when referring to the rule and $\{r\}$ for the argument built using that rule.
+% The first components we need are arguments. In ASPIC\textsuperscript{+} \cite{Modgil2014aspic+}, they are defined in a recursive way starting from an Argumentation theory as the one in Definition \ref{system}. First, an argument is created for every rule with no premises – e.g., from the rule $r : \Rightarrow c$, we can derive an argument concluding $c$ using $r$. Then, we recursively apply the other rules in the theory to the newly generated arguments – e.g., we can use the argument with conclusion $c$ and the rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$.
+% The last step is repeated until no new argument can be generated.
+
+An \textit{Argumentation framework} is defined using the arguments built from an Argumentation theory and their \textit{attack} relations.
+% (i.e., nodes and edges within an Argumentation graph).
+Attacks are inconsistencies between arguments' conclusions and are computed using a conflict function (\Cref{conflictauto}); e.g., given two arguments concluding respectively $a$ and $b$, and the conflict function $c$ such that $c(a) = \{b\}$, then the argument for $b$ directly attacks the one for $a$ (i.e., $b$ is in conflict with $a$).
+The attack is propagated to all the arguments built over the receiver of the attack---e.g., if $a_1$ directly attacks $a_2$, and $a_2$'s conclusion is used to derive $a_3$, then $a_1$ also attacks $a_3$.
+Also, we can define a \textit{preference} relation over arguments using a partial ordering over the rules in the Argumentation theory:
+% The impact of this relation on the framework is straightforward:
+it is impossible for an argument to be attacked by the least preferred ones, even if they are in conflict.
+In other words, we can explicitly solve inconsistencies in the LogicalKB using priorities over rules.
+We exploit the \textit{last-weakest} ordering as presented in \cite{Modgil2014aspic+}.
+
+Finally, the evaluation of an Argumentation framework is performed through semantics, which determines all the sets of arguments that are consistent (called \textit{extensions}) in an Argumentation framework.
+We exploit grounded semantics \cite{Dung1995abstractArg} to produce a \textit{grounded extension}; this semantics is the most skeptical \jgc{}{among all the possible extensions}---i.e., it includes only the arguments that are verified by all the possible interpretations. % of the graph.
+
+\begin{definition}[Problem Graph]
+We call \emph{Problem Graph} a graph in which nodes are arguments and edges are attacks from the Argumentation framework that is built on the Argumentation theory $\langle L_{ML}, LogicalKB \rangle$ and the conflict function $c_{ML}$.
+\end{definition}
+
+The benefits of the Problem Graph are two-fold.
+First of all, it can be leveraged by DSs and domain experts to understand and summarize and visualize the current knowledge.
+Second of all, it is straightforward to convert such a graph of constraints into a space of possible solutions (i.e., exploiting Argumentation semantics, it is easy to obtain all the sets of arguments -- constraints -- which hold together).
+%The DS can then consult the Problem Graph, outcome of this process.
+
+\begin{example}[Problem Graph]
+\Cref{fig:toy_example}a illustrates the Problem Graph extracted from the LogicalKB introduced in \Cref{ex:kb,ex:conflict} and evaluated under grounded semantics.
+Arguments are represented as nodes, attacks as arrows and the colors represent the state of the arguments according to the semantics: red for refuted arguments, and green for the ones in the extension.
+The arguments are identified through the set of rules used to build them.
+In the upper part of the figure, we have a group of undefeated arguments, namely \texttt{\{s1\}}, \texttt{\{s2\}}, \texttt{\{s3\}}, \texttt{\{a1\}}, and \texttt{\{a2\}}, representing the basic knowledge used to setup the AutoML search space -- i.e. steps and algorithms.
+Then, we have an argument for every pipeline in \Cref{ex:conflict}: from \texttt{\{p1\}} to \texttt{\{p5\}} the pipelines regarding $\mathcal{D}t$, from \texttt{\{p6\}} to \texttt{\{p10\}} the ones regarding $\mathcal{K}nn$.
+Finally, we can observe three different attacks: from \texttt{\{c1\}} to \texttt{\{p3\}}, \texttt{\{p4\}}, and \texttt{\{p5\}}, in accordance with the conflicts identified in \Cref{ex:conflict}.
+The arguments in the extension give us all the information that we should use during the AutoML optimization process -- i.e. we should discard all the pipelines refuted by the constraint argument ($\{c1\}$), and focus on the remaining part of the search space.
+\label{ex:graph}
+\end{example}
+
+The use of Argumentation relieves the DS of the burden of manually considering all the effects of the possible constraints.
+It is important to notice that, although the increased degree of automation, the Problem Graph allows the DS and domain experts to correct, revise, and supervise the process.
+Accordingly, possible inconsistencies -- due to diverging constraints -- can be verified by the DS using her knowledge.
+
+Any change in the LogicalKB translates into a change in the Problem Graph, allowing the DS and domain experts to visualize it and \textit{argue} about it.
+The revision of the Problem Graph is the key element in the process of augmenting the knowledge: the DS and domain experts can consult each other and discuss how the new insights relate to their initial knowledge.
+Indeed, thanks to the nature of the Problem Graph, it would be extremely easy to identify new possible conflicts and supporting arguments.
+Furthermore, AutoML can update the Problem Graph by extracting constraints from the performed exploration, and transposing them into the LogicalKB.
+For instance, the DS may not have considered that the dataset contains missing values.
+AutoML helps in identifying the new data-related constraint ``require Imputation ($\mathcal{I}$) in all the pipelines'' and adds it to the LogicalKB ($mandatory(\langle \mathcal{I} \rangle, \mathcal{C}l)$).
+% Of course, the resulting constraints might be in conflict with the previous knowledge.
+
+The described process is compliant with and augments the CRISP-DM process.
+The inferred/learned knowledge is automatically handled throughout iterations, supporting the DS in the whole analysis in a continuous revision of the problem constraints.
+
+\section{HAMLET}\label{sec:implementation}
+
+\begin{figure*}[t]
+\begin{lstlisting}[mathescape=true]
+# given an algorithm, create a pipeline including only such algorithm
+hc0 : algorithm($\mathcal{C}l$, A) $\Rightarrow$ pipeline($\langle~\rangle$, A).
+# given some steps and an algorithm, create a pipeline including such steps and algorithm
+hc1 : step($S_1$),$\ldots$,step($S_n$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ pipeline($\langle S_1, \ldots, S_n \rangle$, A).
+# given constraints on the pre-processing steps required for Classification...
+# ... apply this constraints to all Classification algorithms
+hc2 : mandatory($\langle S_1, \ldots, S_n \rangle$, $\mathcal{C}l$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ mandatory($\langle S_1, \ldots, S_n \rangle$, A).
+hc3 : forbidden($\langle S_1, \ldots, S_n \rangle$, $\mathcal{C}l$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ forbidden($\langle S_1, \ldots, S_n \rangle$, A).
+hc4 : mandatory_order($\langle S_1, \ldots, S_n \rangle$, $\mathcal{C}l$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ mandatory_order($\langle S_1, \ldots, S_n \rangle$, A).
+\end{lstlisting}
+\caption{A subset of rules from the LogicalKB.}
+\label{rules-arg2p}
+\end{figure*}
+
+HAMLET iterates over three phases (\Cref{fig:approach}): (i) the generation of Problem Graph and search space out of the LogicalKB, (ii) the exploration of the search space in compliance with the specified constraints, and (iii) the augmentation of the LogicalKB through a rule recommendation.
+
+A first prototype of the system is available at \url{https://github.com/QueueInc/HAMLET}.
+The prototype is composed of two sub-modules: the first, written in Kotlin and running on the JVM, exposes a graphical interface on which the DSs can compile and revise the LogicalKB. 
+The module is also responsible for the generation and evaluation of the Problem Graph; it implements the Structured Argumentation functionalities as specified in \Cref{sec:problem} using \argtup{} \cite{arg2p-jlc}, an ASPIC\textsuperscript{+}-based Kotlin library.
+% , in order to completely delegate to it the construction of the Problem Graph and its evaluation. 
+The second module, written in Python, is responsible for performing the AutoML optimization and the extraction of the new constraints from the explored space.
+
+\subsection{Generation of Problem Graph and Search Space}
+In \Cref{sec:problem}, we defined the LogicalKB as the set of rules specified by the DS using her knowledge.
+The LogicalKB also includes a set of hard-encoded rules representing inferences necessary to characterize the AutoML problems.
+These rules are joined to the ones defined by the DS and used to build the Problem Graph (i.e., Argumentation framework).
+
+A subset of rules is shown in \Cref{rules-arg2p}.
+The first two ($hc0$ and $hc1$) define how to automatically derive a pipeline using algorithms and steps.
+The construction of pipelines can be completely automated and the DS should be dispensed from manually enumerating all the possible pipelines as in \Cref{ex:conflict}.
+In particular, the correct set of rules is built dynamically using the steps and algorithms provided by the DS, then they are used to derive all the arguments for the possible pipelines.
+The last three rules ($hc2, hc3$ and $hc4$) encode constraints -- mandatory, forbidden, mandatory\_order -- on all the available algorithms with a single statement (e.g., $mandatory(\langle \mathcal{D} \rangle, \mathcal{C}l)$): it will be automatically used by the framework to derive the constraints for all the specific algorithms in the theory.
+
+\begin{example}[Hard-coded rules]
+With reference to \Cref{ex:graph} and \Cref{rules-arg2p}, we add a rule \texttt{c2} for a new data-related constraint.
+\begin{lstlisting}[mathescape=true]
+# mandatory Norm. in Class. pipelines
+c2 : $\Rightarrow$ mandatory($\langle\mathcal{N}\rangle$, $\mathcal{C}l$)
+\end{lstlisting}
+The hard-coded rules generate the two arguments \texttt{c2' = \{c2, a1, hc2\}} (i.e., $mandatory(\langle\mathcal{N}\rangle, \mathcal{D}t)$) and \texttt{c2'' = \{c2, a2, hc2\}} (i.e., $mandatory(\langle\mathcal{N}\rangle, \mathcal{K}nn)$) that are specific for the Classification algorithms in the LogicalKB.
+
+However, \texttt{\{c1\}} (i.e., $forbidden(\langle\mathcal{N}\rangle, \mathcal{D}t)$; is in conflict with \texttt{c2'}.
+The DS could decide to resolve the conflict by specifying an ordering over the rules in the LogicalKB.
+Assuming that the DS prefers \texttt{c1} to \texttt{hc2},
+%(with the arg2p's notation \texttt{sup(c1, hc2)}),
+the argument \texttt{\{c1\}} is preferred to \texttt{c2'} and the attack from the latter is not considered in the final graph.
+\Cref{fig:toy_example}b shows the updated graph.
+Firstly, we observe the support relation between \texttt{\{c2\}} and the generated constraints \texttt{c2'} and \texttt{c2''}.
+Since \texttt{\{c1\}} has no attackers, it is added to extension.
+Consequently, \texttt{c2'} is refuted and the the pipelines attacked by it are correctly reinstated.
+\label{ex:hard_coded_rules}
+\end{example}
+
+Given the Problem Graph \gp{\st{and its grounded extension $e$}} (we recall that the Problem Graph contains \textit{all} the generated pipelines -- including their partial permutations), the search space can be extracted as in \Cref{spacealgorithm}. 
+We iterate over all the generated pipelines in the Problem Graph and we recursively build their domain: the pipeline domain is the Cartesian product of the step domains, the step domain is the disjoint union of the algorithm domains (we leverage the disjoint union since each algorithm can be picked as an alternative to the others), the algorithm domain is the Cartesian product of its hyperparameters; the domain of a hyperparameter is given by definition.
+Finally, the search space is the disjoint union of all the alternative pipeline domains.
+
+Noticeably, while the search space could be constrained during its construction (e.g., by simply adding an ``if'' condition to check the validity of each pipeline at \Cref{spacealgorithm} line 10), current AutoML frameworks only support optimization in convex spaces \cite{???} \jg{dicevamo di rifrasarlo, giusto?}.
+As a consequence, we need to produce the entire convex search space first, and then label the invalid portion of search space. \gp{???}
+% and discard the invalid pipelines as we encounter them (this comes at almost no computational time since the pipelines are directly discarded and not executed).
+
+\begin{algorithm}[t]
+\caption{Search Space from the Problem Graph}
+\label{spacealgorithm}
+\footnotesize
+\begin{algorithmic}[1]
+% \Require{$e$: Grounded extension of the Problem Graph}  
+\Require{PG(N, E): Nodes and Edges of a Problem Graph}    
+\Ensure{$\Lambda$: Search Space}
+    % \SetKwFunction{FMain}{GetSpace}
+    % \SetKwProg{Fn}{Function}{:}{}
+    % \Fn{\FMain{$e$}}{
+    %     $ \Lambda  \leftarrow \varnothing $;    
+
+    %     \ForEach{$ step(S) \in e $} {
+    %         $ \Lambda_{S}  \leftarrow \varnothing $;
+            
+    %         \ForEach{$algorithm(S, A) \in e $} {
+    %             $ \Lambda_{A}  \leftarrow \varnothing $;
+                
+    %             \ForEach{$domain(A, h, \Lambda_h) \in e $} {
+    %                 $\Lambda_{A}  \leftarrow \Lambda_{A} \times \Lambda_h$;
+    %             }
+    %             Add $\Lambda_{A}$ to $\Lambda_{S}$
+    %         }
+    %         Add $\Lambda_{S}$ to $\Lambda$
+    %     }
+    %     \textbf{return} $\Lambda$ 
+    % }
+    \item[]
+    \Procedure{GetDomain}{$A$}
+        \State $\Lambda_A \leftarrow \varnothing$
+        \ForEach{$h \in A$} \Comment{For each hyperparameter in the algorithm...}
+            \State $\Lambda_A \leftarrow \Lambda_A \times \Lambda_h$ 
+            \Comment{Compute Cartesian product of hyperpar. domains}
+        \EndFor
+        \State \Return $\Lambda_A$ \Comment{Return the algorithm domain}
+    \EndProcedure
+    \item[]
+    \State $\Lambda \leftarrow \varnothing$ \Comment{Initialize the search space}
+    \ForEach{$pipeline(\alpha, A) \in N$} \Comment{For each argument that is a pipeline with $\alpha$ steps and alg. $A$...}
+        \State $ \Lambda_{P} \leftarrow \textup{GetDomain(A)}$ \Comment{Init. pipeline domain with algorithm domain}
+        \ForEach{$S \in \alpha$}  \Comment{For each step in the pipeline...}
+            \State $\Lambda_{S}  \leftarrow \varnothing$ \Comment{Init. the step domain}
+            \ForEach{$A \in S$}  \Comment{For each algorithm in the step...}
+                \State $\Lambda_{S} \leftarrow \Lambda_{S} \cupdot \textup{GetDomain(A)}$ \Comment{Add alg. to step domain}
+            \EndFor
+            \State $\Lambda_P \leftarrow \Lambda_P \times \Lambda_S$ \Comment{Add step domain to pipeline domain}
+        \EndFor
+        \State $\Lambda \leftarrow \Lambda \cupdot \Lambda_P$ \Comment{Add pipeline domain to the search space}
+    \EndFor
+    \State \Return $\Lambda$ \Comment{Return the search space}
+\end{algorithmic}
+\end{algorithm}
+
+% We first extract all the statements claimed by the arguments in the extension that represent the conformation that the space should assume (steps, algorithms, hyperparameters and their domain).
+% Then, we map the space expressed in the AutoML language to a standard AutoML format that can be inputed to the optimization subsystem.
+\subsection{Exploration of a Constrained Search Space}\label{subsec:constrained_automl}
+
+The Problem Graph is not only used to build the search space but it is also evaluated to understand which pipelines are invalid and which constraints are valid.
+During the We combine the following techniques.
+\begin{itemize}
+    \item Invalid pipelines are used to discourage the exploration of such a portion of the search space (we recall that a pipeline has a domain -- that is a subset of the search space -- in which several pipeline instances are parametrized).
+    First, we sample such regions of the search space, then we enforce a knowledge injection mechanism through warm-starting (i.e., the process of providing previous evaluations that help the model to converge faster).
+    For instance, with reference to \Cref{ex:hard_coded_rules}, we sample some pipeline instances from the pipelines that have been discarded (from \texttt{\{p3\}} to \texttt{\{p7\}});
+    then, we label such samples as invalid and provide them to the AutoML tool, helping the optimization algorithm to focus only on the valid portions of the space.
+    \item Valid constraints -- expressed as conjunctions of Boolean clauses -- are used to discard the invalid pipeline instances that still are encountered by the AutoML.
+    Indeed, since the sampling from (i) is non-exhaustive, it can happen that small portions of invalid regions could still be explored.
+\end{itemize}
+
+Our AutoML implementation is based on FLAML \cite{wang2021flaml}, which mixes Bayesian Optimization with CFO (Frugal Optimization for Cost-related Hyperparameters).
+In a standard Bayesian process, an increasingly accurate model is built on top of the previously explored pipeline instances to suggest the most promising ones among the remaining.
+The pipeline instances keep being explored, updating the model, until a budget in terms of either iterations or time is reached.
+With CFO, there is also an estimation of the evaluation time to consider the frugality of the suggested pipeline instances -- hence favoring the ones requiring a smaller amount of time.
+Throughout the exploration, different solutions are tested, which contribute to augmenting the global knowledge about the problem.
+
+\subsection{Knowledge Augmentation through Constraint Recommendation}
+New constraints are automatically learned out of the pipeline instances explored by AutoML and recommended in our logical language (as rules).
+If accepted by the DS, such rules will be added to the Knowledge Base.
+
+At this stage, we leverage frequent pattern mining techniques to learn constraints in an unsupervised manner.
+Frequent pattern mining is the task of finding the most frequent and relevant patterns in large datasets (e.g., finding the products frequently bought together in the domain of market basket analysis); depending on the constraint type, we look for (sub)sets \cite{srikant1995mining} or (sub)sequences \cite{srikant1996mining} frequently recurring among the explored pipelines.
+Since a pipeline is a sequence of steps, the set of the explored pipelines can be directly mapped into a transactional dataset \cite{srikant1995mining} (where each pipeline is a transaction and each step is an item).
+
+We mine and recommend the same constraints we support at the Argumentation level (i.e., $mandatory$, $forbidden$, $mandatory\_order$) so that AutoML can be as expressive as the DS.
+For mandatory and forbidden constraints we look for (sub)sets \cite{srikant1995mining} frequently recurring among the explored pipelines.
+Specifically, we split the explored pipeline instances by the applied Classification algorithm, set a minimum frequency (i.e., support) threshold to 60\% (i.e., to be retrieved, a set/sequence must occur at least in 60\% of the explored pipelines), and extract frequent maximal\footnote{Maximal itemsets are patterns that are not contained in any other.
+For instance, given two frequent patterns, $\{a, b, c\}$ and $\{a, b\}$, the former is maximal while the latter is not.
+}
+itemsets.
+The recommendation depends on the constraint.
+\begin{itemize}
+    \item $mandatory$: we consider only the patterns with good performance (i.e., $0.7 \leq metric \leq 1.0$); 
+    \item $forbidden$: we consider only the patterns with bad performance (i.e., $0.0 \leq metric \leq 0.3$);
+    \item $mandatory\_order$: the same considerations of the mandatory constraints stand, except that we look for (sub)sequences \cite{srikant1996mining} of length 2 to discover ordering dependencies in pairs of steps as in \cite{giovanelli2021data}.   
+\end{itemize}
+We leveraged well-known implementations \cite{raschkas_2018_mlxtend} and \cite{seq2pat2022} for itemsets and sequences mining, respectively.
+
+\begin{example}[Rules Mining]
+With reference to the Problem Graph in \Cref{ex:hard_coded_rules},
+the AutoML results are filtered according to the chosen metric, the algorithm \cite{raschkas_2018_mlxtend} is applied, and let us assume that the constraint \texttt{c3} is suggested:
+\begin{lstlisting}[mathescape=true]
+c3 : $\Rightarrow$ mandatory($\langle\mathcal{D}\rangle$, $\mathcal{D}t$).
+\end{lstlisting}
+The constraints specifies ``mandatory $\mathcal{D}$ in pipelines with $\mathcal{D}t$''.
+As a matter of fact, it is well known that Discretization improves the performance of tree-based algorithms giving to them the ability to apply multiple split in the decision nodes.
+\Cref{fig:toy_example}c shows the effect of the applied constraint: a new portion of the search space is excluded from the extension ($\{p1\}$).
+\end{example}
+
+% \Cref{ex:theory} illustrates how HAMLET leverages Logic and Argumentation to handle the DS knowledge.
+% The proposed Logic formalism allows to easily encode the different ML constraints into a LogicalKB.
+% We highlight that the Problem Graph generation is handled by an Argumentation engine, which is available in the Supplementary Material \footnote{\url{https://queueinc.github.io/HAMLET-DATAPLAT2022/}}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Experimental Evaluation}\label{sec:test}
+
+The performance of HAMLET depends on (i) the rules encoded in the LogicalKB and (ii) the rules recommended after each run.
+To test both the effectiveness and efficiency of our approach, we define three experimental settings.
+\begin{itemize}
+    \item PKB (Preliminary Knowledge Base), HAMLET starts with a preliminary LogicalKB constraining the search space from the first iteration, and no rule mining is applied.
+    %, but the rules that are suggested throughout the iterations are not applied.
+    The preliminary LogicalKB consists of the rules discovered in \cite{giovanelli2021data} and some well-known from the literature (e.g., suggested by scikit-learn\footnote{\url{https://scikit-learn.org/stable/auto_examples/preprocessing/plot_discretization.html}}).
+    The complete knowledge base can be found in the Github repository. 
+    \item IKA (Iterative Knowledge Augmentation), HAMLET starts with an empty LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
+    \item PKB + IKA, HAMLET starts with a preliminary LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
+\end{itemize}
+In each setting, HAMLET was run 4 times -- intuitively, four runs of knowledge augmentation -- the budget assigned to each run is 250 pipeline instances in 1800 seconds (30 minutes).
+We also test against a baseline: we let AutoML explore 1000 pipeline instances ($= 250 \cdot 4$) in a single run with a time budget of 7200 seconds ($= 1800 \cdot 4$; 2 hours).
+
+For such an evaluation, we derive a search space out of 6 steps, 5 data pre-processing steps (Imputation, Normalization, Discretization, Feature Engineering, and Rebalancing) followed by the final Classification task.
+Since the tests are run on datasets from OpenML \cite{OpenML2013} -- a well-known repository for data acquisition and benchmarking -- and it provides already-encoded datasets, we do not consider the encoding step. 
+Except for that, we included all the pre-processing steps and algorithms available in the scikit-learn \cite{scikit-learn} Python library (plus imbalance-learn \cite{JMLR:v18:16-365} for Rebalancing transformations).
+The leveraged steps, algorithms per step, and hyperparameters per algorithm are reported in \Cref{tab:search_space}.
+% As to the classification, we include the list of available classifiers in its entirety.
 
 \begin{table}[t]
     \footnotesize
@@ -309,573 +906,6 @@ Where $\cupdot$ combines the domains of the given algorithms, while retaining th
     \end{tabular}
     \label{tab:search_space}
 \end{table}
-
-\begin{example}[Algorithm and step]
-Examples of steps are Normalization, and Classification. 
-An algorithm for Classification is Decision Tree \cite{DBLP:books/wa/BreimanFOS84}, and its implementation (DecisionTreeClassifier) \footnote{\url{https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html\#sklearn.tree.DecisionTreeClassifier} (last accessed on 2022-07-10).} can have several hyperparameters, among them the maximum $\textup{depth}$ $(\mathbb{N}^+)$ of the tree and the minimum $\textup{samples split}$ $(\mathbb{N}^+)$ required to split a node; hence $\Lambda_\textup{DecisionTreeClassifier} = \mathbb{N}^+ \times \mathbb{N}^+ \times \ldots$.
-An example of algorithm instance is $\lambda_\textup{DecisionTreeClassifier}= \{ \textup{depth}=3,\textup{samplesSplit}=10, \ldots \}$.
-\end{example}
-
-\begin{definition}[Pipeline]
-Given a set of pre-processing steps $\mathcal{S} = \{S_1,\ldots, S_{|\mathcal{S}|}\}$ and a classification algorithm $A$ from the classification step $S_{class}$, a \textit{pipeline} $P$ is a sequence that concatenates (optional) steps from $\mathcal{S}$ and $A$.
-The domain of a pipeline is $\Lambda_P = [\Lambda_{S_1} \times \ldots \times] \Lambda_A$.
-\end{definition}
-
-\begin{definition}[Pipeline instance]
-Given the domain of a pipeline $\Lambda_P$, a \textit{pipeline instance} $\lambda_P$ is a sequence of algorithm instances $\langle \lambda_{A_1}, \ldots, \lambda_{A_{|P|}} \rangle$ such that $\lambda_P = (\lambda_{A_1} \times \ldots \times \lambda_{A_{|P|}}) \in \Lambda_P$.
-\end{definition}
-
-\begin{example}[Pipeline and pipeline instance]
-Examples of pipelines are 
-\begin{align*}
-    P_1 &= \langle Discretization, Normalization, DecisionTree \rangle\\
-    P_2 &= \langle Normalization, Discretization, DecisionTree \rangle\\
-    P_3 &= \langle DecisionTree \rangle
-\end{align*}
-and an example of instance of the pipeline $P_1$ is
-\begin{align*}
-    \lambda_{P_1} &= \langle \lambda_{\textup{Binarizer}}, \lambda_{\textup{MinMaxScaler}}, \lambda_{\textup{DecisionTreeClassifier}} \rangle\\
-    \lambda_\textup{Binarizer}&=\{ \textup{n\_bins}=3 \}, \lambda_\textup{MinMaxScaler} =\{ \varnothing \}\\
-    \lambda_\textup{DecisionTreeClassifier}&=\{ \textup{depth}=3,\textup{samplesSplit}=10, \ldots \}
-\end{align*}
-\end{example}
-
-Depending on involved algorithms and their order and hyperparameters, the search space out of which the best pipeline is burdensome.
-
-\begin{definition}[Search space]
-The search space $\Lambda$ is the Cartesian product of the classification step and the disjoint union of the all partial permutations of the steps domains.
-\end{definition}
-Search space extraction is later discussed in \Cref{spacealgorithm}.
-
-AutoML comes to help by enhancing the exploration of such space.
-However, such exploration is not only about algorithms and hyperparameters, but should also consider and fulfill the given constraints.
-Considering all the constraint combinations is overwhelming and, additionally, \textit{conflicts} might occur; for instance in the case of ethical \cite{boston-house} and legal fields that easily inject conflicting constraints into the search space.
-%The DS can cope with it in two different ways: \textit{i)} create a weak-constrained search space to leave to the optimization more freedom in finding the final solution; \textit{ii)} collect enough constraints to guarantee the correctness of the solution.
-%However, both of these approaches present evident problems.
-%The former would lead to a search space too large, and the optimization cannot guarantee sub-optimal solutions. 
-% The DS collects constraints to guarantee the correctness of the solution, anticipating the effect of each of them, and finally defining the search space.
-%The former would lead to a ill-defined search space, and hence to find invalid solutions (i.e., the result cannot be deemed correct).
-%The latter involves the DS gathering all the constraints, anticipating the effect of each -- and the combination -- of them, and finally defining the search space.
-
-\begin{definition}[Constraint]\label{constraints}
-A constraint $C \subseteq \Lambda$ is a subset of search space that is either \textit{mandatory} or \textit{forbidden}. Given a pipeline instance $\lambda_P \in \Lambda_P \subseteq \Lambda$
-\begin{itemize}
-    \item a mandatory constraint $C$ is fulfilled if  $\lambda_P \cap C \ne \varnothing$;
-    \item a forbidden constraint $C$ is fulfilled if  $\lambda_P \cap C = \varnothing$.
-    % \item a forbidden constraint $C$ reduces the search space such that $\Lambda'_P = \Lambda_P \setminus C$.
-\end{itemize}
-\end{definition}
-
-Mandatory constraints are sub-domains that must include at least a portion of a pipeline, while forbidden constraints are sub-domains that must be avoided by any portion of the pipeline.
-
-\begin{example}[Machine learning pipeline and constraint]
-Given the Normalization step and Decision Tree as a classification algorithm, an example of algorithm-related constraint is ``forbid Normalization in pipelines with Decision Tree''.
-This discards all the ML pipelines containing both Normalization and Decision Tree.
-\label{ex:constraints}
-\end{example}
-
-\begin{definition}[Constrained pipeline optimization]
-Given a search space $\Lambda$ and a set of constraints $\mathcal{C}$, finding the best pipeline instance $\lambda_P^*$ is defined as $\lambda_P^* = argmax_{\lambda_P \in \Lambda_P} metric(\lambda_P)$, where $metric(\lambda_P)$ is the function evaluating the goodness of $\lambda_P$ and the explored pipelines fulfill the constraints in $\mathcal{C}$.
-\end{definition}
-
-In our implementation, we use the balanced accuracy \cite{DBLP:conf/icpr/BrodersenOSB10} as $metric()$.
-
-\subsection{Logic and Argumentation Formalization}
-
-AutoML is not explainable, hence it does not provide the DS with feedback that would help to augment her knowledge about the problem:
-% \subsection{The role of logic}\label{crisp}
-% The two identified requisites share a common need: 
-it is necessary represent both the DS knowledge about the problem and the outcome of the AutoML tool in a uniform human-readable medium so that the former can help the optimization
-% DS's knowledge can be an input for the optimization process
-% ---search space definition. Then, this initial knowledge can be augmented with the possible solutions provided by an AutoML tool.
-and then augmented by learning from the explored configurations of pipeline instances (e.g., to derive new constraints that increase the DS awareness).
-% (i.e., the awareness about the problem increases).
-% We see the augmented knowledge as an awareness determined by an increased expertise on the correct constraints.
-% The finding of such correct constraints leads to the finding of the correct solution---if exists.
-% In other words, at each CRISP-DM iteration, the knowledge is encoded into the AutoML tool, which provides a feedback (i.e., augmented knowledge) in the same format.
-We leverage logic as the key element in defining a common structure (i.e., a uniformed human- and machine-readable medium) on which the knowledge of both the DS and the AutoML tool can be combined fruitfully.
-In a way, our approach follows the steps of the well known logical based expert systems, of which it is possible to find a great number of successful examples \cite{tan17es}.
-% In literature, it is also possible to find two well-known issues \cite{coats88esfail}: lack of scalability and difficulties in the definition of a sound knowledge base that encodes all the required pieces of information.
-% Yet, we believe they do not affect our model.
-% As to the former, the amount of the acquired knowledge (i.e. the problem constraints) through CRISP-DM iterations is not enough to label such a problem as a \textit{big data problem}, and hence scalability should not be an issue.
-% As to the latter, we believe that the analysis process would only benefit from the clearness given by such a structured investigation.
-Logic provides the tools to cope with one of the distinctive features of the knowledge we want to deal with: inconsistency. Indeed, the ML process is the product of possible attempts, validated or refuted by a consequent evaluation. Hence, the mechanism used to encode the knowledge is required to manage this constant revision process.
-This is the role of Argumentation---one of the main approaches for dealing with inconsistent knowledge and defeasible reasoning. 
-% All the statements necessary for reasoning, are stored into a logical knowledge base.
-% It would allow our framework to deal with possible conflicts deriving from inconsistent constraints, while also providing an human- and machine-readable interpretation over the knowledge.
-
-\begin{definition}[Argumentation Theory]\label{system}
-An argumentation theory is a tuple AS=$\langle L, R \rangle$ with:
-\begin{itemize}
-    \item $L$ an argumentation language;
-    \item $R$ the set of defeasible rules in the form $n : \phi_0,\ldots, \phi_n \Rightarrow \phi$, where $\phi_0,\ldots, \phi_n,\phi$ are well-formed formulae in the $L$ language and $n$ is the identifier of the rule; 
-    defeasible premises are encoded as rules with no premises (i.e. n : $\Rightarrow \phi$).
-\end{itemize}
-\end{definition}
-
-In the following two definitions, we specialize $L$ into the language $L_{ML}$ expressing all the basic elements of an AutoML problem and $R$ into a logical knowledge base written in the language $L_{ML}$.
-
-\begin{definition}[AutoML Language]
-Given a propositional language $L$, we define $L_{ML}$ as $L \cup X$, with $X$ the following set of predicates\footnote{For the sake of conciseness, when writing in terms of language statements, the letters $S$ (and $A$) refer to the name of the step (and algorithm)}:
-\begin{itemize}
-    \item step($S$) with $S \in L$, representing a step $S$ in the pipeline;
-    \item algorithm($S$, $A$) with $\alpha, A \in L$, representing an algorithm $A$ for the step $S$;
-    \item hyperparameter($A$, $\gamma$, $\eta$) with $A, \gamma, \eta \in L$, representing an hyperparameter $\gamma$ for the algorithm $A$ of type $\eta$ (e.g., numerical, categorical);
-    \item domain($A$, $\gamma$, $\Lambda_\gamma$) with $A, \gamma, \Lambda_\gamma \in L$, representing an hyperparameter $\gamma$ for the algorithm $A$ with domain $\Lambda_\gamma$;
-    \item pipeline($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a pipeline consisting of the sequence of steps $\langle S_1, \ldots, S_n \rangle$ and the classification algorithm $A$;
-    \item mandatory($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a constraint imposing the steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$; \mf{@GP: non credo di poter definire constraint su sugli step, ma solo sul algoritmi. Sbaglio? Cosa facciamo?}
-    \item forbidden($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a constraint forbidding the steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$;
-    \item mandatory\_order($\langle S_1, \ldots, S_n \rangle$, $A$) with $S_1, \ldots, S_n, A \in L$, representing a constraint imposing the sequence of steps $\langle S_1, \ldots, S_n \rangle$ on the pipelines with algorithm $A$.
-\end{itemize}
-\end{definition}
-
-The set of rules $R$ in the theory is used to define how elements from the language are combined together.
-$R$ consists of (i) a set rules specified by the DS and a (ii) set of common rules we encoded to enable the automatic derivation of pipelines and constraints. 
-\mf{@GP: Funziona come paragone 101, modificalo a piacere??? Intuitively, with reference to the well known C language, $X$ is a set of known functions (e.g., the $return$ and $if$ statements), $L$ is a set of known keywords (e.g., $\#define~SIZE$) and $R$ is the program written by the computer scientist plus some library functions.}
-
-% \begin{example}[Automatic rule derivation]
-% Given the two statements $step(\mathcal{D})$ (i.e., ``it exists a discretization step'') and  $algorithm(\mathcal{D}t, \mathcal{C}l)$ (i.e., ``it exists a decistion tree algorithm in the classification step''), examples of common rules in $R$ are
-% \begin{align*}
-% &step(\mathcal{D}), algorithm(\mathcal{D}t, \mathcal{C}l) \Rightarrow pipeline(\langle\mathcal{D}\rangle, \mathcal{D}t)\\
-% &mandatory(\langle\mathcal{D}\rangle, \mathcal{C}l), algorithm(\mathcal{D}t, \mathcal{C}l) \Rightarrow mandatory(\langle\mathcal{D}\rangle, \mathcal{D}t)
-% \end{align*}
-% The first rule generates a pipeline, while the second constraints for all the classification algorithms ($\mathcal{C}l$) to the single algorithm $\mathcal{D}t$. 
-% \end{example}
-
-\begin{definition}[Logical Knowledge Base]
-Given the language $L_{ML}$, we call Logical Knowledge Base (LogicalKB) the set of rules for a given AutoML problem.
-\end{definition}
-
-% A logical knowledge base can be represented as a list of Prolog statements.
-In other words, the DS leverages an intuitive logical language, and enlists the constraints one-by-one.
-In our vision, the DS community could create a shared LogicalKB derived from the available literature and similar real-case problems.
-
-\begin{example}[Logical knowledge base]\label{ex:kb}
-We focus on Discretization ($\mathcal{D}$),  Normalization ($\mathcal{N}$) and Classification ($\mathcal{C}l$) steps, and, for the sake of brevity, we define the algorithms only for the last step: Decision Tree ($\mathcal{D}t$) and K-Nearest Neighbors ($\mathcal{K}nn$).
-\begin{lstlisting}[mathescape=true]
-# define discretization step
-s1 : $\Rightarrow$ step($\mathcal{D}$).
-# define normalization step
-s2 : $\Rightarrow$ step($\mathcal{N}$).
-# define classification step
-s3 : $\Rightarrow$ step($\mathcal{C}l$).
-# DT is a classification algorithm
-a1 : $\Rightarrow$ algorithm($\mathcal{C}l$, $\mathcal{D}t$).
-# Knn is a classification algorithm
-a2 : $\Rightarrow$ algorithm($\mathcal{C}l$, $\mathcal{K}nn$).
-# Forbid normalization when using DT
-c1 : $\Rightarrow$ forbidden($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
-\end{lstlisting}
-\noindent \texttt{s1}, \texttt{s2}, and \texttt{s3} represent the steps; \texttt{a1} and \texttt{a2} represent the algorithms; finally, \texttt{c1} represent the algorithm-related constraint from \Cref{ex:constraints}, namely ``forbid $\mathcal{N}$ in pipelines with $\mathcal{D}t$''.
-\end{example}
-
-\begin{figure*}
-    \centering
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toy_example1.png}
-        \caption{}
-        \label{fig:running_a}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toy_example2.png}
-        \caption{}
-        \label{fig:running_b}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toy_example3.png}
-        \caption{}
-        \label{fig:running_c}
-    \end{subfigure}
-    \caption{Examples of problem graphs. Green nodes are valid arguments, red ones are refuted. \jg{Figure b sbagliata (cambiare id argomenti)}}
-    \label{fig:toy_example}
-\end{figure*}
-
-% In the last paragraphs we identified two main requirements for a human-centric framework (i.e., structure the DS knowledge in a well-defined AutoML search space, and provide the solutions in accordance with the input knowledge).
-% We also introduced Computational Logic -- Argumentation in particular -- as the main tool in our investigation.
-% Let us now delve into details of how these pieces converge in our framework.
-%It is now time to show how these ideas converge in our framework.
-
-% Through Structured Argumentation
-%, a formal tool to convert elements from a logical language into an Argumentation graph,
-When applying constraints, they can be conflicting.
-
-% \begin{definition}[Conflict]
-% The conflict function $c$ is a function from $L$ to $2^L$---i.e. given a statement from $L$ the function returns the set of conflicting statements.
-% \end{definition}
-
-First we reify the constraints from \Cref{constraints} in the conflict function.
-
-% \begin{definition}[AutoML Conflict]\label{conflictauto}
-% The conflict function $c_{ML}$ is a function from $L_{ML}$ to $2^{L_{ML}}$ that given a statement from $L_{ML}$ the function returns the set of conflicting statements, such that: \gp{non mi piace}
-% \begin{itemize}
-%     \item $mandatory(S_1, A) \in c(pipeline(S_2, A))$ if $S_1 \not \subseteq S_2$
-%     \item $forbidden(S_1, A) \in c(pipeline(S_2, A))$ if $S_1 \subseteq S_2$
-%     \item $mandatory\_order(S_1, A) \in c(pipeline(S_2, A))$ if $S_2$ and $S_1$ do not respect the same ordering(\gp{?})
-%     \item $mandatory(S_1, A) \in c(forbidden(S_2, A))$ if $S_2 \subseteq S_1$
-%     \item $forbidden(S_1, A) \in c(mandatory(S_2, A))$ if $S_1 \subseteq S_2$
-%     \item $mandatory\_order(S_1, A) \in c(mandatory\_order(S_2, A))$ if $S_2$ and $S_1$ do not respect the same ordering(\gp{?})
-% \end{itemize}
-% \end{definition}
-\begin{definition}[AutoML Conflict]\label{conflictauto}
-The conflict function $c_{ML}$ is a function from $L_{ML}$ to $2^{L_{ML}}$ that given a statement from $L_{ML}$ returns the set of conflicting statements.
-\end{definition}
-
-At the moment, we support the AutoML conflicts on ``pipeline vs constraint'' and ``constraint vs constraint''. 
-Formally, let us consider two lists of steps $\alpha = \langle \ldots, S_i, S_j, \ldots \rangle$ and $\beta = \langle \ldots, S_y, S_x, \ldots \rangle$.
-\begin{itemize}
-    \item Pipeline vs constraint: return the constraints that are not satisfied by the pipeline given as parameter.
-    \begin{align*}
-    c_{ML}&(pipeline(\beta, A)) = \\
-        &\{mandatory(\alpha, A)~|~\exists S_i \in \alpha~s.t.~S_i \notin \beta\}~\cup \\
-        &\{forbidden(\alpha, A)~|~\exists S_i \in \alpha~s.t.~S_i \in \beta \}~\cup\\
-        &\{mandatory\_order(\alpha, A)~|~\exists S_i, S_j \in \alpha, S_x, S_y \in \beta, \\&\qquad\qquad\qquad S_i = S_x, S_j = S_y~s.t.~i < j, x > y\}
-    \end{align*}
-    Intuitively, given a pipeline ending with the algorithm $A$ (i.e., $pipeline(\langle S_i, S_j \rangle, A)$), the pipeline is conflicting with a $mandatory$ constraint if the pipeline does not contains at least a mandatory step (e.g., the pipeline is conflicting with $mandatory(\langle S_j, S_k \rangle, A)$), with a $forbidden$ constraint if the pipeline contains at least a forbidden step (e.g., the pipeline is conflicting with $forbidden(\langle S_j \rangle, A)$), with a $mandatory\_order$ constraint if the pipeline contains at least two steps that are not in the mandatory order (e.g., the pipeline is conflicting with $mandatory\_order(\langle S_j, S_i \rangle, A)$).
-    \item Constraint vs constraint: return the constraints conflicting with other constraints.
-    \begin{align*}
-        c_{ML}&(forbidden(\beta, A)) = \{mandatory(\alpha, A)~|~\forall S_j \in \beta, S_j \in \alpha\}\\
-        c_{ML}&(mandatory(\beta, A)) = \{forbidden(\alpha, A)~|~\forall S_j \in \beta, S_j \in \alpha\}\\
-        c_{ML}&(mandatory\_order(\beta, A)) = \\
-        &\{mandatory\_order(\alpha, A)~|~\exists S_i, S_j \in \alpha, S_x, S_y \in \beta, \\&\qquad\qquad\qquad S_i = S_x, S_j = S_y~s.t.~i < j, x > y\}
-    \end{align*}
-    Intuitively, $mandatory$ and $forbidden$ constraints are in conflict if all the forbidden steps are included in the mandatory constraint (i.e.,  $mandatory(\langle S_i, S_j, S_k \rangle, A))$ and a $forbidden(\langle S_i, S_j \rangle, A))$), this hold symmetrically for $forbidden$ and $mandatory$ constraints. Two $mandatory\_order$ constraints are in conflict if they contain at least two steps in different order (i.e.,  $mandatory\_order(\langle S_i, S_j, S_k \rangle, A))$ and a $mandatory\_order(\langle S_j, S_i \rangle, A))$).
-\end{itemize}
-
-
-\begin{example}[AutoML conflict]
-With reference to the LogicalKB in \Cref{ex:kb}, let us consider the set of rules that represent the pipelines related to $\mathcal{D}t$:
-\begin{lstlisting}[mathescape=true]
-# pipeline ending with a DT
-p1 : $\Rightarrow$ pipeline($\mathcal{D}t$).
-# Discretization and DT
-p2 : $\Rightarrow$ pipeline($\langle\mathcal{D}\rangle$, $\mathcal{D}t$).
-# Normalization and DT
-p3 : $\Rightarrow$ pipeline($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
-# Discretization, Normalization, and DT
-p4 : $\Rightarrow$ pipeline($\langle\mathcal{D}$, $\mathcal{N}\rangle$, $\mathcal{D}t$).
-# Normalization, Discretization, and DT
-p5 : $\Rightarrow$ pipeline($\langle\mathcal{N}$, $\mathcal{D}\rangle$, $\mathcal{D}t$).
-\end{lstlisting}
-In this case, \texttt{c1} (i.e., ``forbid $\mathcal{N}$ in pipelines with $\mathcal{D}t$'') is in conflict with the \textit{pipeline} statements \texttt{p3}, \texttt{p4}, and \texttt{p5} since they contain $\mathcal{N}$ and $\mathcal{D}t$.
-\label{ex:conflict}
-\end{example}
-
-% %, then the logical-encoded knowledge is transformed in a problem graph. 
-% Let us now introduce some general notions from Structured Argumentation \cite{Modgil2014aspic+}.
-
-% \begin{definition}[Argument]\label{args}
-% Starting from an argumentation theory $AT=\langle L, R \rangle$ we can build an argument $Ar$ as:
-% \begin{enumerate}
-%     \item $Ar_1, \ldots, Ar_n \Rightarrow \psi$ if $\exists Ar_1, \ldots, Ar_n$ s.t. $\exists$ a rule $r$ = $Conc(Ar_1), \ldots, Conc(Ar_n) \Rightarrow \psi \in R$.
-%     \begin{itemize}
-%         \item $Conc(Ar)$ = $\psi$,
-%         \item $Sub(Ar)$ = {$Sub(Ar_1) \cup \ldots \cup Sub(Ar_n) \cup \{Ar\}$},
-%         \item $TopRule(Ar)$ = $r$
-%     \end{itemize}
-% \end{enumerate}
-% \end{definition}
-
-% Given an argument $Ar$ we write:
-% \begin{itemize}
-%     \item $Conc(Ar)$, for the conclusion of the argument;
-%     \item $Sub(Ar)$, for the set of arguments supporting $Ar$;
-%     \item $TopRule(Ar)$, for the last rule used to build the argument.
-% \end{itemize}
-
-% We can define a preference relation over arguments in order to explicitly solve possible inconsistencies in the knowledge base using priorities over rules. 
-
-% \begin{definition}[Preference]\label{pref}
-% Given two arguments $Ar'$ and $Ar''$ built from the argumentation theory $AT=\langle L, R \rangle$ and a partial ordering over the rules in $R$, we say that $Ar'$ is preferred to $Ar''$ ($Ar' \succ Ar''$) iff $TopRule(Ar') \succ TopRule(Ar'')$.
-% \end{definition}
-
-% Arguments are linked together using the conflict function defined in \Cref{conflictauto}.
-
-% \begin{definition}[Attack]\label{attack}
-% An argument $Ar$ attacks an argument $B$ (on $B' \in Sub(B)$) iff $Conc(B') \in c(Conc(A))$ and $B' \not\succ Ar$.
-% \end{definition}
-
-% \begin{definition}[Argumentation Framework]
-% Let $AT$ be an argumentation theory $\langle L, R \rangle$. An abstract argumentation framework defined by $AT$, is a tuple $<\mathcal{A}r,\leadsto>$ where:
-% \begin{itemize}
-%     \item $\mathcal{A}r$ is the smallest set of all finite arguments constructed from $AT$ satisfying \Cref{args};
-%     \item $\leadsto$ is defined as \{$(X, Y)|X,Y \in A$, and $X$ attacks $Y$\}  
-% \end{itemize}
-% \end{definition}
-
-% \mf{Ci sono lettere overlapping, tra cui X e S. X ha la stessa semantica di prima ???}
-% \begin{definition}\label{semantics}
-% Let $<\mathcal{A}r, \leadsto >$ be an Argumentation Framework. For any $X \in \mathcal{A}r$, $X$ is acceptable with respect to some $S \subseteq \mathcal{A}r$ iff $\forall Y$ s.t. $(Y, X) \in \leadsto$ implies $\exists Z \in S$ s.t. $(Z, Y) \in \leadsto$. Let $S \subseteq \mathcal{A}r$ be conflict free, i.e. there are no $B$, $C$ in $S$ such that $(B,C) \in \leadsto$. Then:
-% \begin{itemize}
-%     \item $S$ is an admissible extension iff $X \in S$ implies $X$ is acceptable w.r.t. $S$;
-%     \item $S$ is a complete extension iff $X \in S$ iff $X$ is acceptable w.r.t. $S$;
-%     \item $S$ is the grounded extension iff it is the set inclusion minimal complete extension.
-% \end{itemize}
-% \end{definition}
-
-% Using these definitions we can finally introduce the problem graph. 
-
-To create a problem graph, which is the medium readable by users and machines, we informally (for the sake of conciseness) introduce the key elements from structured argumentation; a complete formalization is found in \cite{Modgil2014aspic+}.
-Given an argumentation theory, an \textit{argument} is created for every rule with no premises -- e.g., from the rule $r : \Rightarrow c$, we derive an argument with \textit{conclusion} $c$ using $r$.
-Then, we recursively apply the other rules in the theory to the newly generated argument -- e.g., we can use the argument with conclusion $c$ and the rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$; this is repeated until no new argument can be generated.
-% The first components we need are arguments. In ASPIC\textsuperscript{+} \cite{Modgil2014aspic+}, they are defined in a recursive way starting from an argumentation theory as the one in Definition \ref{system}. First, an argument is created for every rule with no premises – e.g., from the rule $r : \Rightarrow c$, we can derive an argument concluding $c$ using $r$. Then, we recursively apply the other rules in the theory to the newly generated arguments – e.g., we can use the argument with conclusion $c$ and the rule $r1 : c \Rightarrow d$ to conclude an argument for $d$ using $r$ and $r1$.
-% The last step is repeated until no new argument can be generated.
-
-An \textit{argumentation framework} is defined using the arguments built from an argumentation theory and their \textit{attack} relations.
-% (i.e., nodes and edges within an argumentation graph).
-Attacks are inconsistencies between arguments' conclusions and are computed using a conflict function (\Cref{conflictauto}); e.g., given two arguments concluding respectively $a$ and $b$, and the conflict function $c$ such that $c(a) = \{b\}$, then $b$ directly attacks $a$ (i.e., $b$ is in conflict with $a$).
-The attack is propagated to all the arguments built over the receiver of the attack---e.g., if $a_1$ directly attacks $a_2$, and $a_2$'s conclusion is used to derive $a_3$, then $a_1$ also attacks $a_3$.
-Also, we can define a \textit{preference} relation over arguments using a partial ordering over the rules in the argumentation theory:
-% The impact of this relation on the framework is straightforward:
-it is impossible for an argument to be attacked by the least preferred ones, even if they are in conflict.
-In other words, we can explicitly solve inconsistencies in the LogicalKB using priorities over rules.
-We exploit the \textit{last-weakest} ordering as presented in \cite{Modgil2014aspic+}.
-
-Finally, the evaluation of an argumentation framework is performed through semantics, which determines all the sets of arguments that are consistent (called \textit{extensions}) in an argumentation framework.
-We exploit grounded semantics \cite{Dung1995abstractArg} to produce a \textit{grounded extension}; this semantics is the most skeptical among all the possible extensions---i.e., it includes only the arguments that are verified by all the possible interpretations. % of the graph.
-
-\begin{definition}[Problem Graph]
-We call \emph{Problem Graph} a graph in which nodes are arguments and edges are attacks from the argumentation framework that is built on the argumentation theory $\langle L_{ML}, LogicalKB \rangle$ and the conflict function $c_{ML}$.
-\end{definition}
-
-The benefits of the problem graph are two-fold.
-First of all, it can be leveraged by DSs and domain experts to understand and summarize and visualize the current knowledge.
-Second of all, it is straightforward to convert such a graph of constraints into a space of possible solutions (i.e., exploiting argumentation semantics, it is easy to obtain all the sets of arguments -- constraints -- which hold together).
-%The DS can then consult the problem graph, outcome of this process.
-
-\begin{example}[Problem graph]
-\Cref{fig:toy_example}a illustrates the problem graph extracted from the LogicalKB introduced in \Cref{ex:kb,ex:conflict} and evaluated under grounded semantics.
-Arguments are represented as nodes, attacks as arrows and the colors represent the state of the arguments according to the semantics: red for refuted arguments, and green for the ones in the extension.
-The arguments are identified through the set of rules used to build them.
-In the upper part of the figure, we have a group of undefeated arguments, namely \texttt{s1}, \texttt{s2}, \texttt{s3}, \texttt{a1}, and \texttt{a2}, representing the basic knowledge used to setup the AutoML search space -- i.e. steps and algorithms.
-Then, we have an argument for every pipeline in \Cref{ex:conflict}: from \texttt{p1} to \texttt{p5} the pipelines regarding $\mathcal{D}t$, from \texttt{p6} to \texttt{p10} the ones regarding $\mathcal{K}nn$.
-Finally, we can observe three different attacks: from \texttt{c1} to \texttt{p3}, \texttt{p4}, and \texttt{p5}, in accordance with the conflicts identified in \Cref{ex:conflict}.
-The arguments in the extension give us all the information that we should use during the AutoML optimization process -- i.e. we should discard all the pipelines refuted by the constraint argument ($c1$), and focus on the remaining part of the search space.
-\label{ex:graph}
-\end{example}
-
-The use of argumentation relieves the DS of the burden of manually considering all the effects of the possible constraints.
-It is important to notice that, although the increased degree of automation, the problem graph allows the DS and domain experts to correct, revise, and supervise the process.
-Accordingly, possible inconsistencies -- due to diverging constraints -- can be verified by the DS using her knowledge.
-
-Any change in the LogicalKB translates into a change in the problem graph, allowing the DS and domain experts to visualize it and \textit{argue} about it.
-the revision of the problem graph is the key element in the process of augmenting the knowledge: the DS and domain experts can consult each other and discuss how the new insights relate to their initial knowledge.
-Indeed, thanks to the nature of the problem graph, it would be extremely easy to identify new possible conflicts and supporting arguments.
-Furthermore, AutoML can update the problem graph by extracting constraints from the performed exploration, and transposing them into the LogicalKB.
-For instance, the DS may not have considered that the dataset contains missing values.
-AutoML helps in identifying the new transformation-related constraint ``require Imputation ($\mathcal{I}$) in all the pipelines'' and adds it to the LogicalKB ($mandatory(\langle \mathcal{I} \rangle, \mathcal{C}l)$).
-% Of course, the resulting constraints might be in conflict with the previous knowledge.
-
-The described process is compliant with and augments the CRISP-DM process.
-The inferred/learned knowledge can be automatically handled throughout iterations, supporting the DS in the whole analysis in a continuous revision of the problem constraints.
-
-\section{HAMLET}\label{sec:implementation}
-
-HAMLET iterates over three phases (\Cref{fig:approach}): (i) generation the problem graph out of the LogicalKB, (ii) extraction of the search space, and (iii) augmentation of the LogicalKB.
-
-A first prototype of the system is available at \url{https://github.com/QueueInc/HAMLET}.
-The prototype is composed of two sub-modules: the first, written in Kotlin and running on the JVM, exposes a graphical interface on which the data scientists can compile and revise the LogicalKB. 
-The module is also responsible for the generation and evaluation of the problem graph; it implements the structured argumentation functionalities based on the arg2p \cite{arg2p-jlc}, an ASPIC+-based framework, to meet the specifications from \Cref{sec:problem}.
-% , in order to completely delegate to it the construction of the problem graph and its evaluation. 
-The second module, written in Python, is responsible for performing the AutoML optimization and the extraction of the new constraints from the explored space.
-
-\subsection{Generating the Problem Graph}
-In \Cref{sec:problem}, we defined the LogicalKB as the set of rules specified by the DS using her knowledge.
-The LogicalKB also includes a set of hard-encoded rules representing inferences necessary to characterize the AutoML problems.
-These rules are joined to the ones defined by the DS and used to build the problem graph (i.e., argumentation framework).
-
-A subset of rules is shown in \Cref{rules-arg2p}.
-The first two ($hc0$ and $hc1$) define how to automatically derive a pipeline using algorithms and steps.
-The construction of pipelines can be completely automated and the DS should be dispensed from manually enumerating all the possible pipelines as in \Cref{ex:conflict}.
-In particular, the correct set of rules is built dynamically using the steps and algorithms provided by the DS, then they are used to derive all the arguments for the possible pipelines.
-The last three rules ($hc3, hc4$ and $hc5$) encode constraints -- mandatory, forbidden, mandatory\_order -- on all the available algorithms with a single statement (e.g., $mandatory(\langle \mathcal{D} \rangle, \mathcal{C}l)$): it will be automatically used by the framework to derive the constraints for all the specific algorithms in the theory.
-
-\begin{figure*}[t]
-\begin{lstlisting}[mathescape=true]
-# given an algorithm, create a pipeline including only such algorithm
-hc0 : algorithm($\mathcal{C}l$, A) $\Rightarrow$ pipeline($\langle~\rangle$, A).
-# given some steps and an algorithm, create a pipeline including such steps and algorithm
-hc1 : step($S_1$),$\ldots$,step($S_n$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ pipeline($\langle S_1, \ldots, S_n \rangle$, A).
-# given constraints on the pre-processing steps required for classification...
-# ... apply this constraints to all classification algorithms
-hc2 : mandatory($\langle S_1, \ldots, S_n \rangle$, $\mathcal{C}l$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ mandatory($\langle S_1, \ldots, S_n \rangle$, A).
-hc3 : forbidden($\langle S_1, \ldots, S_n \rangle$, $\mathcal{C}l$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ forbidden($\langle S_1, \ldots, S_n \rangle$, A).
-hc4 : mandatory_order($\langle S_1, \ldots, S_n \rangle$, $\mathcal{C}l$), algorithm($\mathcal{C}l$, A) $\Rightarrow$ mandatory_order($\langle S_1, \ldots, S_n \rangle$, A).
-\end{lstlisting}
-\caption{A subset of rules from the LogicalKB.}
-\label{rules-arg2p}
-\end{figure*}
-
-
-
-\begin{example}[Hard-coded rules]
-With reference to \Cref{ex:graph}, we add a rule for a new data-related constraint \texttt{c2}.
-The hard-coded rules generate two different arguments \texttt{\{c2, a1, hc2\}} and \texttt{\{c2, a2, hc2\}} that are specific for the classification algorithms in the LogicalKB.
-\begin{lstlisting}[mathescape=true]
-# mandatory Norm. in Class. pipelines
-c2 : mandatory($\langle\mathcal{N}\rangle$, $\mathcal{C}l$)
-# automaticaly derived arguments
-c2, a1, hc2 : mandatory($\langle\mathcal{N}\rangle$, $\mathcal{D}t$)
-c2, a2, hc2 : mandatory($\langle\mathcal{N}\rangle$, $\mathcal{K}nn$)
-\end{lstlisting}
-However, \texttt{c1} ($c1 :\Rightarrow forbidden(\langle\mathcal{N}\rangle, \mathcal{D}t)$; see \Cref{ex:kb}) is in conflict with \texttt{\{c2, a1, hc2\}}.
-The DS could decide to resolve the conflict by specifying an ordering over the rules in the LogicalKB.
-Assuming that the DS prefers \texttt{c1} to \texttt{hc2} (with the arg2p's notation \texttt{sup(c1, hc2)}), the argument \texttt{c1} is preferred to \texttt{\{c2, a1, hc2\}} (\Cref{pref}) and the attack from the latter is not considered in the final graph.
-\Cref{fig:toy_example}b shows the updated graph.
-Firstly, we observe the support relation between \texttt{c2} and the generated constraints \texttt{\{c2, a1, hc2\}} and \texttt{\{c2, a2, hc2\}}.
-Since \texttt{c1} has no attackers, it is added to extension.
-Consequently, \texttt{\{c2, a1, hc2\}} is refuted and the the pipelines attacked by it are correctly reinstated.
-\label{ex:hard_coded_rules}
-\end{example}
-
-Given the problem graph and its grounded extension $e$ (we recall that the problem graph contains \textit{all} the generated pipelines -- including their partial permutations), the search space can be extracted as in \Cref{spacealgorithm}. 
-We iterate over all the generated pipelines in the problem graph and we recursively build their domain: the pipeline domain is the Cartesian product of the step domains, the step domain is the disjoint union of the algorithm domains (we leverage the disjoint union since each algorithm can be picked as an alternative to the others), the algorithm domain is the Cartesian product of its hyperparameters; the domain of a hyperparameter is given by definition.
-Finally, the search space is the disjoint union of all the alternative pipeline domains.
-
-Noticeably, while the search space could be constrained during its construction (e.g., by simply adding an ``if'' condition to check the validity of each pipeline at \Cref{spacealgorithm} line 10), current AutoML frameworks only support optimization in convex spaces \cite{???}.
-As a consequence, we need to produce the entire convex search space first, and then label the invalid portion of search space.
-% and discard the invalid pipelines as we encounter them (this comes at almost no computational time since the pipelines are directly discarded and not executed).
-
-\begin{algorithm}[t]
-\caption{Search Space from the Problem Graph}
-\label{spacealgorithm}
-\footnotesize
-\begin{algorithmic}[1]
-% \Require{$e$: Grounded extension of the problem graph}  
-\Require{PG(N, E): Nodes abd Edges of a Problem graph \mf{@GP: Va bene così? O ci serve extension???}}    
-\Ensure{$\Lambda$: Search Space}
-    % \SetKwFunction{FMain}{GetSpace}
-    % \SetKwProg{Fn}{Function}{:}{}
-    % \Fn{\FMain{$e$}}{
-    %     $ \Lambda  \leftarrow \varnothing $;    
-
-    %     \ForEach{$ step(S) \in e $} {
-    %         $ \Lambda_{S}  \leftarrow \varnothing $;
-            
-    %         \ForEach{$algorithm(S, A) \in e $} {
-    %             $ \Lambda_{A}  \leftarrow \varnothing $;
-                
-    %             \ForEach{$domain(A, \gamma, \Lambda_\gamma) \in e $} {
-    %                 $\Lambda_{A}  \leftarrow \Lambda_{A} \times \Lambda_\gamma$;
-    %             }
-    %             Add $\Lambda_{A}$ to $\Lambda_{S}$
-    %         }
-    %         Add $\Lambda_{S}$ to $\Lambda$
-    %     }
-    %     \textbf{return} $\Lambda$ 
-    % }
-    \item[]
-    \Procedure{GetDomain}{$A$}
-        \State $\Lambda_A \leftarrow \varnothing$
-        \ForEach{$\gamma \in A$} \Comment{For each hyperparameter in the algorithm...}
-            \State $\Lambda_A \leftarrow \Lambda_A \times \Lambda_\gamma$ 
-            \Comment{Compute Cartesian product of hyperpar. domains}
-        \EndFor
-        \State \Return $\Lambda_A$ \Comment{Return the algorithm domain}
-    \EndProcedure
-    \item[]
-    \State $\Lambda \leftarrow \varnothing$ \Comment{Initialize the search space}
-    \ForEach{$pipeline(\alpha, A) \in N$} \Comment{For each argument that is a pipeline with $\alpha$ steps and alg. $A$...}
-        \State $ \Lambda_{P} \leftarrow \textup{GetDomain(A)}$ \Comment{Init. pipeline domain with algorithm domain}
-        \ForEach{$S \in \alpha$}  \Comment{For each step in the pipeline...}
-            \State $\Lambda_{S}  \leftarrow \varnothing$ \Comment{Init. the step domain}
-            \ForEach{$A \in S$}  \Comment{For each algorithm in the step...}
-                \State $\Lambda_{S} \leftarrow \Lambda_{S} \cupdot \textup{GetDomain(A)}$ \Comment{Add alg. to step domain}
-            \EndFor
-            \State $\Lambda_P \leftarrow \Lambda_P \times \Lambda_S$ \Comment{Add step domain to pipeline domain}
-        \EndFor
-        \State $\Lambda \leftarrow \Lambda \cupdot \Lambda_P$ \Comment{Add pipeline domain to the search space}
-    \EndFor
-    \State \Return $\Lambda$ \Comment{Return the search space}
-\end{algorithmic}
-\end{algorithm}
-
-% We first extract all the statements claimed by the arguments in the extension that represent the conformation that the space should assume (steps, algorithms, hyperparameters and their domain).
-% Then, we map the space expressed in the AutoML language to a standard AutoML format that can be inputed to the optimization subsystem.
-\subsection{Exploring a Constrained Search Space}\label{subsec:constrained_automl}
-
-The problem graph is not only used to build the search space but it is also evaluated to understand which pipelines are invalid and which constraints are valid.
-We combine the following techniques.
-\begin{itemize}
-    \item Invalid pipelines are used to discourage the exploration of 
-    such a portion of the search space (we recall that a pipeline has a domain -- that is a subset of the search space -- in which several pipeline instances are parametrized).
-    First, we sample such regions of the search space, then we enforce a knowledge injection mechanism through warm-starting (i.e., the process of providing previous evaluations that help the model to converge faster).
-    For instance, with reference to \Cref{ex:hard_coded_rules}, we sample some pipeline instances from the pipelines that have been discarded (from \texttt{p3} to \texttt{p7});
-    then, we label such samples as invalid and provide them to the AutoML tool, helping the optimization algorithm to focus on the valid portions of the space.
-    \item Valid constraints -- expressed as conjunctions of Boolean clauses -- are used to discard the invalid pipeline instances that still are encountered by the AutoML.
-    Indeed, since the sampling from (i) is non-exhaustive, it can happen that small portions of invalid regions could still be explored.
-\end{itemize}
-
-Our AutoML implementation is based on FLAML \cite{???}, which mixes Bayesian Optimization with CFO (Frugal Optimization for Cost-related Hyperparameters).
-In a standard Bayesian process, an increasingly accurate model is built on top of the previously explored pipeline instances to suggest the most promising ones among the remaining.
-The pipeline instances keep being explored, updating the model, until a budget in terms of either iterations or time is reached.
-With CFO, there is also an estimation of the evaluation time to consider the frugality of the suggested pipeline instances -- hence favoring the ones requiring a smaller amount of time.
-Throughout the exploration, different solutions are tested, which contribute to augmenting the global knowledge about the problem.
-
-\subsection{Mining of AutoML for Rule Recommendation}
-New constraints are automatically learned out of the pipeline instances explored by AutoML and recommended in our logical language.
-If accepted by the DS, such constraints will be added to the knowledge base.
-
-At this stage, we leverage frequent pattern mining techniques to learn constraints in an unsupervised manner.
-Frequent pattern mining is the task of finding the most frequent and relevant patterns in large datasets (e.g., finding the products frequently bought together in the domain of market basket analysis); depending on the constraint type, we look for (sub)sets \cite{srikant1995mining} or (sub)sequences \cite{srikant1996mining} frequently recurring among the explored pipelines.
-Since a pipeline is a sequence of steps, the set of the explored pipelines can be directly mapped into a transactional dataset \cite{srikant1995mining} (where each pipeline is a transaction and each step is an item).
-
-We mine and recommend the same constraints we support at the argumentation level (i.e., $mandatory$, $forbidden$, $mandatory\_order$) so that AutoML can be as expressive as the DS.
-For mandatory and forbidden constraints we look for (sub)sets \cite{srikant1995mining} frequently recurring among the explored pipelines.
-Specifically, we split the explored pipeline instances by the applied classification algorithm, set a minimum frequency (i.e., support) threshold to 60\% (i.e., to be retrieved, a set/sequence must occur at least in 60\% of the explored pipelines), and extract frequent maximal
-\footnote{Maximal itemsets are patterns that are not contained in any other.
-For instance, given two frequent patterns, $\{a, b, c\}$ and $\{a, b\}$, the former is maximal while the latter is not.
-}
-itemsets.
-The recommendation depends on the constraint.
-\begin{itemize}
-    \item $mandatory$: we consider only the patterns with good performance (i.e., $0.7 \leq metric \leq 1.0$); 
-    \item $forbidden$: we consider only the patterns with bad performance (i.e., $0.0 \leq metric \leq 0.3$);
-    \item $mandatory\_order$: the same considerations of the mandatory constraints stand, except that we look for (sub)sequences \cite{srikant1996mining} of length 2 to discover ordering dependencies in pairs of steps \cite{giovanelli2021data} and let the logical paradigm deduce the implications.   
-\end{itemize}
-We leveraged well-known implementations \cite{???} and \cite{???} for itemsets and sequences mining, respectively.
-
-\begin{example}[Rules Mining]
-With reference to the problem graph in \Cref{ex:hard_coded_rules},
-the AutoML results are filtered according to the chosen metric, the algorithm \cite{???} is applied, and let us assume that the constraint \texttt{c3} is suggested:
-\begin{lstlisting}[mathescape=true]
-c3 : $\Rightarrow$ mandatory($\langle\mathcal{D}\rangle$, $\mathcal{D}t$).
-\end{lstlisting}
-The constraints specifies ``mandatory $\mathcal{D}$ in pipelines with $\mathcal{D}t$''.
-As a matter of fact, it is well known that discretization improves the performance of tree-based algorithms giving to them the ability to apply multiple split in the decision nodes.
-\Cref{fig:toy_example}c shows the effect of the applied constraint: a new portion of the search space is excluded from the extension ($p1$).
-\end{example}
-
-% \Cref{ex:theory} illustrates how HAMLET leverages Logic and Argumentation to handle the DS knowledge.
-% The proposed logic formalism allows to easily encode the different ML constraints into a LogicalKB.
-% We highlight that the problem graph generation is handled by an argumentation engine, which is available in the Supplementary Material \footnote{\url{https://queueinc.github.io/HAMLET-DATAPLAT2022/}}.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Experimental Evaluation}\label{sec:test}
-
-The effectiveness of HAMLET depends on (i) the rules encoded in the LogicalKB and (ii) the rules recommended after each run.
-To test both the effectiveness and efficiency of our approach, we define three experimental settings.
-\begin{itemize}
-    \item PKB (Preliminary Knowledge Base), HAMLET starts with a preliminary LogicalKB constraining the search space from the first iteration, and no rule mining is applied.
-    %, but the rules that are suggested throughout the iterations are not applied.
-    The preliminary LogicalKB consists of the rules discovered in \cite{giovanelli2021data} and some well-known rules from the literature (e.g., suggested by scikit-learn\footnote{\url{https://scikit-learn.org/stable/auto_examples/preprocessing/plot_discretization.html}}).
-    The complete knowledge base can be found in the Github repository. 
-    \item IKA (Iterative Knowledge Augmentation), HAMLET starts with an empty LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
-    \item PKB + IKA, HAMLET starts with a preliminary LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
-\end{itemize}
-In each setting, HAMLET was run 4 times -- intuitively, four runs of knowledge augmentation -- the budget assigned to each run is 250 pipeline instances in 1800 seconds (30 minutes).
-We also test against a baseline: we let AutoML explore 1000 pipeline instances ($= 250 \cdot 4$) in a single run with a time budget of 7200 seconds ($= 1800 \cdot 4$; 2 hours).
-
-We derive a search space out of 6 steps, 5 data pre-processing steps (imputation, normalization, discretization, feature engineering, and rebalancing) followed by the final classification task. 
-The leveraged steps, algorithms per step, and hyperparameters per algorithm are drawn from the scikit-learn Python library and reported in \Cref{tab:search_space}.
-Since the tests are run on datasets from OpenML, a well-known repository for data acquisition and benchmarking, we do not consider encoding since OpenML provides already-encoded datasets. Besides, we also leverage imbalance-learn \cite{???} for rebalancing transformations.
-% As to the classification, we include the list of available classifiers in its entirety.
 
 The OpenML-CC18 suite is a well-known collection of 72 datasets for benchmarking.
 Given the time-consuming computation of each dataset (8 hours per dataset = 2 hours for the baseline + 6 hours for HAMLET in the three settings) -- in this preliminary evaluation -- we select a representative subset of datasets according to three meta-features provided by OpenML: number of instances, number of features, and number of classes.
@@ -915,8 +945,8 @@ Among these, we do not report the results for the dataset mnist\_784 since the n
 \subsection{Effectiveness}
 \begin{figure}[t]
     \centering
-    \includegraphics[scale=.4]{img/barchart_delta.png}
-    \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline. \mf{@JG: Ingrandire il font, togliere i titoli, \#explored pipeline instances}}
+    \includegraphics[scale=.45]{img/barchart_delta.png}
+    \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline.}
     \label{fig:effectiveness}
 \end{figure}
 We employ balanced accuracy as the quality metric.
@@ -929,7 +959,7 @@ The score avoids inflated performance estimations on imbalanced datasets.
 For balanced datasets, the score is equal to the conventional accuracy (i.e., the number of correct predictions divided by the total number of predictions), otherwise, it drops to $\frac{1}{\#classes}$.
 
 \Cref{fig:effectiveness} illustrates the performance achieved by the baseline and the three settings of HAMLET.
-the use of HAMLET is clearly beneficial since in four datasets out of five, the framework overcomes the baseline; in the remaining one it registers a minimal drop (i.e., about 0.006).
+The use of HAMLET is clearly beneficial since in four datasets out of five, the framework overcomes the baseline; in the remaining one it registers a minimal drop (i.e., about 0.006).
 The preliminary results highlight that both the LogicalKB and rule recommendation play important roles in HAMLET:
 \begin{itemize}
 
@@ -952,7 +982,7 @@ The preliminary results highlight that both the LogicalKB and rule recommendatio
 \subsection{Efficiency}
 \begin{figure}[t]
     \centering
-    \includegraphics[scale=0.4]{img/barchart_delta_iteration.png}
+    \includegraphics[scale=0.45]{img/barchart_delta_iteration.png}
     \caption{Results assessing the efficiency of HAMLET w.r.t. the baseline}
     \label{fig:efficiency}
 \end{figure}
@@ -970,23 +1000,23 @@ As a matter of fact, we observe that the PKB implementation overcomes the IKA im
 
 \section{Conclusions and Future Work}\label{sec:conclusion}
 
-Data platforms support data scientists in performing end-to-end data analysis.
-However, the complexity and heterogeneity of (auto) machine learning processes are leading data scientists to lose control over such processes.
-Human awareness about the constraints and solutions of machine learning task problems is a fundamental aspect to consider, and consequently, the data scientist should play a key role in the design of next-generation data platforms.
+Data platforms support Data Scientists in performing end-to-end data analysis.
+However, the complexity and heterogeneity of (Automated) Machine Learning processes are leading Data Scientists to lose control over such processes.
+Human awareness about the constraints and solutions of Machine Learning task problems is a fundamental aspect to consider, and consequently, the Data Scientist should play a key role in the design of next-generation data platforms.
 
-According to this vision, we present HAMLET, a human-centric AutoML framework based on logic and structured argumentation.
-Logic is exploited to structure the knowledge that the data scientist gathers while designing, modeling, and deploying a solution.
+According to this vision, we present HAMLET, a framework for Human-centered AutoML based on Logic and Structured Argumentation.
+Logic is exploited to structure the knowledge that the Data Scientist gathers while designing, modeling, and deploying a solution.
 % The advantage of such a choice is twofold.
 The logical encoding of the knowledge provides a medium that is both human- and machine-readable and it allows an easy exploration and verification of all the constraints that may apply to the case at hand---it is overwhelming for the DS to correctly handle the vast amount of them.
 The preliminary evaluation of HAMLET shows promising results against a state-of-the-art AutoML baseline both in terms of effectiveness and efficiency.
 % The DS and Domain experts can revise the knowledge, as well as the AutoML tool, thus creating a constant feedback cycle.
-% We further remark that our framework could be able to address a wide range of AutoML-related challenges, among them the embodiment of both ethical and legal constraints, and the construction of shared knowledge among the data scientist community.
+% We further remark that our framework could be able to address a wide range of AutoML-related challenges, among them the embodiment of both ethical and legal constraints, and the construction of shared knowledge among the Data Scientist community.
 
 The directions for future work are plentiful, among them:
 (i) recommendation of more complex constraints can be extracted out of the explored search space (e.g., rare or negative patterns);
 (ii) support heterogeneous constraints on hyperparameter domains,
-(iii) as meta-learning is used to warm-start optimization techniques, meta-learning should be also injected into our logical knowledge base to better identify when and how the constraints should be applied (e.g., this can be done after testing HAMLET on a moltitude of datasets),
-and (iv) couple HAMLET with a visualization metaphor (e.g., based on the problem graph) to help data scientists' understanding.
+(iii) as meta-learning is used to warm-start optimization techniques, meta-learning should be also injected into our Logical Knowledge Base to better identify when and how the constraints should be applied (e.g., this can be done after testing HAMLET on a moltitude of datasets),
+and (iv) couple HAMLET with a visualization metaphor (e.g., based on the Problem Graph) to help Data Scientists' understanding.
 
 \bibliographystyle{elsarticle-num} 
 \balance
