@@ -980,7 +980,7 @@ Among these, we do not report the results for the dataset mnist\_784 since the n
 \subsection{Effectiveness}
 \begin{figure}[t]
     \centering
-    \includegraphics[scale=.45]{img/barchart_delta.png}
+    \includegraphics[scale=.45]{img/accuracy.pdf}
     \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline.}
     \label{fig:effectiveness}
 \end{figure}
@@ -1015,12 +1015,12 @@ The preliminary results highlight that both the LogicalKB and rule recommendatio
 % Indeed, for this experiment, we considered rules that are successful on a statistical scale.
 
 \subsection{Efficiency}
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \includegraphics[scale=0.45]{img/barchart_delta_iteration.png}
-    \caption{Results assessing the efficiency of HAMLET w.r.t. the baseline}
+    \includegraphics[scale=.4]{img/accuracy_time.pdf}
+    \caption{Results assessing the performance of HAMLET through the optimization time.}
     \label{fig:efficiency}
-\end{figure}
+\end{figure*}
 
 \Cref{fig:efficiency} compares the number of explored pipeline instances within which HAMLET and the baseline visited the best result.
 We observe a decisive impact on the optimization execution.
@@ -1052,6 +1052,21 @@ The directions for future work are plentiful, among them:
 (ii) support heterogeneous constraints on hyperparameter domains,
 (iii) as meta-learning is used to warm-start optimization techniques, meta-learning should be also injected into our Logical Knowledge Base to better identify when and how the constraints should be applied (e.g., this can be done after testing HAMLET on a moltitude of datasets),
 and (iv) couple HAMLET with a visualization metaphor (e.g., based on the Problem Graph) to help Data Scientists' understanding.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=.45]{img/time.pdf}
+    \caption{Overhead of argumentation over the whole approach.}
+    \label{fig:effectiveness}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=.45]{img/comparison.pdf}
+    \caption{Results assessing the performance of HAMLET w.r.t. Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.}
+    \label{fig:comparison}
+\end{figure}
+
 
 \bibliographystyle{elsarticle-num} 
 \balance
