@@ -54,7 +54,7 @@
 \newcommand{\gpc}[2]{{\color{red}{\textbf{#1}}} {\color{blue}\sout{#2}}}
 \newcommand{\jg}[1]{{\color{orange}{\textbf{#1}}}}
 \newcommand{\jgc}[2]{{\color{orange}{\textbf{#1}}} {\color{orange}\sout{#2}}}
-\newcommand{\mf}[1]{{\color{blue}{\textbf{#1}}}}
+\newcommand{\mf}[1]{{\color{blue}{#1}}}
 \newcommand{\mfc}[2]{{\color{blue}{\textbf{#1}}} {\color{blue}\sout{#2}}}
    
 
@@ -237,8 +237,6 @@ Then conflicts between arguments can arise from both inconsistencies in the Logi
 
 Once defined the right logical language for encoding the DS and AutoML knowledge, a Structured Argumentation model (e.g., an ASPIC\textsuperscript{+} instance \cite{arg2p-jlc}) can support HAMLET with the formal machinery to build an Argumentation framework upon the data, while Abstract Argumentation would dispense the evaluation tools.
 
-
-
 \section{Problem Formulation}\label{sec:problem}
 \Cref{fig:approach} illustrates the overview of HAMLET.
 When addressing end-to-end data analysis, a DS usually follows a process model such as CRISP-DM.
@@ -287,7 +285,7 @@ To support the reader, we summarize the main notation in \Cref{tab:symbols}.
 \end{table}
 
 \subsection{AutoML Formalization}
-We start by formalizing the concepts necessary to move from single algorithms to finding the best constrained pipeline.
+\mf{We provide a novel formalization necessary to move from single algorithms to the optimal pipeline}.
 For the sake of clarity, we refer to a Classification task, but the formalization also holds for supervised ML tasks in general. % regression tasks.
 
 \begin{definition}[Dataset]
@@ -757,7 +755,9 @@ From the rule \texttt{c2}, the hard-coded rules generate the two arguments
 \texttt{c2' = \{c2, a1, hc2\}} (i.e., $mandatory(\langle\mathcal{N}\rangle, \mathcal{D}t)$) and \texttt{c2'' = \{c2, a2, hc2\}} (i.e., $mandatory(\langle\mathcal{N}\rangle, \mathcal{K}nn)$) that are specific for the Classification algorithms in the LogicalKB.
 
 However, \texttt{\{c1\}} (i.e., $forbidden(\langle\mathcal{N}\rangle, \mathcal{D}t)$; is in conflict with \texttt{c2'}.
-The DS could decide to resolve the conflict by specifying an ordering over the rules in the LogicalKB.
+\mf{
+Depending on her experience, the DS decides to resolve the conflict by specifying an ordering over the rules in the LogicalKB.
+}
 Assuming that the DS prefers \texttt{c1} to \texttt{hc2},
 %(with the arg2p's notation \texttt{sup(c1, hc2)}),
 the argument \texttt{\{c1\}} is preferred to \texttt{c2'} and the attack from the latter is not considered in the final graph.
@@ -853,16 +853,19 @@ With CFO, there is also an estimation of the evaluation time to consider the fru
 Throughout the exploration, different solutions are tested, which contribute to augmenting the global knowledge about the problem.
 
 \subsection{Knowledge Augmentation through Rule Recommendation}
-New constraints are automatically mined out of the pipeline instances explored by AutoML and recommended in our logical language as rules.
-If accepted by the DS, such rules will be added to the LogicalKB.
+\mf{
+New constraints are automatically mined out of the pipeline instances explored by AutoML and \emph{recommended} in our logical language as rules.
+Then, the DS decides which rules are accepted and added to the LogicalKB.
+}
+%If accepted by the DS, such rules will be added to the LogicalKB.
 
 At this stage, we leverage frequent pattern mining techniques to learn constraints in an unsupervised manner.
 Frequent pattern mining is the task of finding the most frequent and relevant patterns in large datasets (e.g., finding the products frequently bought together in the domain of market basket analysis); depending on the constraint type, we look for (sub)sets \cite{srikant1995mining} or (sub)sequences \cite{srikant1996mining} frequently recurring among the explored pipelines.
 Since a pipeline instance is a sequence of algorithms, the set of the explored pipeline instances can be directly mapped into a transactional dataset \cite{srikant1995mining} where each pipeline instance is a transaction and each step -- inferred from the algorithm -- is an item.
 
-We mine and recommend the same constraints we support at the Argumentation level (i.e., $mandatory$, $forbidden$, $mandatory\_order$) so that AutoML can be as expressive as the DS.
+We recommend the same constraints we support at the Argumentation level (i.e., $mandatory$, $forbidden$, $mandatory\_order$) so that AutoML can be as expressive as the DS.
 For mandatory and forbidden constraints we look for (sub)sets \cite{srikant1995mining} frequently recurring among the explored pipelines.
-Specifically, we split the explored pipeline instances by the applied Classification algorithm, set a minimum frequency (i.e., support) threshold to 60\% (i.e., to be retrieved, a set/sequence must occur at least in 60\% of the explored instances), and extract frequent maximal\footnote{Maximal itemsets are patterns that are not contained in any other.
+Specifically, we split the explored pipeline instances by the applied Classification algorithm, set a minimum frequency (i.e., support) threshold to 50\% (i.e., to be retrieved, a set/sequence must occur at least in 50\% of the explored instances), and extract frequent maximal\footnote{Maximal itemsets are patterns that are not contained in any other.
 For instance, given two frequent patterns, $\{a, b, c\}$ and $\{a, b\}$, the former is maximal while the latter is not.
 }
 itemsets.
@@ -873,6 +876,16 @@ The recommendation depends on the constraint.
     \item $mandatory\_order$: the same considerations of the mandatory constraints stand, except that we look for (sub)sequences \cite{srikant1996mining} of length 2 to discover ordering dependencies in pairs of steps as in \cite{giovanelli2021data}.   
 \end{itemize}
 We leveraged well-known implementations \cite{raschkas_2018_mlxtend} and \cite{seq2pat2022} for itemsets and sequences mining, respectively.
+\mf{
+Finally, we return to the DS only the top-10 rules sorted by descending support; we allow the DS to explore all the rules on-demand.
+}
+
+\mf{
+The thresholds act as filters on the extracted rules since we cannot burden the user with the investigation of hundreds of recommendations. 
+As to the intervals, our rationale is simple: we only want to recommend as mandatory (or mandatory order) the rules that achieved ``good performance'' and as forbidden the rules that achieved ``bad performance''.
+Since we handle classification pipelines that mainly refer to (balanced) accuracy/F1 score/recall, we mapped ``good'' in the interval $[0.7, 1.0]$ and ``bad'' in the interval $[0, 0.3]$. For the frequent pattern extraction, we consider only the pipeline instances falling in these intervals.
+As to the support, 50\% ensures that the pattern recurs on many of the explored instances and empirically showed to be a good threshold to have good efficiency in the extraction of frequent patterns.
+}
 
 \begin{example}[Rules Recommendation]
 With reference to the Problem Graph in \Cref{ex:hard_coded_rules},
@@ -901,10 +914,10 @@ To test both the effectiveness and efficiency of our approach, we define three e
     %, but the rules that are suggested throughout the iterations are not applied.
     The preliminary LogicalKB consists of the rules discovered in \cite{giovanelli2021data} and some well-known from the literature (e.g., suggested by scikit-learn\footnote{\url{https://scikit-learn.org/stable/auto_examples/preprocessing/plot_discretization.html}}).
     The complete knowledge base can be found in the Github repository. 
-    \item IKA (Iterative Knowledge Augmentation), HAMLET starts with an empty LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
-    \item PKB + IKA, HAMLET starts with a preliminary LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
+    \item IKA (Iterative Knowledge Augmentation), HAMLET starts with an empty LogicalKB, and \mf{all the rules} recommended after each run are applied to extend the LogicalKB.
+    \item PKB+IKA, HAMLET starts with a preliminary LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
 \end{itemize}
-In each setting, HAMLET was run 4 times -- intuitively, four runs of knowledge augmentation -- the budget assigned to each run is 250 pipeline instances in 1800 seconds (30 minutes).
+HAMLET run 4 times in every setting -- intuitively, four runs of knowledge augmentation -- the budget assigned to each run is 250 pipeline instances in 1800 seconds (30 minutes).
 We also test against a baseline: we let AutoML explore 1000 pipeline instances ($= 250 \cdot 4$) in a single run with a time budget of 7200 seconds ($= 1800 \cdot 4$; 2 hours).
 
 For such an evaluation, we derive a search space out of 6 steps, 5 Data Pre-processing steps (Imputation, Normalization, Discretization, Feature Engineering, and Rebalancing) followed by the final Classification task.
@@ -934,7 +947,7 @@ The leveraged steps, algorithms per step, and hyperparameters per algorithm are 
                           & SMOTE & 1 \\
         Classification    & DecisionTreeClassifier & 7 \\
                           & KNeighborsClassifier & 3 \\
-                          & SVC & 5 \\ 
+                        %   & SVC & 5 \\ 
                           & RandomForestClassifier & 7 \\ 
                           & AdaBoostClassifier & 2 \\ 
                           & MLPClassifier & 6 \\ \bottomrule
@@ -991,28 +1004,55 @@ $$
 $$
 where $TP$ and $TN$ stand respectively for True Positive and True Negative (i.e., number of instances that have been correctly assigned to the positive and negative classes), and $FP$ and $FN$ stand respectively for False Positive and False Negative (i.e., number of instances that have been mistakenly assigned to the positive and negative classes). The formulation generalized to more than 2 classes can be found at \cite{DBLP:conf/icpr/BrodersenOSB10}.
 The score avoids inflated performance estimations on imbalanced datasets.
-For balanced datasets, the score is equal to the conventional accuracy (i.e., the number of correct predictions divided by the total number of predictions), otherwise, it drops to $\frac{1}{\#classes}$.
+For balanced datasets, the score is equal to the conventional accuracy (i.e., the number of correct predictions divided by the total number of predictions), otherwise it drops to $\frac{1}{\#classes}$.
 
 \Cref{fig:effectiveness} illustrates the performance achieved by the baseline and the three settings of HAMLET.
-The use of HAMLET is clearly beneficial since in four datasets out of five, the framework overcomes the baseline; in the remaining one it registers a minimal drop (i.e., about 0.006).
-The preliminary results highlight that both the LogicalKB and rule recommendation play important roles in HAMLET:
+\mf{
+HAMLET is clearly beneficial since in all datasets the framework overcomes the baseline.
+The preliminary results highlight that both the LogicalKB and rule recommendation play important roles:
+}
 \begin{itemize}
+    \item \mf{When we warm-start the exploration with a non-empty LogicalKB (PKB), in all datasets HAMLET overcomes the baseline.}
+    % However, as in madelon, when the LogicalKB is not representative of the dataset at hand it can negatively bias the exploration; indeed, it could be hard to have a LogicalKB that is representative for all the datasets.
 
-    \item When we warm-start the exploration with a non-empty LogicalKB (PKB), in four datasets out of five HAMLET overcomes the baseline. However, as in madelon, when the LogicalKB is not representative of the dataset at hand it can negatively bias the exploration; indeed, it could be hard to have a LogicalKB that is representative for all the datasets.
-
-    \item When we only leverage the recommendation (IKA) of rules we achieve results that are better than or equivalent to PKB, indeed we are injecting in the LogicalKB new rules that are tailored to the dataset.
+    \item \mf{When we only leverage rule recommendation (IKA)}, we achieve results that are better than or equivalent to PKB, indeed we are injecting in the LogicalKB new rules that are tailored to the dataset.
     
-    \item The synergy of the rules encoded in the LogicalKB and the recommended ones (PKA + IKA) eases the optimization process from exploring pipeline instances with poor results while focusing on the performing ones (as highlighted in the dataset har).
-    Noticeably, it achieves the highest increase in balanced accuracy with respect to the baseline in the dataset har, where PKB + IKA leads to an improvement of 0.18 (23\% considering the baseline performance of 0.78). PKB + IKA is also better than PKB meaning that the recommended rule is covering a new condition that was not previously considered in the LogicalKB.
-    It is worth noting that in the other datasets, the recommended rules are overlapping with the ones in the LogicalKB, highlighting the need to improve the recommendation process by also considering the rules that are already present in the LogicalKB.
-    Finally, in madelon, since we start with preliminary LogicalKB that is negatively biasing the exploration, PKB + IKA is affected by this exploration bias producing slightly worse results than PKB and IKA.
+    \item 
+    % The synergy of the rules encoded in the LogicalKB and the recommended ones (PKB+IKA) eases the optimization process from exploring pipeline instances with poor results while focusing on the performing ones. % (as highlighted in the dataset har).
+    % Noticeably, it achieves the highest increase in balanced accuracy with respect to the baseline in the dataset har, where PKB+IKA leads to an improvement of 0.18 (23\% considering the baseline performance of 0.78). PKB+IKA is also better than PKB meaning that the recommended rule is covering a new condition that was not previously considered in the LogicalKB.
+    % It is worth noting that in the other datasets, the recommended rules are overlapping with the ones in the LogicalKB, highlighting the need to improve the recommendation process by also considering the rules that are already present in the LogicalKB.
+    % Finally, in madelon, since we start with preliminary LogicalKB that is negatively biasing the exploration, PKB+IKA is affected by this exploration bias producing slightly worse results than PKB and IKA.
+    \mf{
+    The synergy of PKB+IKA performs better than PKB in adult, worse in wilt, and the two are comparable in the other datasets.
+    On the one hand, the PKB act as a warm start mechanism that speeds up the optimization; on the other hand, if not aligned with the recommended rules, it can mitigate the benefits of IKA.
+    This proves to be a promising direction that further requires investigation since merging the words will require further studies.
+    Indeed, it is worth noting that the recommended rules can be overlapping with the ones in the LogicalKB, highlighting the need to improve the recommendation process by also considering the rules that are already present in the LogicalKB.
+    }
 \end{itemize}
 
 % On the one hand, this assesses the importance of the two key features of our approach and quantifies the improvements that they could lead to.
 % On the other hand, among the other datasets, we observe that the greatest improvements are brought by either PKB or IKA implementations, which highlights the need for the Data Scientist in the loop.
 % The most evident example is madelon.
-% The drops concerning the implementations PKB and PKB + IKA emphasize the importance of a Knowledge Base specific to the case at hand.
+% The drops concerning the implementations PKB and PKB+IKA emphasize the importance of a Knowledge Base specific to the case at hand.
 % Indeed, for this experiment, we considered rules that are successful on a statistical scale.
+
+\mf{
+In PKB+IKA, IKA can introduce rules that contradict the ones in the LogicalKB of PKB; for instance when the PKB contains rules that are not ``representative'' of the dataset/algorithms in use. We believe that this is an added value of HAMLET since ``incomplete'' (or even wrong) LogicalKBs can be corrected/refined by a data-driven approach. Finally, PKB+IKA and IKA are likely to produce different rules, since in PKB+IKA the LogicalKB biases the exploration of the search space from the beginning (acting as a warm start mechanism).
+}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=.45]{img/comparison.pdf}
+    \caption{Results assessing the performance of HAMLET w.r.t. Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.}
+    \label{fig:comparison}
+\end{figure}
+
+\mf{
+Finally, \Cref{fig:comparison} compares HAMLET against two well-known AutoML frameworks: Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.
+In four datasets out of five, HAMLET outperforms or is comparable to the two frameworks.
+Additionally, the added value of HAMLET is \textit{explainability}. 
+Hamlet is a human-in-the-loop AutoML framework tailored to the needs of DS that (i) enables the injection of their experience into the exploration process as well as (ii) the spreading and sharing of knowledge bases that encode what DSs have understood by the optimization of their pipelines.
+}
 
 \subsection{Efficiency}
 \begin{figure*}[t]
@@ -1025,13 +1065,23 @@ The preliminary results highlight that both the LogicalKB and rule recommendatio
 \Cref{fig:efficiency} compares the number of explored pipeline instances within which HAMLET and the baseline visited the best result.
 We observe a decisive impact on the optimization execution.
 Every implementation of our framework is faster than the baseline (while producing solution with higher accuracy in 4 cases out of 5); the higher the gap in explored pipeline instances, the more efficient HAMLET is.
-The best result is achieved by the PKB + IKA implementation (with a gap of 617 configurations) since, as discussed in the previous experiment, it leverages all types of provided constraints.
+The best result is achieved by the PKB+IKA implementation (with a gap of 617 configurations) since, as discussed in the previous experiment, it leverages all types of provided constraints.
 The knowledge augmentation boosts the convergence of the optimization model run after run.
 Yet, the efficiency of the approach is attributed to the knowledge injection mechanism (i.e., \Cref{subsec:constrained_automl}).
 Thanks to this mechanism, the optimization process have information about the search space (i.e., the PKB) since the very first configuration.
 As a matter of fact, we observe that the PKB implementation overcomes the IKA implementation for each dataset excepts for wilt, in which we register a slight lag (i.e., 12 configurations).
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=.45]{img/time.pdf}
+    \caption{Overhead of argumentation over the whole approach.}
+    \label{fig:effectiveness}
+\end{figure}
 
+\mf{
+Finally, \Cref{fig:effectiveness} depicts the overhead introduced by the argumentation framework in HAMLET that, at maximum, is 20\% of the computational time in the adult dataset.
+As expected, PKB+IKA shows the highest overhead since the number of rules to manage is the highest.
+}
 
 \section{Conclusions and Future Work}\label{sec:conclusion}
 
@@ -1047,25 +1097,16 @@ The preliminary evaluation of HAMLET shows promising results against a state-of-
 % The DS and Domain experts can revise the knowledge, as well as the AutoML tool, thus creating a constant feedback cycle.
 % We further remark that our framework could be able to address a wide range of AutoML-related challenges, among them the embodiment of both ethical and legal constraints, and the construction of shared knowledge among the Data Scientist community.
 
+\mf{
 The directions for future work are plentiful, among them:
-(i) recommendation of more complex constraints can be extracted out of the explored search space (e.g., rare or negative patterns);
-(ii) support heterogeneous constraints on hyperparameter domains,
-(iii) as meta-learning is used to warm-start optimization techniques, meta-learning should be also injected into our Logical Knowledge Base to better identify when and how the constraints should be applied (e.g., this can be done after testing HAMLET on a moltitude of datasets),
-and (iv) couple HAMLET with a visualization metaphor (e.g., based on the Problem Graph) to help Data Scientists' understanding.
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[scale=.45]{img/time.pdf}
-    \caption{Overhead of argumentation over the whole approach.}
-    \label{fig:effectiveness}
-\end{figure}
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[scale=.45]{img/comparison.pdf}
-    \caption{Results assessing the performance of HAMLET w.r.t. Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.}
-    \label{fig:comparison}
-\end{figure}
+\begin{itemize}
+    \item[(i)] the recommendation of more constraints out of the explored search space (e.g., rare or negative patterns);
+    \item[(ii)] the support to heterogeneous constraints on hyperparameter domains;
+    \item[(iii)] the injection of meta-learning into our Logical Knowledge Base to better identify when and how the constraints should be applied (e.g., this can be done after testing HAMLET on a multitude of datasets);
+    \item[(iv)] the introduction of a visual metaphor (e.g., based on the Problem Graph) to help Data Scientists' understanding;
+    \item[(v)] the study of automatic resolution/recommendation of conflicting constraints, also depending on the rules already embedded in the Logical Knowledge Base.
+\end{itemize}
+}
 
 
 \bibliographystyle{elsarticle-num} 
