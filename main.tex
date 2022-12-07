@@ -1080,23 +1080,24 @@ Hamlet is a human-in-the-loop AutoML framework tailored to the needs of DS that 
 \mf{
 \Cref{fig:efficiency} shows how settings converge to the optimal pipeline instance.
 Noticeably, PKB and PKB+IKA start with higher accuracy than IKA and the baseline in four datasets out of five, proving how the preliminary LogicalKB warm starts the exploration.
-However, time and \#iterations alone are not valid metrics for comparison (for instance, an optimization strategy could privilege simple algorithms taking small amounts of computational time but producing worse results than ``more complex'' algorithms).
-In this direction, \Cref{fig:effskyline} depicts which settings dominate the others using the Skyline operator \cite{borzsony2001skyline}. 
+However, time and \#iterations alone are not fair metrics for comparison; for instance, an optimization strategy could privilege simple algorithms taking small amounts of computational time but producing worse results than ``more complex'' algorithms.
+In the direction of multi-objective optimization (exploration time should be minimized while accuracy should be maximized), \Cref{fig:effskyline} depicts which settings dominate the others using the Skyline operator \cite{borzsony2001skyline}. 
 A setting dominates another one if it is as good or better in all dimensions (time and accuracy) and better in at least one dimension (time or accuracy).
 PKB dominates in 80\% of the datasets, IKA in 40\%, PKB+IKA in 20\%, and the baseline in 40\%.
-Noticeably, the baseline is selected as dominating only in madelon and har datasets, due to the fact that converges faster than HAMLET (although it converges to a pipeline instance with lower accuracy).
+Noticeably, the baseline is selected as dominating only in madelon and har datasets due to the fact that converges faster than HAMLET (although it converges to a pipeline instance with lower accuracy).
 }
 
 \begin{figure}[t]
     \centering
     \includegraphics[scale=.45]{img/time.pdf}
     \caption{Overhead of argumentation over the whole approach.}
-    \label{fig:effectiveness}
+    \label{fig:effoverhead}
 \end{figure}
 
 \mf{
-Finally, \Cref{fig:effectiveness} depicts the overhead introduced by the argumentation framework in HAMLET that, at maximum, is 20\% of the computational time in the adult dataset.
+Finally, \Cref{fig:effoverhead} depicts the overhead introduced by the argumentation framework in HAMLET that, at maximum, is 20\% of the computational time in the adult dataset.
 As expected, PKB+IKA shows the highest overhead since the number of rules to manage is the highest.
+This proves that the argumentation time is marginal with respect to the duration of the optimization process.
 }
 
 \section{Conclusions and Future Work}\label{sec:conclusion}
@@ -1109,7 +1110,7 @@ According to this vision, we present HAMLET, a framework for Human-centered Auto
 Logic is exploited to structure the knowledge that the Data Scientist gathers while designing, modeling, and deploying a solution.
 % The advantage of such a choice is twofold.
 The logical encoding of the knowledge provides a medium that is both human- and machine-readable and it allows an easy exploration and verification of all the constraints that may apply to the case at hand---it is overwhelming for the Data Scientist to correctly handle the vast amount of them.
-The preliminary evaluation of HAMLET shows promising results against a state-of-the-art AutoML baseline both in terms of effectiveness and efficiency.
+The preliminary evaluation of HAMLET shows promising results against state-of-the-art AutoML \mf{algorithms} both in terms of effectiveness and efficiency\mf{, with argumentation introducing a small overhead with respect to the duration of the exploration process}.
 % The DS and Domain experts can revise the knowledge, as well as the AutoML tool, thus creating a constant feedback cycle.
 % We further remark that our framework could be able to address a wide range of AutoML-related challenges, among them the embodiment of both ethical and legal constraints, and the construction of shared knowledge among the Data Scientist community.
 
