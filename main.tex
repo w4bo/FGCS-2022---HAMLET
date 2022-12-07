@@ -917,8 +917,8 @@ To test both the effectiveness and efficiency of our approach, we define three e
     \item IKA (Iterative Knowledge Augmentation), HAMLET starts with an empty LogicalKB, and \mf{all the rules} recommended after each run are applied to extend the LogicalKB.
     \item PKB+IKA, HAMLET starts with a preliminary LogicalKB, and the rules recommended after each run are applied to extend the LogicalKB.
 \end{itemize}
-HAMLET run 4 times in every setting -- intuitively, four runs of knowledge augmentation -- the budget assigned to each run is 250 pipeline instances in 1800 seconds (30 minutes).
-We also test against a baseline: we let AutoML explore 1000 pipeline instances ($= 250 \cdot 4$) in a single run with a time budget of 7200 seconds ($= 1800 \cdot 4$; 2 hours).
+HAMLET run 4 times in every setting -- intuitively, four runs of knowledge augmentation -- the budget assigned to each run is \mf{125} pipeline instances in \mf{900} seconds (\mf{15} minutes).
+We also test against a baseline: we let AutoML explore \mf{500} pipeline instances ($= \mf{125} \cdot 4$) in a single run with a time budget of \mf{3600} seconds ($= \mf{900} \cdot 4$; \mf{1 hour}).
 
 For such an evaluation, we derive a search space out of 6 steps, 5 Data Pre-processing steps (Imputation, Normalization, Discretization, Feature Engineering, and Rebalancing) followed by the final Classification task.
 Since the tests are run on datasets from OpenML \cite{OpenML2013} -- a well-known repository for data acquisition and benchmarking -- and it provides already-encoded datasets, we do not consider the encoding step. 
@@ -1057,19 +1057,35 @@ Hamlet is a human-in-the-loop AutoML framework tailored to the needs of DS that 
 \subsection{Efficiency}
 \begin{figure*}[t]
     \centering
-    \includegraphics[scale=.4]{img/accuracy_time.pdf}
+    \includegraphics[scale=.3]{img/accuracy_time.pdf}
     \caption{Results assessing the performance of HAMLET through the optimization time.}
     \label{fig:efficiency}
 \end{figure*}
+\begin{figure*}[t]
+    \centering
+    \includegraphics[scale=.3]{img/skyline.pdf}
+    \caption{Results assessing the performance of HAMLET through the optimization time.}
+    \label{fig:effskyline}
+\end{figure*}
 
-\Cref{fig:efficiency} compares the number of explored pipeline instances within which HAMLET and the baseline visited the best result.
-We observe a decisive impact on the optimization execution.
-Every implementation of our framework is faster than the baseline (while producing solution with higher accuracy in 4 cases out of 5); the higher the gap in explored pipeline instances, the more efficient HAMLET is.
-The best result is achieved by the PKB+IKA implementation (with a gap of 617 configurations) since, as discussed in the previous experiment, it leverages all types of provided constraints.
-The knowledge augmentation boosts the convergence of the optimization model run after run.
-Yet, the efficiency of the approach is attributed to the knowledge injection mechanism (i.e., \Cref{subsec:constrained_automl}).
-Thanks to this mechanism, the optimization process have information about the search space (i.e., the PKB) since the very first configuration.
-As a matter of fact, we observe that the PKB implementation overcomes the IKA implementation for each dataset excepts for wilt, in which we register a slight lag (i.e., 12 configurations).
+% \Cref{fig:efficiency} compares the number of explored pipeline instances within which HAMLET and the baseline visited the best result.
+% We observe a decisive impact on the optimization execution.
+% Every implementation of our framework is faster than the baseline (while producing solution with higher accuracy in 4 cases out of 5); the higher the gap in explored pipeline instances, the more efficient HAMLET is.
+% The best result is achieved by the PKB+IKA implementation (with a gap of 617 configurations) since, as discussed in the previous experiment, it leverages all types of provided constraints.
+% The knowledge augmentation boosts the convergence of the optimization model run after run.
+% Yet, the efficiency of the approach is attributed to the knowledge injection mechanism (i.e., \Cref{subsec:constrained_automl}).
+% Thanks to this mechanism, the optimization process have information about the search space (i.e., the PKB) since the very first configuration.
+% As a matter of fact, we observe that the PKB implementation overcomes the IKA implementation for each dataset excepts for wilt, in which we register a slight lag (i.e., 12 configurations).
+
+\mf{
+\Cref{fig:efficiency} shows how settings converge to the optimal pipeline instance.
+Noticeably, PKB and PKB+IKA start with higher accuracy than IKA and the baseline in four datasets out of five, proving how the preliminary LogicalKB warm starts the exploration.
+However, time and \#iterations alone are not valid metrics for comparison (for instance, an optimization strategy could privilege simple algorithms taking small amounts of computational time but producing worse results than ``more complex'' algorithms).
+In this direction, \Cref{fig:effskyline} depicts which settings dominate the others using the Skyline operator \cite{borzsony2001skyline}. 
+A setting dominates another one if it is as good or better in all dimensions (time and accuracy) and better in at least one dimension (time or accuracy).
+PKB dominates in 80\% of the datasets, IKA in 40\%, PKB+IKA in 20\%, and the baseline in 40\%.
+Noticeably, the baseline is selected as dominating only in madelon and har datasets, due to the fact that converges faster than HAMLET (although it converges to a pipeline instance with lower accuracy).
+}
 
 \begin{figure}[t]
     \centering
