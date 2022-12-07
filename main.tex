@@ -17,6 +17,7 @@
 \usepackage[normalem]{ulem}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{soul}
+\usepackage{float}
 
 \newtheorem{example}{Example}
 \newtheorem{definition}{Definition}
@@ -997,6 +998,20 @@ Among these, we do not report the results for the dataset mnist\_784 since the n
     \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline.}
     \label{fig:effectiveness}
 \end{figure}
+
+\begin{figure*}[h!]
+    \centering
+    \includegraphics[scale=.3]{img/accuracy_time.pdf}
+    \caption{Results assessing the performance of HAMLET through the optimization time.}
+    \label{fig:efficiency}
+% \end{figure*}
+% \begin{figure*}[t]
+%     \centering
+    \includegraphics[scale=.3]{img/skyline.pdf}
+    \caption{Comparison of the best pipeline instances characterized by optimization time and (balanced) accuracy, bigger circles represent settings that dominate the others.}
+    \label{fig:effskyline}
+\end{figure*}
+
 We employ balanced accuracy as the quality metric.
 For instance, in case of (two) binary classes, such a score is
 $$
@@ -1040,33 +1055,7 @@ The preliminary results highlight that both the LogicalKB and rule recommendatio
 In PKB+IKA, IKA can introduce rules that contradict the ones in the LogicalKB of PKB; for instance when the PKB contains rules that are not ``representative'' of the dataset/algorithms in use. We believe that this is an added value of HAMLET since ``incomplete'' (or even wrong) LogicalKBs can be corrected/refined by a data-driven approach. Finally, PKB+IKA and IKA are likely to produce different rules, since in PKB+IKA the LogicalKB biases the exploration of the search space from the beginning (acting as a warm start mechanism).
 }
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[scale=.45]{img/comparison.pdf}
-    \caption{Results assessing the performance of HAMLET w.r.t. Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.}
-    \label{fig:comparison}
-\end{figure}
-
-\mf{
-Finally, \Cref{fig:comparison} compares HAMLET against two well-known AutoML frameworks: Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.
-In four datasets out of five, HAMLET outperforms or is comparable to the two frameworks.
-Additionally, the added value of HAMLET is \textit{explainability}. 
-Hamlet is a human-in-the-loop AutoML framework tailored to the needs of DS that (i) enables the injection of their experience into the exploration process as well as (ii) the spreading and sharing of knowledge bases that encode what DSs have understood by the optimization of their pipelines.
-}
-
 \subsection{Efficiency}
-\begin{figure*}[t]
-    \centering
-    \includegraphics[scale=.3]{img/accuracy_time.pdf}
-    \caption{Results assessing the performance of HAMLET through the optimization time.}
-    \label{fig:efficiency}
-% \end{figure*}
-% \begin{figure*}[t]
-%     \centering
-    \includegraphics[scale=.3]{img/skyline.pdf}
-    \caption{Results assessing the performance of HAMLET through the optimization time.}
-    \label{fig:effskyline}
-\end{figure*}
 
 % \Cref{fig:efficiency} compares the number of explored pipeline instances within which HAMLET and the baseline visited the best result.
 % We observe a decisive impact on the optimization execution.
@@ -1098,6 +1087,23 @@ Noticeably, the baseline is selected as dominating only in madelon and har datas
 Finally, \Cref{fig:effoverhead} depicts the overhead introduced by the argumentation framework in HAMLET that, at maximum, is 20\% of the computational time in the adult dataset.
 This proves that the argumentation time is marginal with respect to the duration of the optimization process.
 As expected, PKB+IKA shows the highest overhead since the number of rules to manage is the highest.
+}
+
+
+\subsection{Comparison}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[scale=.45]{img/comparison.pdf}
+    \caption{Results assessing the performance of HAMLET w.r.t. Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.}
+    \label{fig:comparison}
+\end{figure}
+
+\mf{
+\Cref{fig:comparison} compares HAMLET against two well-known AutoML frameworks: Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.
+In four datasets out of five, HAMLET outperforms or is comparable to the two frameworks.
+Additionally, the added value of HAMLET is \textit{explainability}. 
+Hamlet is a human-in-the-loop AutoML framework tailored to the needs of DS that (i) enables the injection of their experience into the exploration process as well as (ii) the spreading and sharing of knowledge bases that encode what DSs have understood by the optimization of their pipelines.
 }
 
 \section{Conclusions and Future Work}\label{sec:conclusion}
