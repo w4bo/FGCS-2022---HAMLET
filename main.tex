@@ -156,7 +156,7 @@ This paper extends and engineers the vision proposed in \cite{DBLP:conf/edbt/Gio
     \item We provide an innovative formalization of the AutoML problem, which considers ML pipelines of multiple lengths, Data Pre-processing steps and user-defined constraints.
     \item We design the formal foundation of HAMLET, supporting the injection of constraints to select ML pipelines as well as the resolution of possible arising inconsistencies.
     \item We implement a functioning prototype of HAMLET.
-    \item We provide a preliminary empirical evaluation. 
+    \item We provide a preliminary empirical evaluation, \mf{including the overhead introduced by the argumentation process and the comparison against state-of-the-art algorithms}. 
 \end{enumerate}
 
 The remainder of the paper is structured as follows. In \Cref{sec:related}, we introduce the related work and necessary background. Then, we provide the problem formulation in \Cref{sec:problem} and its implementation in \Cref{sec:implementation}.
@@ -882,7 +882,7 @@ Finally, we return to the DS only the top-10 rules sorted by descending support;
 
 \mf{
 The thresholds act as filters on the extracted rules since we cannot burden the user with the investigation of hundreds of recommendations. 
-As to the intervals, our rationale is simple: we only want to recommend as mandatory (or mandatory order) the rules that achieved ``good performance'' and as forbidden the rules that achieved ``bad performance''.
+As to the intervals, our rationale is simple: we only want to recommend as mandatory (order) the rules that achieved ``good performance'' and as forbidden the rules that achieved ``bad performance''.
 Since we handle classification pipelines that mainly refer to (balanced) accuracy/F1 score/recall, we mapped ``good'' in the interval $[0.7, 1.0]$ and ``bad'' in the interval $[0, 0.3]$. For the frequent pattern extraction, we consider only the pipeline instances falling in these intervals.
 As to the support, 50\% ensures that the pattern recurs on many of the explored instances and empirically showed to be a good threshold to have good efficiency in the extraction of frequent patterns.
 }
@@ -1060,9 +1060,9 @@ Hamlet is a human-in-the-loop AutoML framework tailored to the needs of DS that 
     \includegraphics[scale=.3]{img/accuracy_time.pdf}
     \caption{Results assessing the performance of HAMLET through the optimization time.}
     \label{fig:efficiency}
-\end{figure*}
-\begin{figure*}[t]
-    \centering
+% \end{figure*}
+% \begin{figure*}[t]
+%     \centering
     \includegraphics[scale=.3]{img/skyline.pdf}
     \caption{Results assessing the performance of HAMLET through the optimization time.}
     \label{fig:effskyline}
@@ -1090,14 +1090,14 @@ Noticeably, the baseline is selected as dominating only in madelon and har datas
 \begin{figure}[t]
     \centering
     \includegraphics[scale=.45]{img/time.pdf}
-    \caption{Overhead of argumentation over the whole approach.}
+    \caption{Computational time of the argumentation and AutoML processes.}
     \label{fig:effoverhead}
 \end{figure}
 
 \mf{
 Finally, \Cref{fig:effoverhead} depicts the overhead introduced by the argumentation framework in HAMLET that, at maximum, is 20\% of the computational time in the adult dataset.
-As expected, PKB+IKA shows the highest overhead since the number of rules to manage is the highest.
 This proves that the argumentation time is marginal with respect to the duration of the optimization process.
+As expected, PKB+IKA shows the highest overhead since the number of rules to manage is the highest.
 }
 
 \section{Conclusions and Future Work}\label{sec:conclusion}
