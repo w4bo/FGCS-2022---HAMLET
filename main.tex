@@ -55,7 +55,7 @@
 \newcommand{\gpc}[2]{{\color{red}{\textbf{#1}}} {\color{blue}\sout{#2}}}
 \newcommand{\jg}[1]{{\color{orange}{\textbf{#1}}}}
 \newcommand{\jgc}[2]{{\color{orange}{\textbf{#1}}} {\color{orange}\sout{#2}}}
-\newcommand{\mf}[1]{{\color{blue}{#1}}} % {#1}
+\newcommand{\mf}[1]{#1}
 \newcommand{\mfc}[2]{{\color{blue}{\textbf{#1}}} {\color{blue}\sout{#2}}}
    
 
@@ -120,7 +120,7 @@ Human-centered, AutoML, Logic, Argumentation, CRISP-DM, Data Scientist
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[scale=.3]{img/dymmymodel.png}
+    \includegraphics[scale=.3]{dymmymodel.png}
     \caption{Integrating HAMLET with the CRISP-DM process model.}
     \label{fig:approach}
 \end{figure*}
@@ -392,7 +392,7 @@ Given a pipeline instance $\lambda_P \in \Lambda_P \subseteq \Lambda$
 
 \begin{figure}
     \centering
-    \includegraphics[scale=.75]{img/toy_example_ss.pdf}
+    \includegraphics[scale=.75]{toy_example_ss.pdf}
     \caption{Examples of the pipeline domain $\Lambda_{P_4}$ and pipeline instance $\lambda_{P_4}$, for the sake of visualization we omit the third dimension representing the domain of the Decision Tree. Green (or red) circles represent valid (or invalid) sub-regions of the search space; Normalization is not allowed in the pipeline. The rectangle represents a zoom in the domain of the Binarizer algorithm.}
     \label{fig:space}
 \end{figure}
@@ -507,21 +507,21 @@ c1 : $\Rightarrow$ forbidden($\langle\mathcal{N}\rangle$, $\mathcal{D}t$).
     \centering
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/toy_example1.png}
+        \includegraphics[width=\textwidth]{toy_example1.png}
         \caption{}
         \label{fig:running_a}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/toy_example2.png}
+        \includegraphics[width=\textwidth]{toy_example2.png}
         \caption{}
         \label{fig:running_b}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/toy_example3.png}
+        \includegraphics[width=\textwidth]{toy_example3.png}
         \caption{}
         \label{fig:running_c}
     \end{subfigure}
@@ -708,7 +708,7 @@ AutoML helps in identifying the new data-related constraint ``require Imputation
 
 The described process is compliant with and augments the CRISP-DM process.
 The inferred/learned knowledge is automatically handled throughout iterations, supporting the DS in the whole analysis in a continuous revision of the constraints.
-
+\vspace{2cm}
 \section{HAMLET}\label{sec:implementation}
 
 \begin{figure*}[t]
@@ -852,6 +852,7 @@ In a standard Bayesian process, an increasingly accurate model is built on top o
 The pipeline instances keep being explored, updating the model, until a budget in terms of either iterations or time is reached.
 With CFO, there is also an estimation of the evaluation time to consider the frugality of the suggested pipeline instances -- hence favoring the ones requiring a smaller amount of time.
 Throughout the exploration, different solutions are tested, which contribute to augmenting the global knowledge about the problem.
+\vspace{1cm}
 
 \subsection{Knowledge Augmentation through Rule Recommendation}
 \mf{
@@ -994,20 +995,20 @@ Among these, we do not report the results for the dataset mnist\_784 since the n
 \subsection{Effectiveness}
 \begin{figure}[t]
     \centering
-    \includegraphics[scale=.45]{img/accuracy.pdf}
+    \includegraphics[scale=.45]{accuracy.pdf}
     \caption{Results assessing the effectiveness of HAMLET w.r.t. the baseline.}
     \label{fig:effectiveness}
 \end{figure}
 
 \begin{figure*}[h!]
     \centering
-    \includegraphics[scale=.3]{img/accuracy_time.pdf}
+    \includegraphics[scale=.3]{accuracy_time.pdf}
     \caption{Results assessing the performance of HAMLET through the optimization time.}
     \label{fig:efficiency}
 % \end{figure*}
 % \begin{figure*}[t]
 %     \centering
-    \includegraphics[scale=.3]{img/skyline.pdf}
+    \includegraphics[scale=.3]{skyline.pdf}
     \caption{Comparison of the best pipeline instances characterized by optimization time and (balanced) accuracy, bigger circles represent settings that dominate the others.}
     \label{fig:effskyline}
 \end{figure*}
@@ -1078,7 +1079,7 @@ Noticeably, the baseline is selected as dominating only in madelon and har datas
 
 \begin{figure}[t]
     \centering
-    \includegraphics[scale=.43]{img/time.pdf}
+    \includegraphics[scale=.43]{time.pdf}
     \caption{Computational time of the argumentation and AutoML processes.}
     \label{fig:effoverhead}
 \end{figure}
@@ -1094,7 +1095,7 @@ As expected, PKB+IKA shows the highest overhead since the number of rules to man
 
 \begin{figure}[t]
     \centering
-    \includegraphics[scale=.45]{img/comparison.pdf}
+    \includegraphics[scale=.45]{comparison.pdf}
     \caption{Results assessing the performance of HAMLET w.r.t. Auto-sklearn \cite{feurer2019auto} and H2O \cite{ledell2020h2o}.}
     \label{fig:comparison}
 \end{figure}
@@ -1117,6 +1118,7 @@ Logic is exploited to structure the knowledge that the Data Scientist gathers wh
 % The advantage of such a choice is twofold.
 The logical encoding of the knowledge provides a medium that is both human- and machine-readable and it allows an easy exploration and verification of all the constraints that may apply to the case at hand---it is overwhelming for the Data Scientist to correctly handle the vast amount of them.
 The preliminary evaluation of HAMLET shows promising results against state-of-the-art AutoML \mf{algorithms} both in terms of effectiveness and efficiency\mf{, with argumentation introducing a small overhead with respect to the duration of the exploration process}.
+\vspace{1cm}
 % The DS and Domain experts can revise the knowledge, as well as the AutoML tool, thus creating a constant feedback cycle.
 % We further remark that our framework could be able to address a wide range of AutoML-related challenges, among them the embodiment of both ethical and legal constraints, and the construction of shared knowledge among the Data Scientist community.
 
